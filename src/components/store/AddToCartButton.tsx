@@ -15,14 +15,19 @@ export function AddToCartButton({ product, disabled }: AddToCartButtonProps) {
   const addItem = useCartStore((s) => s.addItem);
 
   const handleAdd = () => {
-    const image = product.images?.[0];
+    const sanityImage = product.images?.[0];
+    const hasSanityImage = sanityImage?.asset?._ref !== "" && sanityImage?.asset?._ref != null;
+    const imageUrl = hasSanityImage
+      ? urlFor(sanityImage).width(200).height(200).fit("crop").url()
+      : (product.localImages?.[0] ?? undefined);
+
     addItem({
       productId: product._id,
       title: product.title,
       price: product.price,
       quantity: 1,
       slug: product.slug.current,
-      image: image ? urlFor(image).width(200).height(200).fit("crop").url() : undefined,
+      image: imageUrl,
     });
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);

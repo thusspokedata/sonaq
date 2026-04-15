@@ -1,10 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useCartStore } from "@/lib/cart-store";
 
 export function CartIcon() {
   const count = useCartStore((s) => s.count());
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   return (
     <Link href="/carrito" className="relative flex items-center gap-1 group">
@@ -21,7 +24,7 @@ export function CartIcon() {
         <line x1="3" y1="6" x2="21" y2="6" />
         <path d="M16 10a4 4 0 01-8 0" />
       </svg>
-      {count > 0 && (
+      {mounted && count > 0 && (
         <span
           className="absolute -top-2 -right-2 w-5 h-5 rounded-full text-xs flex items-center justify-center font-bold"
           style={{ backgroundColor: "#b8521a", color: "#f5f0e8" }}

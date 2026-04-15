@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: sonaq_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: sonaq
+      POSTGRES_USER: sonaq26
+      POSTGRES_PASSWORD: sonaq_kilote29!
+    ports:
+      - "5433:5432"
+    volumes:
+      - sonaq_pgdata:/var/lib/postgresql/data
+
+volumes:
+  sonaq_pgdata:

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { CartIcon } from "@/components/store/CartIcon";
 
 export const metadata: Metadata = {
@@ -20,17 +21,16 @@ export default function StoreLayout({
           borderColor: "#d4c4ae",
         }}
       >
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <a
-            href="/"
-            className="text-2xl font-bold tracking-tight uppercase"
-            style={{
-              fontFamily: "var(--font-barlow-condensed), sans-serif",
-              color: "#b8521a",
-              letterSpacing: "0.05em",
-            }}
-          >
-            Sonaq
+        <div className="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
+          <a href="/" className="flex items-center" aria-label="Sonaq — inicio">
+            <Image
+              src="/logo-sonaq.png"
+              alt="Sonaq"
+              width={64}
+              height={96}
+              priority
+              style={{ mixBlendMode: "multiply" }}
+            />
           </a>
 
           <nav className="hidden md:flex items-center gap-8">
