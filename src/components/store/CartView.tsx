@@ -9,11 +9,18 @@ export function CartView() {
 
   if (items.length === 0) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-24 text-center">
-        <p className="text-neutral-500 mb-6">Tu carrito esta vacio</p>
+      <div className="max-w-2xl mx-auto px-4 py-28 text-center flex flex-col items-center gap-6">
+        <p
+          className="text-4xl font-black uppercase"
+          style={{ fontFamily: "var(--font-barlow-condensed), sans-serif", color: "#d4c4ae" }}
+        >
+          Carrito vacío
+        </p>
+        <p className="text-sm" style={{ color: "#5a4535" }}>Todavía no agregaste nada.</p>
         <Link
           href="/productos"
-          className="inline-block bg-black text-white px-6 py-2 text-sm hover:bg-neutral-800 transition-colors"
+          className="inline-block px-8 py-3 text-sm font-semibold uppercase tracking-widest"
+          style={{ backgroundColor: "#b8521a", color: "#f5f0e8" }}
         >
           Ver productos
         </Link>
@@ -23,58 +30,66 @@ export function CartView() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
-      <h1 className="text-2xl font-light mb-8">
+      <h1
+        className="text-4xl font-black uppercase mb-10"
+        style={{ fontFamily: "var(--font-barlow-condensed), sans-serif", color: "#1a0f00" }}
+      >
         Carrito ({count()} {count() === 1 ? "item" : "items"})
       </h1>
 
-      <div className="space-y-4 mb-8">
-        {items.map((item) => (
-          <div key={item.productId} className="flex gap-4 border-b border-neutral-100 pb-4">
-            <div className="w-20 h-20 bg-neutral-100 flex-shrink-0 relative">
+      <div className="flex flex-col gap-0">
+        {items.map((item, i) => (
+          <div
+            key={item.productId}
+            className="flex gap-4 py-5"
+            style={{
+              borderTop: i === 0 ? `1px solid #d4c4ae` : undefined,
+              borderBottom: `1px solid #d4c4ae`,
+            }}
+          >
+            <div className="w-20 h-20 flex-shrink-0 relative" style={{ backgroundColor: "#ede5d8" }}>
               {item.image && (
-                <Image
-                  src={item.image}
-                  alt={item.title}
-                  fill
-                  sizes="80px"
-                  className="object-cover"
-                />
+                <Image src={item.image} alt={item.title} fill sizes="80px" className="object-cover" />
               )}
             </div>
             <div className="flex-1 min-w-0">
               <Link
                 href={`/productos/${item.slug}`}
-                className="font-medium text-sm hover:underline line-clamp-2"
+                className="font-bold text-sm uppercase leading-tight hover:underline"
+                style={{ fontFamily: "var(--font-barlow-condensed), sans-serif", color: "#1a0f00" }}
               >
                 {item.title}
               </Link>
-              <p className="text-neutral-600 text-sm mt-1">
-                ${item.price.toLocaleString("es-AR")}
+              <p className="text-sm mt-1" style={{ color: "#5a4535" }}>
+                ${item.price.toLocaleString("es-AR")} c/u
               </p>
-              <div className="flex items-center gap-3 mt-2">
+              <div className="flex items-center gap-2 mt-3">
                 <button
                   onClick={() => updateQuantity(item.productId, item.quantity - 1)}
-                  className="w-7 h-7 border border-neutral-300 text-sm hover:border-black transition-colors"
+                  className="w-7 h-7 border text-sm font-medium transition-colors hover:border-terracota"
+                  style={{ borderColor: "#d4c4ae", color: "#1a0f00" }}
                 >
                   −
                 </button>
-                <span className="text-sm w-4 text-center">{item.quantity}</span>
+                <span className="text-sm w-5 text-center font-medium">{item.quantity}</span>
                 <button
                   onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                  className="w-7 h-7 border border-neutral-300 text-sm hover:border-black transition-colors"
+                  className="w-7 h-7 border text-sm font-medium transition-colors"
+                  style={{ borderColor: "#d4c4ae", color: "#1a0f00" }}
                 >
                   +
                 </button>
               </div>
             </div>
-            <div className="text-right flex flex-col justify-between">
+            <div className="flex flex-col justify-between items-end">
               <button
                 onClick={() => removeItem(item.productId)}
-                className="text-neutral-400 hover:text-black text-sm"
+                className="text-xs uppercase tracking-widest transition-colors"
+                style={{ color: "#d4c4ae" }}
               >
                 ✕
               </button>
-              <p className="font-medium text-sm">
+              <p className="font-bold text-sm" style={{ color: "#1a0f00" }}>
                 ${(item.price * item.quantity).toLocaleString("es-AR")}
               </p>
             </div>
@@ -82,16 +97,22 @@ export function CartView() {
         ))}
       </div>
 
-      <div className="flex justify-between items-center py-4 border-t border-neutral-200">
-        <span className="text-lg">Total</span>
-        <span className="text-2xl font-medium">
+      <div className="flex justify-between items-center py-6" style={{ borderTop: "2px solid #1a0f00" }}>
+        <span className="text-lg font-semibold uppercase tracking-wide" style={{ color: "#1a0f00" }}>
+          Total
+        </span>
+        <span
+          className="text-3xl font-black uppercase"
+          style={{ fontFamily: "var(--font-barlow-condensed), sans-serif", color: "#1a0f00" }}
+        >
           ${total().toLocaleString("es-AR")}
         </span>
       </div>
 
       <Link
         href="/checkout"
-        className="block w-full text-center bg-black text-white py-3 mt-4 text-sm font-medium hover:bg-neutral-800 transition-colors"
+        className="block w-full text-center py-4 mt-2 text-sm font-semibold uppercase tracking-widest transition-opacity hover:opacity-90"
+        style={{ backgroundColor: "#b8521a", color: "#f5f0e8", letterSpacing: "0.15em" }}
       >
         Continuar con el pago
       </Link>

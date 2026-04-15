@@ -1,15 +1,22 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Barlow, Barlow_Condensed } from "next/font/google";
 import "./globals.css";
 
-const geist = Geist({
-  variable: "--font-geist-sans",
+const barlow = Barlow({
+  variable: "--font-barlow",
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
+});
+
+const barlowCondensed = Barlow_Condensed({
+  variable: "--font-barlow-condensed",
+  subsets: ["latin"],
+  weight: ["600", "700", "800"],
 });
 
 export const metadata: Metadata = {
   title: { default: "Sonaq", template: "%s | Sonaq" },
-  description: "Muebles y vitrinas para guitarras hechos a medida en Argentina",
+  description: "Donde el sonido descansa. Muebles y vitrinas para guitarras hechos a medida en Argentina.",
 };
 
 export default function RootLayout({
@@ -18,8 +25,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es" className={`${geist.variable} h-full antialiased`}>
-      <body className="min-h-full">{children}</body>
+    <html lang="es" className={`${barlow.variable} ${barlowCondensed.variable} h-full`}>
+      <body
+        className="min-h-full"
+        style={{ fontFamily: "var(--font-barlow), sans-serif" }}
+      >
+        {children}
+      </body>
     </html>
   );
 }

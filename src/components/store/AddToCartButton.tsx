@@ -32,7 +32,8 @@ export function AddToCartButton({ product, disabled }: AddToCartButtonProps) {
     return (
       <button
         disabled
-        className="w-full py-3 bg-neutral-200 text-neutral-400 text-sm font-medium cursor-not-allowed"
+        className="w-full py-4 text-sm font-semibold uppercase tracking-widest cursor-not-allowed"
+        style={{ backgroundColor: "#d4c4ae", color: "#5a4535" }}
       >
         Sin stock
       </button>
@@ -42,9 +43,14 @@ export function AddToCartButton({ product, disabled }: AddToCartButtonProps) {
   return (
     <button
       onClick={handleAdd}
-      className="w-full py-3 bg-black text-white text-sm font-medium hover:bg-neutral-800 transition-colors"
+      className="w-full py-4 text-sm font-semibold uppercase tracking-widest transition-all"
+      style={{
+        backgroundColor: added ? "#8b3d10" : "#b8521a",
+        color: "#f5f0e8",
+        letterSpacing: "0.15em",
+      }}
     >
-      {added ? "Agregado al carrito" : "Agregar al carrito"}
+      {added ? "✓ Agregado" : "Agregar al carrito"}
     </button>
   );
 }

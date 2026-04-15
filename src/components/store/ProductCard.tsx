@@ -13,30 +13,51 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <Link href={`/productos/${product.slug.current}`} className="group block">
-      <div className="aspect-square bg-neutral-100 overflow-hidden mb-3 relative">
+      <div
+        className="aspect-square overflow-hidden mb-4 relative"
+        style={{ backgroundColor: "#ede5d8" }}
+      >
         {imageUrl ? (
           <Image
             src={imageUrl}
             alt={image?.alt ?? product.title}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className="object-cover group-hover:scale-105 transition-transform duration-500"
+            className="object-cover group-hover:scale-105 transition-transform duration-700"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-neutral-400 text-sm">
+          <div className="w-full h-full flex items-center justify-center text-sm" style={{ color: "#d4c4ae" }}>
             Sin imagen
           </div>
         )}
         {product.stock === 0 && (
-          <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
-            <span className="text-sm font-medium text-neutral-600">Sin stock</span>
+          <div
+            className="absolute inset-0 flex items-center justify-center"
+            style={{ backgroundColor: "rgba(245, 240, 232, 0.75)" }}
+          >
+            <span
+              className="text-xs font-semibold uppercase tracking-widest px-3 py-1 border"
+              style={{ color: "#5a4535", borderColor: "#d4c4ae" }}
+            >
+              Sin stock
+            </span>
           </div>
         )}
       </div>
-      <h3 className="font-medium text-sm group-hover:underline">{product.title}</h3>
-      <p className="text-neutral-600 text-sm mt-1">
-        ${product.price.toLocaleString("es-AR")}
-      </p>
+      <div className="flex flex-col gap-1">
+        <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#b8521a" }}>
+          {product.category}
+        </p>
+        <h3
+          className="font-bold text-lg uppercase leading-tight group-hover:text-terracota transition-colors"
+          style={{ fontFamily: "var(--font-barlow-condensed), sans-serif", color: "#1a0f00" }}
+        >
+          {product.title}
+        </h3>
+        <p className="text-base font-semibold mt-1" style={{ color: "#1a0f00" }}>
+          ${product.price.toLocaleString("es-AR")}
+        </p>
+      </div>
     </Link>
   );
 }

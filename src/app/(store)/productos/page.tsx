@@ -30,27 +30,56 @@ export default async function ProductosPage() {
   }, {});
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-12">
-      <h1 className="text-3xl font-light mb-10">Productos</h1>
+    <div>
+      {/* Header de pagina */}
+      <div className="py-14 px-4" style={{ backgroundColor: "#ede5d8", borderBottom: "1px solid #d4c4ae" }}>
+        <div className="max-w-6xl mx-auto">
+          <p className="text-xs font-semibold uppercase tracking-[0.25em] mb-2" style={{ color: "#b8521a" }}>
+            Colección
+          </p>
+          <h1
+            className="text-5xl md:text-6xl font-black uppercase"
+            style={{ fontFamily: "var(--font-barlow-condensed), sans-serif", color: "#1a0f00" }}
+          >
+            Todos los productos
+          </h1>
+        </div>
+      </div>
 
-      {Object.entries(byCategory).map(([cat, items]) => (
-        <section key={cat} className="mb-14">
-          <h2 className="text-lg font-medium mb-6 text-neutral-500 uppercase tracking-widest text-sm">
-            {CATEGORIES[cat] ?? cat}
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {items.map((product) => (
-              <ProductCard key={product._id} product={product} />
-            ))}
+      <div className="max-w-6xl mx-auto px-4 py-14">
+        {Object.entries(byCategory).map(([cat, items]) => (
+          <section key={cat} className="mb-16">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="w-6 h-1" style={{ backgroundColor: "#b8521a" }} />
+              <h2
+                className="text-xs font-semibold uppercase tracking-[0.25em]"
+                style={{ color: "#5a4535" }}
+              >
+                {CATEGORIES[cat] ?? cat}
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {items.map((product) => (
+                <ProductCard key={product._id} product={product} />
+              ))}
+            </div>
+          </section>
+        ))}
+
+        {products.length === 0 && (
+          <div className="py-24 text-center">
+            <p
+              className="text-5xl font-black uppercase"
+              style={{ fontFamily: "var(--font-barlow-condensed), sans-serif", color: "#d4c4ae" }}
+            >
+              Próximamente
+            </p>
+            <p className="text-sm mt-3" style={{ color: "#5a4535" }}>
+              Estamos preparando el catálogo.
+            </p>
           </div>
-        </section>
-      ))}
-
-      {products.length === 0 && (
-        <p className="text-neutral-500 text-center py-20">
-          Proximamente...
-        </p>
-      )}
+        )}
+      </div>
     </div>
   );
 }
