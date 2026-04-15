@@ -8,8 +8,12 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const image = product.images?.[0];
-  const imageUrl = image ? urlFor(image).width(600).height(600).fit("crop").url() : null;
+  const sanityImage = product.images?.[0];
+  const hasSanityImage = sanityImage?.asset?._ref !== "";
+
+  const imageUrl = hasSanityImage
+    ? urlFor(sanityImage).width(600).height(600).fit("crop").url()
+    : (product.localImages?.[0] ?? null);
 
   return (
     <Link href={`/productos/${product.slug.current}`} className="group block">
@@ -20,7 +24,7 @@ export function ProductCard({ product }: ProductCardProps) {
         {imageUrl ? (
           <Image
             src={imageUrl}
-            alt={image?.alt ?? product.title}
+            alt={sanityImage?.alt ?? product.title}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="object-cover group-hover:scale-105 transition-transform duration-700"
@@ -49,7 +53,7 @@ export function ProductCard({ product }: ProductCardProps) {
           {product.category}
         </p>
         <h3
-          className="font-bold text-lg uppercase leading-tight group-hover:text-terracota transition-colors"
+          className="font-bold text-lg uppercase leading-tight"
           style={{ fontFamily: "var(--font-barlow-condensed), sans-serif", color: "#1a0f00" }}
         >
           {product.title}

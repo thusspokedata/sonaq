@@ -38,6 +38,7 @@ export interface SanityProduct {
   };
   stock: number;
   featured: boolean;
+  localImages?: string[]; // fallback cuando Sanity no está configurado
 }
 
 export interface SanityImage {

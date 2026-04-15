@@ -3,6 +3,7 @@ import { sanityClient } from "@/lib/sanity";
 import { ALL_PRODUCTS_QUERY } from "@/sanity/queries";
 import { SanityProduct } from "@/types";
 import { ProductCard } from "@/components/store/ProductCard";
+import { MOCK_PRODUCTS } from "@/lib/mock-products";
 
 export const metadata: Metadata = { title: "Productos" };
 export const revalidate = 60;
@@ -22,7 +23,9 @@ export default async function ProductosPage() {
     // Sin credenciales de Sanity configuradas
   }
 
-  const byCategory = products.reduce<Record<string, SanityProduct[]>>((acc, p) => {
+  const displayProducts = products.length > 0 ? products : MOCK_PRODUCTS;
+
+  const byCategory = displayProducts.reduce<Record<string, SanityProduct[]>>((acc, p) => {
     const cat = p.category ?? "otros";
     if (!acc[cat]) acc[cat] = [];
     acc[cat].push(p);
@@ -31,7 +34,6 @@ export default async function ProductosPage() {
 
   return (
     <div>
-      {/* Header de pagina */}
       <div className="py-14 px-4" style={{ backgroundColor: "#ede5d8", borderBottom: "1px solid #d4c4ae" }}>
         <div className="max-w-6xl mx-auto">
           <p className="text-xs font-semibold uppercase tracking-[0.25em] mb-2" style={{ color: "#b8521a" }}>
@@ -65,20 +67,6 @@ export default async function ProductosPage() {
             </div>
           </section>
         ))}
-
-        {products.length === 0 && (
-          <div className="py-24 text-center">
-            <p
-              className="text-5xl font-black uppercase"
-              style={{ fontFamily: "var(--font-barlow-condensed), sans-serif", color: "#d4c4ae" }}
-            >
-              Próximamente
-            </p>
-            <p className="text-sm mt-3" style={{ color: "#5a4535" }}>
-              Estamos preparando el catálogo.
-            </p>
-          </div>
-        )}
       </div>
     </div>
   );

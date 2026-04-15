@@ -3,6 +3,7 @@ import { sanityClient } from "@/lib/sanity";
 import { FEATURED_PRODUCTS_QUERY } from "@/sanity/queries";
 import { SanityProduct } from "@/types";
 import { ProductCard } from "@/components/store/ProductCard";
+import { MOCK_PRODUCTS } from "@/lib/mock-products";
 
 export const revalidate = 60;
 
@@ -13,6 +14,8 @@ export default async function HomePage() {
   } catch {
     // Sin credenciales de Sanity configuradas
   }
+
+  const displayProducts = products.length > 0 ? products : MOCK_PRODUCTS.filter((p) => p.featured);
 
   return (
     <div>
@@ -89,7 +92,7 @@ export default async function HomePage() {
       </div>
 
       {/* Productos destacados */}
-      {products.length > 0 && (
+      {displayProducts.length > 0 && (
         <section className="max-w-6xl mx-auto px-4 py-20">
           <div className="flex items-end justify-between mb-10">
             <h2
@@ -107,7 +110,7 @@ export default async function HomePage() {
             </Link>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {products.map((product) => (
+            {displayProducts.map((product) => (
               <ProductCard key={product._id} product={product} />
             ))}
           </div>

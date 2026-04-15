@@ -6,6 +6,7 @@ import { SanityProduct } from "@/types";
 import { ProductGallery } from "@/components/store/ProductGallery";
 import { AddToCartButton } from "@/components/store/AddToCartButton";
 import { PortableText } from "@portabletext/react";
+import { MOCK_PRODUCTS } from "@/lib/mock-products";
 
 export const revalidate = 60;
 
@@ -14,7 +15,7 @@ export async function generateStaticParams() {
     const products: SanityProduct[] = await sanityClient.fetch(ALL_PRODUCTS_QUERY);
     return products.map((p) => ({ slug: p.slug.current }));
   } catch {
-    return [];
+    return MOCK_PRODUCTS.map((p) => ({ slug: p.slug.current }));
   }
 }
 
@@ -24,7 +25,12 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const product: SanityProduct | null = await sanityClient.fetch(PRODUCT_BY_SLUG_QUERY, { slug });
+  let product: SanityProduct | null = null;
+  try {
+    product = await sanityClient.fetch(PRODUCT_BY_SLUG_QUERY, { slug });
+  } catch {
+    product = MOCK_PRODUCTS.find((p) => p.slug.current === slug) ?? null;
+  }
   if (!product) return {};
   return { title: product.title, description: product.shortDescription };
 }
@@ -35,7 +41,13 @@ export default async function ProductPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const product: SanityProduct | null = await sanityClient.fetch(PRODUCT_BY_SLUG_QUERY, { slug });
+
+  let product: SanityProduct | null = null;
+  try {
+    product = await sanityClient.fetch(PRODUCT_BY_SLUG_QUERY, { slug });
+  } catch {
+    product = MOCK_PRODUCTS.find((p) => p.slug.current === slug) ?? null;
+  }
 
   if (!product) notFound();
 
@@ -45,65 +57,90 @@ export default async function ProductPage({
     <div className="max-w-6xl mx-auto px-4 py-12">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         {/* Galeria */}
-        <ProductGallery images={product.images} title={product.title} />
+        <ProductGallery
+          images={product.images}
+          localImages={product.localImages}
+          title={product.title}
+        />
 
         {/* Info */}
         <div className="flex flex-col gap-6">
           <div>
-            <p className="text-sm text-neutral-500 uppercase tracking-widest mb-2">
+            <p className="text-xs font-semibold uppercase tracking-[0.25em] mb-2" style={{ color: "#b8521a" }}>
               {product.category}
             </p>
-            <h1 className="text-3xl font-light">{product.title}</h1>
+            <h1
+              className="text-4xl md:text-5xl font-black uppercase leading-tight"
+              style={{ fontFamily: "var(--font-barlow-condensed), sans-serif", color: "#1a0f00" }}
+            >
+              {product.title}
+            </h1>
           </div>
 
-          <p className="text-3xl font-medium">
+          <p
+            className="text-3xl font-black"
+            style={{ fontFamily: "var(--font-barlow-condensed), sans-serif", color: "#1a0f00" }}
+          >
             ${product.price.toLocaleString("es-AR")}
           </p>
 
           {product.shortDescription && (
-            <p className="text-neutral-600 leading-relaxed">{product.shortDescription}</p>
+            <p className="text-sm leading-relaxed" style={{ color: "#5a4535" }}>
+              {product.shortDescription}
+            </p>
           )}
 
           {product.features && product.features.length > 0 && (
-            <ul className="space-y-1">
+            <ul className="flex flex-col gap-2">
               {product.features.map((f, i) => (
-                <li key={i} className="text-sm text-neutral-600 flex gap-2">
-                  <span className="text-neutral-400">—</span> {f}
+                <li key={i} className="text-sm flex gap-3 items-start" style={{ color: "#5a4535" }}>
+                  <span className="mt-1 w-4 h-1 flex-shrink-0 inline-block" style={{ backgroundColor: "#b8521a" }} />
+                  {f}
                 </li>
               ))}
             </ul>
           )}
 
           {product.dimensions && (
-            <div className="border border-neutral-200 rounded p-4 grid grid-cols-3 gap-3 text-center text-sm">
-              <div>
-                <p className="text-neutral-400">Ancho</p>
-                <p className="font-medium">{product.dimensions.width} cm</p>
-              </div>
-              <div>
-                <p className="text-neutral-400">Alto</p>
-                <p className="font-medium">{product.dimensions.height} cm</p>
-              </div>
-              <div>
-                <p className="text-neutral-400">Prof.</p>
-                <p className="font-medium">{product.dimensions.depth} cm</p>
-              </div>
+            <div
+              className="grid grid-cols-3 gap-px text-center text-sm overflow-hidden rounded"
+              style={{ backgroundColor: "#d4c4ae" }}
+            >
+              {[
+                { label: "Ancho", value: `${product.dimensions.width} cm` },
+                { label: "Alto", value: `${product.dimensions.height} cm` },
+                { label: "Prof.", value: `${product.dimensions.depth} cm` },
+              ].map((d) => (
+                <div key={d.label} className="py-3 px-2" style={{ backgroundColor: "#ede5d8" }}>
+                  <p className="text-xs uppercase tracking-widest mb-1" style={{ color: "#5a4535" }}>{d.label}</p>
+                  <p className="font-bold" style={{ color: "#1a0f00" }}>{d.value}</p>
+                </div>
+              ))}
             </div>
           )}
 
           <AddToCartButton product={product} disabled={outOfStock} />
 
           {outOfStock && (
-            <p className="text-sm text-red-500">Sin stock disponible</p>
+            <p className="text-xs uppercase tracking-widest text-center" style={{ color: "#b8521a" }}>
+              Sin stock disponible
+            </p>
           )}
         </div>
       </div>
 
       {/* Descripcion larga */}
-      {product.description && (
-        <div className="mt-16 max-w-2xl prose prose-neutral">
-          <h2 className="text-xl font-light mb-4">Descripcion</h2>
-          <PortableText value={product.description} />
+      {product.description && product.description.length > 0 && (
+        <div className="mt-20 max-w-2xl">
+          <h2
+            className="text-3xl font-black uppercase mb-6"
+            style={{ fontFamily: "var(--font-barlow-condensed), sans-serif", color: "#1a0f00" }}
+          >
+            Descripción
+          </h2>
+          <div className="prose prose-stone text-sm leading-relaxed" style={{ color: "#5a4535" }}>
+            <PortableText value={product.description} />
+          </div>
         </div>
       )}
     </div>
