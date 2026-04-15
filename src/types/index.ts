@@ -24,7 +24,9 @@ export interface SanityProduct {
   _id: string;
   title: string;
   slug: { current: string };
-  description: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  description: any[];
+  shortDescription?: string;
   price: number;
   images: SanityImage[];
   category: string;
