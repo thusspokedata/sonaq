@@ -4,8 +4,9 @@ import { visionTool } from "@sanity/vision";
 import { schemaTypes } from "./schemas";
 
 export const sanityConfig = defineConfig({
-  name: "sonaq",
+  name: "default",
   title: "Sonaq",
+  basePath: "/studio",
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET ?? "production",
   plugins: [structureTool(), visionTool()],
