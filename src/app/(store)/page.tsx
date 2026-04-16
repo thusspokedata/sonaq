@@ -4,6 +4,7 @@ import { FEATURED_PRODUCTS_QUERY } from "@/sanity/queries";
 import { SanityProduct } from "@/types";
 import { ProductCard } from "@/components/store/ProductCard";
 import { MOCK_PRODUCTS } from "@/lib/mock-products";
+import { ConstructionBanner } from "@/components/store/ConstructionBanner";
 
 export const revalidate = 60;
 
@@ -19,6 +20,7 @@ export default async function HomePage() {
 
   return (
     <div>
+      <ConstructionBanner />
       {/* Hero */}
       <section
         className="relative overflow-hidden py-28 px-4"
