@@ -23,7 +23,8 @@ export default async function ProductosPage() {
     // Sin credenciales de Sanity configuradas
   }
 
-  const displayProducts = products.length > 0 ? products : MOCK_PRODUCTS;
+  const usingMockData = products.length === 0;
+  const displayProducts = usingMockData ? MOCK_PRODUCTS : products;
 
   const byCategory = displayProducts.reduce<Record<string, SanityProduct[]>>((acc, p) => {
     const cat = p.category ?? "otros";
@@ -47,6 +48,13 @@ export default async function ProductosPage() {
           </h1>
         </div>
       </div>
+
+      {usingMockData && (
+        <div className="border-b py-3 px-4 text-center text-xs uppercase tracking-widest"
+          style={{ backgroundColor: "#fef3c7", borderColor: "#fde68a", color: "#92400e" }}>
+          ⚠ Catálogo de ejemplo — los precios mostrados no son reales
+        </div>
+      )}
 
       <div className="max-w-6xl mx-auto px-4 py-14">
         {Object.entries(byCategory).map(([cat, items]) => (

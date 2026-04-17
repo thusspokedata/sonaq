@@ -16,7 +16,8 @@ export default async function HomePage() {
     // Sin credenciales de Sanity configuradas
   }
 
-  const displayProducts = products.length > 0 ? products : MOCK_PRODUCTS.filter((p) => p.featured);
+  const usingMockData = products.length === 0;
+  const displayProducts = usingMockData ? MOCK_PRODUCTS.filter((p) => p.featured) : products.filter((p) => p.featured);
 
   return (
     <div>
@@ -96,6 +97,12 @@ export default async function HomePage() {
       {/* Productos destacados */}
       {displayProducts.length > 0 && (
         <section className="max-w-6xl mx-auto px-4 py-20">
+          {usingMockData && (
+            <p className="text-xs uppercase tracking-widest mb-6 text-center py-2 px-4 border"
+              style={{ backgroundColor: "#fef3c7", borderColor: "#fde68a", color: "#92400e" }}>
+              ⚠ Productos de ejemplo — los precios mostrados no son reales
+            </p>
+          )}
           <div className="flex items-end justify-between mb-10">
             <h2
               className="text-4xl font-black uppercase"

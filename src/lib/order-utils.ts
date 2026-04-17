@@ -10,14 +10,14 @@ export const STATUS_LABEL: Record<OrderStatus, string> = {
   CANCELLED: "Cancelado",
 };
 
-export const STATUS_COLOR: Record<OrderStatus, { bg: string; text: string }> = {
-  PENDING:         { bg: "#f5f0e8", text: "#5a4535" },
-  PAYMENT_PENDING: { bg: "#fef3c7", text: "#92400e" },
-  PAID:            { bg: "#dcfce7", text: "#166534" },
-  PROCESSING:      { bg: "#dbeafe", text: "#1e40af" },
-  SHIPPED:         { bg: "#ede9fe", text: "#5b21b6" },
-  DELIVERED:       { bg: "#d1fae5", text: "#065f46" },
-  CANCELLED:       { bg: "#fee2e2", text: "#991b1b" },
+export const STATUS_COLOR: Record<OrderStatus, { backgroundColor: string; color: string }> = {
+  PENDING:         { backgroundColor: "#f5f0e8", color: "#5a4535" },
+  PAYMENT_PENDING: { backgroundColor: "#fef3c7", color: "#92400e" },
+  PAID:            { backgroundColor: "#dcfce7", color: "#166534" },
+  PROCESSING:      { backgroundColor: "#dbeafe", color: "#1e40af" },
+  SHIPPED:         { backgroundColor: "#ede9fe", color: "#5b21b6" },
+  DELIVERED:       { backgroundColor: "#d1fae5", color: "#065f46" },
+  CANCELLED:       { backgroundColor: "#fee2e2", color: "#991b1b" },
 };
 
 export const STATUS_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
@@ -30,7 +30,7 @@ export const STATUS_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   CANCELLED:       [],
 };
 
-export function formatPrice(value: number | string) {
+export function formatPrice(value: number | string | { toNumber(): number }) {
   return new Intl.NumberFormat("es-AR", {
     style: "currency",
     currency: "ARS",
