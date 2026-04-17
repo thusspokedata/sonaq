@@ -1,36 +1,33 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sonaq
 
-## Getting Started
+Plataforma de eventos y artistas en [sonaq.com.ar](https://sonaq.com.ar).
 
-First, run the development server:
+Stack: Next.js 16, Prisma, Sanity, MercadoPago.
+
+## Desarrollo local
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deploy a producción
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+El build se hace localmente (la VPS no tiene RAM suficiente para buildear) y se sube via rsync.
 
-## Learn More
+```bash
+bash deploy.sh
+```
 
-To learn more about Next.js, take a look at the following resources:
+El script:
+1. Hace `npm run build` en tu máquina
+2. Sincroniza el código con `git pull` en la VPS
+3. Sube `.next/` via rsync
+4. Sube `node_modules/` via rsync
+5. Instala paquetes nativos Linux (`@parcel/watcher-linux-x64-glibc`)
+6. Regenera el cliente Prisma en la VPS
+7. Reinicia el proceso PM2 (`sonaq`, puerto 3001)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**VPS:** `root@187.33.155.194` → `/var/www/sonaq`
+**Variables de entorno:** `/var/www/sonaq/.env` (no se sube al repo)
