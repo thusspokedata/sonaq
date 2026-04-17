@@ -72,9 +72,25 @@ export default function StoreLayout({
               Donde el sonido descansa
             </p>
           </div>
-          <p className="text-xs" style={{ color: "#5a4535" }}>
-            © {new Date().getFullYear()} Sonaq — Hecho en Argentina
-          </p>
+          <div className="flex flex-col items-center md:items-end gap-1">
+            <p className="text-xs" style={{ color: "#5a4535" }}>
+              © {new Date().getFullYear()} Sonaq — Hecho en Argentina
+            </p>
+            <p className="text-xs" style={{ color: "#a08060" }}>
+              Diseñado y desarrollado con{" "}
+              <span style={{ color: "#b8521a" }}>♥</span>{" "}
+              por{" "}
+              <a
+                href="https://github.com/thusspokedata"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2 transition-opacity hover:opacity-70"
+                style={{ color: "#5a4535" }}
+              >
+                Thusspokedata
+              </a>
+            </p>
+          </div>
         </div>
       </footer>
     </div>
