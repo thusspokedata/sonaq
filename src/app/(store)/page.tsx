@@ -1,27 +1,25 @@
 import Link from "next/link";
 import { sanityClient } from "@/lib/sanity";
-import { FEATURED_PRODUCTS_QUERY } from "@/sanity/queries";
+import { ALL_PRODUCTS_QUERY } from "@/sanity/queries";
 import { SanityProduct } from "@/types";
 import { ProductCard } from "@/components/store/ProductCard";
-import { MOCK_PRODUCTS } from "@/lib/mock-products";
-import { ConstructionBanner } from "@/components/store/ConstructionBanner";
 
 export const revalidate = 60;
 
 export default async function HomePage() {
   let products: SanityProduct[] = [];
   try {
-    products = await sanityClient.fetch(FEATURED_PRODUCTS_QUERY);
-  } catch {
-    // Sin credenciales de Sanity configuradas
+    products = await sanityClient.fetch(ALL_PRODUCTS_QUERY);
+  } catch (err) {
+    const e = err as Error | null;
+    console.error("[HomePage] Error fetching products from Sanity:", {
+      name: e?.name,
+      message: e?.message,
+    });
   }
-
-  const usingMockData = products.length === 0;
-  const displayProducts = usingMockData ? MOCK_PRODUCTS.filter((p) => p.featured) : products.filter((p) => p.featured);
 
   return (
     <div>
-      <ConstructionBanner />
       {/* Hero */}
       <section
         className="relative overflow-hidden py-28 px-4"
@@ -59,13 +57,13 @@ export default async function HomePage() {
           >
             Muebles para
             <br />
-            tus guitarras
+            tus instrumentos
           </h1>
           <p
             className="text-base md:text-lg max-w-md leading-relaxed"
             style={{ color: "#ede5d8", opacity: 0.85 }}
           >
-            Vitrinas y soportes hechos a medida. Diseño que cuida y exhibe tus instrumentos.
+            Vitrinas y soportes standard y a medida.
           </p>
           <Link
             href="/productos"
@@ -90,41 +88,85 @@ export default async function HomePage() {
           className="text-center text-xs uppercase tracking-[0.4em] font-medium"
           style={{ color: "#ede5d8", opacity: 0.6 }}
         >
-          Artesanal &nbsp;·&nbsp; A medida &nbsp;·&nbsp; Hecho en Argentina
+          Diseño &nbsp;<span style={{ verticalAlign: "middle" }}>·</span>&nbsp; Calidad &nbsp;<span style={{ verticalAlign: "middle" }}>·</span>&nbsp; Tecnología
         </p>
       </div>
 
-      {/* Productos destacados */}
-      {displayProducts.length > 0 && (
-        <section className="max-w-6xl mx-auto px-4 py-20">
-          {usingMockData && (
-            <p className="text-xs uppercase tracking-widest mb-6 text-center py-2 px-4 border"
-              style={{ backgroundColor: "#fef3c7", borderColor: "#fde68a", color: "#92400e" }}>
-              ⚠ Productos de ejemplo — los precios mostrados no son reales
-            </p>
-          )}
-          <div className="flex items-end justify-between mb-10">
+      {/* Video */}
+      <section className="py-20 px-4" style={{ backgroundColor: "#1a0f00" }}>
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12">
+          {/* Texto */}
+          <div className="flex flex-col gap-5 md:flex-1">
+            <div className="w-8 h-1" style={{ backgroundColor: "#b8521a" }} />
             <h2
-              className="text-4xl font-black uppercase"
-              style={{ fontFamily: "var(--font-barlow-condensed), sans-serif", color: "#1a0f00" }}
+              className="text-4xl md:text-5xl font-black uppercase leading-tight"
+              style={{ fontFamily: "var(--font-barlow-condensed), sans-serif", color: "#f5f0e8" }}
             >
-              Destacados
+              Más que un mueble,<br />una experiencia
             </h2>
-            <Link
-              href="/productos"
-              className="text-sm font-medium uppercase tracking-widest underline underline-offset-4"
-              style={{ color: "#b8521a" }}
-            >
-              Ver todos
-            </Link>
+            <p className="text-sm leading-relaxed max-w-sm" style={{ color: "#ede5d8", opacity: 0.75 }}>
+              Cada vitrina Sonaq está pensada para proteger tu colección y convertirla en el centro de cualquier ambiente. Materiales seleccionados, terminaciones artesanales y diseño hecho en Argentina.
+            </p>
           </div>
+
+          {/* Video vertical (YouTube Shorts) */}
+          <div className="w-full md:w-auto flex justify-center">
+            <div
+              className="relative overflow-hidden rounded w-full max-w-[320px]"
+              style={{ aspectRatio: "9/16" }}
+            >
+              <iframe
+                src="https://www.youtube-nocookie.com/embed/P5aeAu4qlJo?autoplay=0&rel=0&modestbranding=1"
+                title="Vitrina Sonaq"
+                loading="lazy"
+                referrerPolicy="strict-origin-when-cross-origin"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="absolute inset-0 w-full h-full"
+                style={{ border: "none" }}
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Productos */}
+      <section className="max-w-6xl mx-auto px-4 py-20">
+        <div className="flex items-end justify-between mb-10">
+          <h2
+            className="text-4xl font-black uppercase"
+            style={{ fontFamily: "var(--font-barlow-condensed), sans-serif", color: "#1a0f00" }}
+          >
+            Nuestros productos
+          </h2>
+          <Link
+            href="/productos"
+            className="text-sm font-medium uppercase tracking-widest underline underline-offset-4"
+            style={{ color: "#b8521a" }}
+          >
+            Ver todos
+          </Link>
+        </div>
+        {products.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {displayProducts.map((product) => (
+            {products.map((product) => (
               <ProductCard key={product._id} product={product} />
             ))}
           </div>
-        </section>
-      )}
+        ) : (
+          <div className="py-16 text-center flex flex-col items-center gap-4">
+            <p
+              className="text-2xl font-black uppercase"
+              style={{ fontFamily: "var(--font-barlow-condensed), sans-serif", color: "#d4c4ae" }}
+            >
+              Próximamente
+            </p>
+            <p className="text-sm" style={{ color: "#5a4535" }}>
+              Estamos cargando nuestros productos. Volvé pronto.
+            </p>
+          </div>
+        )}
+      </section>
 
       {/* Bloque propuesta de valor */}
       <section

@@ -40,7 +40,7 @@ export function CartView() {
       <div className="flex flex-col gap-0">
         {items.map((item, i) => (
           <div
-            key={item.productId}
+            key={item.cartItemId}
             className="flex gap-4 py-5"
             style={{
               borderTop: i === 0 ? `1px solid #d4c4ae` : undefined,
@@ -60,20 +60,37 @@ export function CartView() {
               >
                 {item.title}
               </Link>
+              {/* Addons seleccionados */}
+              {item.addons && item.addons.length > 0 && (
+                <ul className="mt-1 flex flex-col gap-0.5">
+                  {item.addons.map((addon) => (
+                    <li key={addon._key} className="text-xs" style={{ color: "#5a4535" }}>
+                      + {addon.title}{" "}
+                      <span style={{ color: "#b8521a" }}>
+                        (+${addon.price.toLocaleString("es-AR")})
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
               <p className="text-sm mt-1" style={{ color: "#5a4535" }}>
                 ${item.price.toLocaleString("es-AR")} c/u
               </p>
               <div className="flex items-center gap-2 mt-3">
                 <button
-                  onClick={() => updateQuantity(item.productId, item.quantity - 1)}
-                  className="w-7 h-7 border text-sm font-medium transition-colors hover:border-terracota"
+                  onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
+                  disabled={item.quantity <= 1}
+                  aria-label={`Disminuir cantidad de ${item.title}`}
+                  className="w-7 h-7 border text-sm font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                   style={{ borderColor: "#d4c4ae", color: "#1a0f00" }}
+                  title={item.quantity <= 1 ? "Usá ✕ para eliminar" : undefined}
                 >
                   −
                 </button>
                 <span className="text-sm w-5 text-center font-medium">{item.quantity}</span>
                 <button
-                  onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                  onClick={() => updateQuantity(item.cartItemId, item.quantity + 1)}
+                  aria-label={`Aumentar cantidad de ${item.title}`}
                   className="w-7 h-7 border text-sm font-medium transition-colors"
                   style={{ borderColor: "#d4c4ae", color: "#1a0f00" }}
                 >
@@ -83,7 +100,8 @@ export function CartView() {
             </div>
             <div className="flex flex-col justify-between items-end">
               <button
-                onClick={() => removeItem(item.productId)}
+                onClick={() => removeItem(item.cartItemId)}
+                aria-label={`Eliminar ${item.title} del carrito`}
                 className="text-xs uppercase tracking-widest transition-colors"
                 style={{ color: "#d4c4ae" }}
               >

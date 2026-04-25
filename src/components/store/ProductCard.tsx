@@ -9,7 +9,8 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const sanityImage = product.images?.[0];
-  const hasSanityImage = sanityImage?.asset?._ref !== "";
+  const hasSanityImage =
+    sanityImage?.asset?._ref != null && sanityImage.asset._ref !== "";
 
   const imageUrl = hasSanityImage
     ? urlFor(sanityImage).width(600).height(600).fit("crop").url()
@@ -58,9 +59,11 @@ export function ProductCard({ product }: ProductCardProps) {
         >
           {product.title}
         </h3>
-        <p className="text-base font-semibold mt-1" style={{ color: "#1a0f00" }}>
-          ${product.price.toLocaleString("es-AR")}
-        </p>
+        {product.price != null && (
+          <p className="text-base font-semibold mt-1" style={{ color: "#1a0f00" }}>
+            ${product.price.toLocaleString("es-AR")}
+          </p>
+        )}
       </div>
     </Link>
   );

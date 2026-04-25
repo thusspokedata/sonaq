@@ -48,7 +48,7 @@ model Order {
   userId          String?
   status          OrderStatus @default(PENDING)
   paymentMethod   PaymentMethod
-  mpPaymentId     String?
+  mpPaymentId     String?     @unique
   total           Decimal     @db.Decimal(10, 2)
   customerName    String
   customerEmail   String
@@ -61,6 +61,8 @@ model Order {
   user  User?       @relation(fields: [userId], references: [id])
   items OrderItem[]
 
+  @@index([userId])
+  @@index([status])
   @@map("orders")
 }
 
@@ -69,8 +71,10 @@ model OrderItem {
   orderId   String
   productId String
   title     String
+  basePrice Decimal @db.Decimal(10, 2)
   price     Decimal @db.Decimal(10, 2)
   quantity  Int
+  addons    Json?
 
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 

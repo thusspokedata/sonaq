@@ -5,8 +5,8 @@ import { CartItem } from "@/types";
 interface CartStore {
   items: CartItem[];
   addItem: (item: CartItem) => void;
-  removeItem: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
+  removeItem: (cartItemId: string) => void;
+  updateQuantity: (cartItemId: string, quantity: number) => void;
   clearCart: () => void;
   total: () => number;
   count: () => number;
@@ -18,11 +18,11 @@ export const useCartStore = create<CartStore>()(
       items: [],
 
       addItem: (item) => {
-        const existing = get().items.find((i) => i.productId === item.productId);
+        const existing = get().items.find((i) => i.cartItemId === item.cartItemId);
         if (existing) {
           set({
             items: get().items.map((i) =>
-              i.productId === item.productId
+              i.cartItemId === item.cartItemId
                 ? { ...i, quantity: i.quantity + item.quantity }
                 : i
             ),
@@ -32,18 +32,18 @@ export const useCartStore = create<CartStore>()(
         }
       },
 
-      removeItem: (productId) => {
-        set({ items: get().items.filter((i) => i.productId !== productId) });
+      removeItem: (cartItemId) => {
+        set({ items: get().items.filter((i) => i.cartItemId !== cartItemId) });
       },
 
-      updateQuantity: (productId, quantity) => {
+      updateQuantity: (cartItemId, quantity) => {
         if (quantity <= 0) {
-          get().removeItem(productId);
+          get().removeItem(cartItemId);
           return;
         }
         set({
           items: get().items.map((i) =>
-            i.productId === productId ? { ...i, quantity } : i
+            i.cartItemId === cartItemId ? { ...i, quantity } : i
           ),
         });
       },
@@ -55,6 +55,29 @@ export const useCartStore = create<CartStore>()(
 
       count: () => get().items.reduce((sum, item) => sum + item.quantity, 0),
     }),
-    { name: "sonaq-cart" }
+    {
+      name: "sonaq-cart",
+      version: 2,
+      migrate: (persistedState) => {
+        const state = persistedState as { items?: Partial<CartItem>[] } | undefined;
+        return {
+          items: (state?.items ?? []).map((item, i) => {
+            const cartItemId =
+              item.cartItemId ||
+              item.productId ||
+              `legacy-${i}-${Date.now()}`;
+            const basePrice = Number(item.basePrice ?? item.price) || 0;
+            const price = Number(item.price) || 0;
+            return {
+              ...item,
+              cartItemId,
+              basePrice,
+              price,
+              addons: Array.isArray(item.addons) ? item.addons : [],
+            };
+          }) as CartItem[],
+        };
+      },
+    }
   )
 );

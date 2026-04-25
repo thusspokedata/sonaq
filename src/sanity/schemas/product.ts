@@ -116,6 +116,26 @@ export const productSchema = defineType({
       type: "boolean",
       initialValue: true,
     }),
+    defineField({
+      name: "addons",
+      title: "Opciones adicionales",
+      type: "array",
+      description: "Extras opcionales que el cliente puede sumar al producto (ej: iluminación LED, cerradura, base con ruedas)",
+      of: [
+        {
+          type: "object",
+          fields: [
+            defineField({ name: "title", title: "Nombre", type: "string", validation: (Rule) => Rule.required() }),
+            defineField({ name: "description", title: "Descripción (opcional)", type: "string" }),
+            defineField({ name: "price", title: "Precio adicional (ARS)", type: "number", validation: (Rule) => Rule.required().positive() }),
+          ],
+          preview: {
+            select: { title: "title", price: "price" },
+            prepare: ({ title, price }) => ({ title, subtitle: `+ $${price?.toLocaleString("es-AR")}` }),
+          },
+        },
+      ],
+    }),
   ],
   preview: {
     select: {
