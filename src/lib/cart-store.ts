@@ -65,7 +65,7 @@ export const useCartStore = create<CartStore>()(
             const cartItemId =
               item.cartItemId ||
               item.productId ||
-              `legacy-${i}-${Date.now()}`;
+              `legacy-${i}`;
             const basePrice = Number(item.basePrice ?? item.price) || 0;
             const price = Number(item.price) || 0;
             return {

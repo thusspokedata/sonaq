@@ -131,7 +131,10 @@ export const productSchema = defineType({
           ],
           preview: {
             select: { title: "title", price: "price" },
-            prepare: ({ title, price }) => ({ title, subtitle: `+ $${price?.toLocaleString("es-AR")}` }),
+            prepare: ({ title, price }) => ({
+              title,
+              subtitle: typeof price === "number" ? `+ $${price.toLocaleString("es-AR")}` : "Precio sin definir",
+            }),
           },
         },
       ],
