@@ -42,7 +42,8 @@ export const PRODUCT_BY_SLUG_QUERY = groq`
     materials,
     capacity,
     stock,
-    featured
+    featured,
+    "addons": addons[] { _key, title, description, price }
   }
 `;
 

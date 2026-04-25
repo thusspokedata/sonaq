@@ -101,6 +101,29 @@ export default async function ProductPage({
             </ul>
           )}
 
+          {product.materials && product.materials.length > 0 && (
+            <div className="flex flex-col gap-2">
+              <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#5a4535" }}>
+                Materiales
+              </p>
+              <ul className="flex flex-col gap-1">
+                {product.materials.map((m, i) => (
+                  <li key={i} className="text-sm flex gap-3 items-start" style={{ color: "#5a4535" }}>
+                    <span className="mt-1 w-4 h-1 flex-shrink-0 inline-block" style={{ backgroundColor: "#b8521a" }} />
+                    {m}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {product.capacity != null && (
+            <p className="text-sm" style={{ color: "#5a4535" }}>
+              <span className="font-semibold" style={{ color: "#1a0f00" }}>Capacidad:</span>{" "}
+              {product.capacity} {product.capacity === 1 ? "guitarra" : "guitarras"}
+            </p>
+          )}
+
           {product.dimensions && (
             <div
               className="grid grid-cols-3 gap-px text-center text-sm overflow-hidden rounded"

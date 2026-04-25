@@ -1,0 +1,27 @@
+name: Security
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Escaneo completo todos los lunes a las 8am (hora Argentina)
+    - cron: "0 11 * * 1"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  # Detecta secrets accidentales en el historial de git
+  gitleaks:
+    name: Gitleaks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
