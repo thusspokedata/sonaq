@@ -1,0 +1,43 @@
+version: 2
+updates:
+  # Dependencias de npm
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Argentina/Cordoba"
+    open-pull-requests-limit: 5
+    groups:
+      # Agrupa todos los updates de Next.js/React juntos
+      nextjs:
+        patterns:
+          - "next"
+          - "react"
+          - "react-dom"
+          - "@types/react*"
+      # Agrupa Prisma
+      prisma:
+        patterns:
+          - "prisma"
+          - "@prisma/*"
+      # Agrupa Sanity
+      sanity:
+        patterns:
+          - "sanity"
+          - "@sanity/*"
+          - "next-sanity"
+    ignore:
+      # No actualizar major versions automáticamente (pueden romper cosas)
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Argentina/Cordoba"
