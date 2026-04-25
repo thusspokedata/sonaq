@@ -67,7 +67,7 @@ export function CartView() {
                     <li key={addon._key} className="text-xs" style={{ color: "#5a4535" }}>
                       + {addon.title}{" "}
                       <span style={{ color: "#b8521a" }}>
-                        (+${addon.price.toLocaleString("es-AR")})
+                        (+${Number.isFinite(Number(addon.price)) ? Number(addon.price).toLocaleString("es-AR") : "0"})
                       </span>
                     </li>
                   ))}

@@ -12,8 +12,10 @@ ALTER TABLE "order_items" ALTER COLUMN "basePrice" SET NOT NULL;
 CREATE INDEX "orders_userId_idx" ON "orders"("userId");
 CREATE INDEX "orders_status_idx" ON "orders"("status");
 
--- Dedupe mpPaymentId before creating unique index (keeps oldest row per mpPaymentId, preserves NULLs)
-DELETE FROM "orders"
+-- Dedupe mpPaymentId before creating unique index
+-- Nulls out duplicate mpPaymentId on non-canonical rows (preserves order history)
+UPDATE "orders" o
+SET "mpPaymentId" = NULL
 WHERE "mpPaymentId" IS NOT NULL
   AND id NOT IN (
     SELECT DISTINCT ON ("mpPaymentId") id
