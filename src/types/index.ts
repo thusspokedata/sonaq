@@ -1,9 +1,21 @@
 export type { OrderStatus, PaymentMethod, Role } from "@prisma/client";
 
+export interface ProductAddon {
+  _key: string;
+  title: string;
+  description?: string;
+  price: number;
+}
+
+export type SelectedAddon = Pick<ProductAddon, "_key" | "title" | "price">;
+
 export interface CartItem {
+  cartItemId: string; // productId + addons key para permitir distintas combinaciones
   productId: string;
   title: string;
-  price: number;
+  basePrice: number;
+  price: number; // basePrice + suma de addons
+  addons: SelectedAddon[];
   quantity: number;
   image?: string;
   slug: string;
@@ -24,13 +36,15 @@ export interface SanityProduct {
   _id: string;
   title: string;
   slug: { current: string };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Sanity Portable Text
   description: any[];
   shortDescription?: string;
   price: number;
   images: SanityImage[];
   category: string;
   features?: string[];
+  materials?: string[];
+  capacity?: number;
   dimensions?: {
     width: number;
     height: number;
@@ -39,6 +53,7 @@ export interface SanityProduct {
   stock: number;
   featured: boolean;
   localImages?: string[]; // fallback cuando Sanity no está configurado
+  addons?: ProductAddon[];
 }
 
 export interface SanityImage {

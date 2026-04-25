@@ -165,7 +165,12 @@ export default async function PedidoDetailPage({ params }: Props) {
                 key={status}
                 action={async () => {
                   "use server";
-                  await updateOrderStatus(id, status);
+                  try {
+                    await updateOrderStatus(id, status);
+                  } catch (e) {
+                    console.error("[updateOrderStatus]", e);
+                    throw e;
+                  }
                 }}
               >
                 <button

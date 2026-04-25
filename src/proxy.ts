@@ -4,6 +4,12 @@ import { NextResponse } from "next/server";
 export default auth((req) => {
   const { pathname } = req.nextUrl;
   const isLoginPage = pathname === "/admin/login";
+  const isAdmin = req.auth?.user?.role === "ADMIN";
+
+  // Admin ya autenticado visitando la página de login → redirigir al panel
+  if (isLoginPage && isAdmin) {
+    return NextResponse.redirect(new URL("/admin/pedidos", req.url));
+  }
 
   if (!isLoginPage) {
     if (!req.auth) {
@@ -12,7 +18,7 @@ export default auth((req) => {
       return NextResponse.redirect(loginUrl);
     }
 
-    if (req.auth.user?.role !== "ADMIN") {
+    if (!isAdmin) {
       return NextResponse.redirect(new URL("/", req.url));
     }
   }
@@ -21,5 +27,5 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin", "/admin/:path*"],
 };

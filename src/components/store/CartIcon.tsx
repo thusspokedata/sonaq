@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useCartStore } from "@/lib/cart-store";
 
 export function CartIcon() {
-  const count = useCartStore((s) => s.count());
+  const count = useCartStore((s) => s.items.reduce((sum, i) => sum + i.quantity, 0));
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
