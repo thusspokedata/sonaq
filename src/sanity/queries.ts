@@ -43,7 +43,8 @@ export const PRODUCT_BY_SLUG_QUERY = groq`
     capacity,
     stock,
     featured,
-    "addons": addons[] { _key, title, description, price }
+    "addons": addons[] { _key, title, description, price },
+    "colors": colors[] { _key, name, hex }
   }
 `;
 

@@ -60,6 +60,12 @@ export function CartView() {
               >
                 {item.title}
               </Link>
+              {/* Color elegido */}
+              {item.color && (
+                <p className="text-xs mt-0.5" style={{ color: "#5a4535" }}>
+                  Color: <span className="font-medium">{item.color}</span>
+                </p>
+              )}
               {/* Addons seleccionados */}
               {item.addons && item.addons.length > 0 && (
                 <ul className="mt-1 flex flex-col gap-0.5">
