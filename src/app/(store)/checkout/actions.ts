@@ -3,6 +3,10 @@
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { CartItem } from "@/types";
+import {
+  sendOrderConfirmationToCustomer,
+  sendNewOrderNotificationToTeam,
+} from "@/lib/emails";
 
 const checkoutSchema = z.object({
   name: z.string().min(2).max(120),
@@ -12,7 +16,7 @@ const checkoutSchema = z.object({
   city: z.string().min(2).max(80),
   province: z.string().min(2).max(80),
   notes: z.string().max(500).optional(),
-  paymentMethod: z.enum(["BANK_TRANSFER"] as const),
+  paymentMethod: z.enum(["MERCADOPAGO", "BANK_TRANSFER"]),
   acceptsTerms: z.literal(true, { message: "Debés aceptar los términos" }),
 });
 
@@ -50,36 +54,58 @@ export async function createOrder(
 
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  let order: { id: string };
-  try {
-    order = await prisma.order.create({
-      data: {
-        customerName: name,
-        customerEmail: email,
-        customerPhone: phone,
-        shippingAddress: { address, city, province },
-        notes,
-        paymentMethod,
-        total,
-        status: "PAYMENT_PENDING",
-        items: {
-          create: items.map((item) => ({
-            productId: item.productId,
-            title: item.title,
-            basePrice: item.basePrice,
-            price: item.price,
-            quantity: item.quantity,
-            color: item.color ?? null,
-            image: item.image ?? null,
-            addons: item.addons.length ? item.addons : undefined,
-          })),
-        },
+  const order = await prisma.order.create({
+    data: {
+      customerName: name,
+      customerEmail: email,
+      customerPhone: phone,
+      shippingAddress: { address, city, province },
+      notes,
+      paymentMethod,
+      total,
+      status: paymentMethod === "BANK_TRANSFER" ? "PAYMENT_PENDING" : "PENDING",
+      items: {
+        create: items.map((item) => ({
+          productId: item.productId,
+          title: item.title,
+          basePrice: item.basePrice,
+          price: item.price,
+          quantity: item.quantity,
+          color: item.color ?? null,
+          image: item.image ?? null,
+          addons: item.addons.length ? item.addons : undefined,
+        })),
       },
+    },
+  });
+
+  // Enviar emails en paralelo — no bloqueamos la orden si falla
+  void Promise.allSettled([
+    sendOrderConfirmationToCustomer({
+      orderId: order.id,
+      customerName: name,
+      customerEmail: email,
+      paymentMethod,
+      items,
+      total,
+    }),
+    sendNewOrderNotificationToTeam({
+      orderId: order.id,
+      customerName: name,
+      customerEmail: email,
+      customerPhone: phone,
+      shippingAddress: { address, city, province },
+      paymentMethod,
+      items,
+      total,
+    }),
+  ]).then((results) => {
+    results.forEach((r, i) => {
+      if (r.status === "rejected") {
+        console.error(`Email ${i === 0 ? "cliente" : "equipo"} falló para orden ${order.id}:`, r.reason instanceof Error ? r.reason.message : r.reason);
+      }
     });
-  } catch (err) {
-    console.error("Error al crear orden:", err instanceof Error ? err.message : err);
-    return { status: "error", errors: { _: ["No se pudo crear el pedido. Intentá de nuevo."] } };
-  }
+  });
 
   return { status: "success", orderId: order.id };
 }
