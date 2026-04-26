@@ -91,6 +91,13 @@ export async function sendOrderConfirmationToCustomer({
       : `<p style="font-size:13px;color:${MUTED};margin-top:16px;">Nos pondremos en contacto para coordinar el pago.</p>`;
 
   const html = baseLayout(`
+    <div style="margin-bottom:24px;padding:16px;background:#fff3cd;border:2px solid #f0ad00;border-radius:4px;">
+      <p style="margin:0 0 4px;font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:#7a5500;">⚠️ Sitio en construcción</p>
+      <p style="margin:0;font-size:13px;color:#7a5500;">
+        Estamos en etapa de pruebas — todavía no procesamos ventas reales. Este email es una prueba interna. ¡Gracias por la paciencia!
+      </p>
+    </div>
+
     <p style="margin:0 0 4px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:${TERRACOTA};">Pedido confirmado</p>
     <h1 style="margin:0 0 8px;font-size:26px;font-weight:900;text-transform:uppercase;color:${DARK};">¡Gracias, ${escapeHtml(customerName)}!</h1>
     <p style="margin:0 0 24px;font-size:13px;color:${MUTED};">Tu pedido fue recibido. Número de orden: <strong style="font-family:monospace;">${escapeHtml(orderId)}</strong></p>
