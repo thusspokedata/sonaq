@@ -1,7 +1,7 @@
 import { groq } from "next-sanity";
 
 export const ALL_PRODUCTS_QUERY = groq`
-  *[_type == "product" && available == true] | order(_createdAt desc) {
+  *[_type == "product" && available == true && !(_id in path("drafts.**"))] | order(_createdAt desc) {
     _id,
     title,
     slug,
