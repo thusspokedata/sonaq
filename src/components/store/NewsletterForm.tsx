@@ -5,13 +5,18 @@ import { subscribeToNewsletter, NewsletterState } from "@/app/(store)/newsletter
 
 const INITIAL: NewsletterState = { status: "idle" };
 
-export function NewsletterForm() {
+interface NewsletterFormProps {
+  /** Activar variante sobre fondo oscuro (#1a0f00) */
+  dark?: boolean;
+}
+
+export function NewsletterForm({ dark = false }: NewsletterFormProps) {
   const [state, action, pending] = useActionState(subscribeToNewsletter, INITIAL);
 
   if (state.status === "success") {
     return (
       <p role="status" aria-live="polite" className="text-sm font-semibold" style={{ color: "#b8521a" }}>
-        ¡Listo! Te avisamos cuando haya novedades.
+        Listo. Te avisamos cuando haya novedades.
       </p>
     );
   }
@@ -28,10 +33,10 @@ export function NewsletterForm() {
           disabled={pending}
           className="flex-1 min-w-0 px-3 py-2 text-sm outline-none"
           style={{
-            border: "1px solid #d4c4ae",
+            border: dark ? "1px solid #3d2a18" : "1px solid #d4c4ae",
             borderRight: "none",
-            backgroundColor: "#fff",
-            color: "#1a0f00",
+            backgroundColor: dark ? "#2e1f0e" : "#fff",
+            color: dark ? "#f5f0e8" : "#1a0f00",
           }}
         />
         <button
@@ -39,7 +44,7 @@ export function NewsletterForm() {
           disabled={pending}
           className="px-4 py-2 text-xs font-semibold uppercase tracking-widest transition-opacity hover:opacity-80"
           style={{
-            backgroundColor: pending ? "#d4c4ae" : "#b8521a",
+            backgroundColor: pending ? (dark ? "#3d2a18" : "#d4c4ae") : "#b8521a",
             color: "#f5f0e8",
             whiteSpace: "nowrap",
           }}
@@ -49,7 +54,7 @@ export function NewsletterForm() {
       </div>
       <div aria-live="polite" role="status">
         {state.status === "duplicate" && (
-          <p className="text-xs" style={{ color: "#5a4535" }}>
+          <p className="text-xs" style={{ color: dark ? "#b8521a" : "#5a4535" }}>
             Ya estás suscripto con ese email.
           </p>
         )}
