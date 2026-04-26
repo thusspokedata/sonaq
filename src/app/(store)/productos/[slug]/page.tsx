@@ -7,8 +7,7 @@ import { ProductGallery } from "@/components/store/ProductGallery";
 import { AddToCartButton } from "@/components/store/AddToCartButton";
 import { PortableText } from "@portabletext/react";
 import { MOCK_PRODUCTS } from "@/lib/mock-products";
-
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "https://sonaq.com.ar";
+import { BASE_URL } from "@/lib/base-url";
 
 export const revalidate = 60;
 

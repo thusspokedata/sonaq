@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Barlow, Barlow_Condensed } from "next/font/google";
+import { BASE_URL } from "@/lib/base-url";
 import "./globals.css";
 
 const barlow = Barlow({
@@ -14,21 +15,8 @@ const barlowCondensed = Barlow_Condensed({
   weight: ["600", "700", "800"],
 });
 
-function resolveBaseUrl(): URL {
-  const raw = process.env.NEXT_PUBLIC_BASE_URL ?? "https://sonaq.com.ar";
-  const normalized = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
-  try {
-    return new URL(normalized);
-  } catch {
-    return new URL("https://sonaq.com.ar");
-  }
-}
-
-const baseUrl = resolveBaseUrl();
-const BASE_URL = baseUrl.origin;
-
 export const metadata: Metadata = {
-  metadataBase: baseUrl,
+  metadataBase: new URL(BASE_URL),
   title: { default: "Sonaq", template: "%s | Sonaq" },
   description: "Donde el sonido descansa. Muebles y vitrinas para guitarras hechos a medida en Argentina.",
   openGraph: {

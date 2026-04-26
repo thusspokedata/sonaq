@@ -1,6 +1,5 @@
 import type { MetadataRoute } from "next";
-
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "https://sonaq.com.ar";
+import { BASE_URL } from "@/lib/base-url";
 
 export default function robots(): MetadataRoute.Robots {
   return {

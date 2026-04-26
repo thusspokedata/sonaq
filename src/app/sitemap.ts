@@ -2,8 +2,7 @@ import type { MetadataRoute } from "next";
 import { sanityClient } from "@/lib/sanity";
 import { ALL_PRODUCTS_QUERY } from "@/sanity/queries";
 import { SanityProduct } from "@/types";
-
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "https://sonaq.com.ar";
+import { BASE_URL } from "@/lib/base-url";
 
 export const revalidate = 3600;
 
