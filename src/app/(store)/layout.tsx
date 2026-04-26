@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { CartIcon } from "@/components/store/CartIcon";
+import { NewsletterForm } from "@/components/store/NewsletterForm";
 
 export const metadata: Metadata = {
   title: { default: "Sonaq", template: "%s | Sonaq" },
@@ -57,39 +58,62 @@ export default function StoreLayout({
       <main className="flex-1">{children}</main>
 
       <footer
-        className="border-t py-10"
+        className="border-t"
         style={{ borderColor: "#d4c4ae", backgroundColor: "#ede5d8" }}
       >
-        <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
-          <div>
-            <p
-              className="text-xl font-bold uppercase tracking-widest"
-              style={{ fontFamily: "var(--font-barlow-condensed), sans-serif", color: "#b8521a" }}
-            >
-              Sonaq
-            </p>
-            <p className="text-xs uppercase tracking-widest mt-1" style={{ color: "#5a4535" }}>
-              Donde el sonido descansa
-            </p>
-          </div>
-          <div className="flex flex-col items-center md:items-end gap-1">
-            <p className="text-xs" style={{ color: "#5a4535" }}>
-              © {new Date().getFullYear()} Sonaq — Hecho en Argentina
-            </p>
-            <p className="text-xs" style={{ color: "#a08060" }}>
-              Diseñado y desarrollado con{" "}
-              <span style={{ color: "#b8521a" }}>♥</span>{" "}
-              por{" "}
-              <a
-                href="https://github.com/thusspokedata"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline underline-offset-2 transition-opacity hover:opacity-70"
-                style={{ color: "#5a4535" }}
+        {/* Newsletter */}
+        <div className="border-b py-10" style={{ borderColor: "#d4c4ae" }}>
+          <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+              <p
+                className="text-2xl font-black uppercase"
+                style={{ fontFamily: "var(--font-barlow-condensed), sans-serif", color: "#1a0f00" }}
               >
-                Thusspokedata
-              </a>
-            </p>
+                Novedades y lanzamientos
+              </p>
+              <p className="text-xs mt-1" style={{ color: "#5a4535" }}>
+                Sin spam. Solo cuando hay algo nuevo.
+              </p>
+            </div>
+            <div className="w-full md:w-80">
+              <NewsletterForm />
+            </div>
+          </div>
+        </div>
+
+        {/* Copyright */}
+        <div className="py-8">
+          <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+              <p
+                className="text-xl font-bold uppercase tracking-widest"
+                style={{ fontFamily: "var(--font-barlow-condensed), sans-serif", color: "#b8521a" }}
+              >
+                Sonaq
+              </p>
+              <p className="text-xs uppercase tracking-widest mt-1" style={{ color: "#5a4535" }}>
+                Donde el sonido descansa
+              </p>
+            </div>
+            <div className="flex flex-col items-center md:items-end gap-1">
+              <p className="text-xs" style={{ color: "#5a4535" }}>
+                © {new Date().getFullYear()} Sonaq — Hecho en Argentina
+              </p>
+              <p className="text-xs" style={{ color: "#a08060" }}>
+                Diseñado y desarrollado con{" "}
+                <span style={{ color: "#b8521a" }}>♥</span>{" "}
+                por{" "}
+                <a
+                  href="https://github.com/thusspokedata"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline underline-offset-2 transition-opacity hover:opacity-70"
+                  style={{ color: "#5a4535" }}
+                >
+                  Thusspokedata
+                </a>
+              </p>
+            </div>
           </div>
         </div>
       </footer>
