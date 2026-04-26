@@ -10,12 +10,13 @@ export interface ProductAddon {
 export type SelectedAddon = Pick<ProductAddon, "_key" | "title" | "price">;
 
 export interface CartItem {
-  cartItemId: string; // productId + addons key para permitir distintas combinaciones
+  cartItemId: string; // productId + color key + addons key para permitir distintas combinaciones
   productId: string;
   title: string;
   basePrice: number;
   price: number; // basePrice + suma de addons
   addons: SelectedAddon[];
+  color?: string;
   quantity: number;
   image?: string;
   slug: string;
