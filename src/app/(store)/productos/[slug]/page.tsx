@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { sanityClient } from "@/lib/sanity";
+import { sanityClient, urlFor } from "@/lib/sanity";
 import { PRODUCT_BY_SLUG_QUERY, ALL_PRODUCTS_QUERY } from "@/sanity/queries";
 import { SanityProduct } from "@/types";
 import { ProductGallery } from "@/components/store/ProductGallery";
 import { AddToCartButton } from "@/components/store/AddToCartButton";
 import { PortableText } from "@portabletext/react";
 import { MOCK_PRODUCTS } from "@/lib/mock-products";
+import { BASE_URL } from "@/lib/base-url";
 
 export const revalidate = 60;
 
@@ -32,7 +33,32 @@ export async function generateMetadata({
     product = MOCK_PRODUCTS.find((p) => p.slug.current === slug) ?? null;
   }
   if (!product) return {};
-  return { title: product.title, description: product.shortDescription };
+
+  const pageUrl = `${BASE_URL}/productos/${product.slug.current}`;
+  const description = product.shortDescription ?? "Mueble para guitarra hecho a medida en Argentina.";
+
+  const ogImage = product.images?.[0]?.asset?._ref
+    ? urlFor(product.images[0]).width(1200).height(630).fit("crop").url()
+    : `${BASE_URL}/og-default.jpg`;
+
+  return {
+    title: product.title,
+    description,
+    alternates: { canonical: pageUrl },
+    openGraph: {
+      title: product.title,
+      description,
+      url: pageUrl,
+      type: "website",
+      images: [{ url: ogImage, width: 1200, height: 630, alt: product.title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: product.title,
+      description,
+      images: [ogImage],
+    },
+  };
 }
 
 export default async function ProductPage({

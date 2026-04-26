@@ -52,8 +52,26 @@ npx prisma migrate deploy
 
 ---
 
+## SEO
+
+### Imagen por defecto para Open Graph (`/public/og-default.jpg`)
+**Prioridad:** Baja  
+**Contexto:** El root layout y el PDP referencian `/og-default.jpg` como fallback cuando un producto no tiene imagen en Sanity. Si el archivo no existe, los crawlers de WhatsApp/Twitter/LinkedIn mostrarán la card sin imagen.  
+**Solución:** Crear una imagen de 1200×630px con el logo de Sonaq sobre fondo beige (`#f5f0e8`) y subirla a `public/og-default.jpg`. Se puede hacer en Canva o Figma.
+
+---
+
+## Newsletter
+
+### Envío de campañas a suscriptores
+**Prioridad:** Media  
+**Contexto:** Los emails captados en el footer se guardan en Resend Audiences. Hoy no hay forma de enviar un email a toda la lista desde la app — hay que hacerlo manualmente desde el dashboard de Resend (Broadcasts). Funciona para el volumen actual pero no escala bien.  
+**Solución:** Evaluar dos opciones: (1) seguir usando Resend Broadcasts manualmente para anuncios puntuales, o (2) construir un formulario en el panel admin (`/admin/newsletter`) que llame a la API de Resend para crear y enviar un broadcast programáticamente.
+
+---
+
 ## UX / Futuro
 
 - MercadoPago Checkout Pro con cuotas (bloqueante: validar precios server-side primero)
 - Página `/nosotros`
-- SEO: OpenGraph, sitemap.xml, robots.txt, metadata por producto
+- Indicador de compra segura en checkout

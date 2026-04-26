@@ -4,10 +4,7 @@ import Link from "next/link";
 import { CartIcon } from "@/components/store/CartIcon";
 import { NewsletterForm } from "@/components/store/NewsletterForm";
 
-export const metadata: Metadata = {
-  title: { default: "Sonaq", template: "%s | Sonaq" },
-  description: "Donde el sonido descansa. Muebles y vitrinas para guitarras hechos a medida en Argentina.",
-};
+export const metadata: Metadata = {};
 
 export default function StoreLayout({
   children,
