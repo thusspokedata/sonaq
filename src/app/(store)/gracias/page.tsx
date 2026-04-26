@@ -73,11 +73,11 @@ export default async function GraciasPage({
         {/* Items */}
         {order.items.map((item) => (
           <div key={item.id} className="flex gap-3 text-sm">
-            <div className="w-14 h-14 flex-shrink-0 relative" style={{ backgroundColor: "#d4c4ae" }}>
-              {item.image ? (
-                <Image src={item.image} alt={item.title} fill sizes="56px" className="object-cover" onError={() => {}} />
-              ) : null}
-            </div>
+            {item.image && (
+              <div className="w-14 h-14 flex-shrink-0 relative" style={{ backgroundColor: "#d4c4ae" }}>
+                <Image src={item.image} alt={item.title} fill sizes="56px" className="object-cover" />
+              </div>
+            )}
             <div className="flex-1 flex flex-col gap-0.5">
               <div className="flex justify-between">
                 <span className="font-medium" style={{ color: "#1a0f00" }}>
@@ -92,8 +92,8 @@ export default async function GraciasPage({
               )}
               {Array.isArray(item.addons) && item.addons.length > 0 && (
                 <ul className="text-xs" style={{ color: "#5a4535" }}>
-                  {(item.addons as { title: string; _key?: string }[]).map((a) => (
-                    <li key={a._key ?? a.title}>+ {a.title}</li>
+                  {(item.addons as { title: string }[]).map((a, j) => (
+                    <li key={j}>+ {a.title}</li>
                   ))}
                 </ul>
               )}
