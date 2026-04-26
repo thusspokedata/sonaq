@@ -117,6 +117,28 @@ export const productSchema = defineType({
       initialValue: true,
     }),
     defineField({
+      name: "colors",
+      title: "Colores disponibles",
+      type: "array",
+      description: "Colores en los que está disponible este producto",
+      of: [
+        {
+          type: "object",
+          fields: [
+            defineField({ name: "name", title: "Nombre del color", type: "string", validation: (Rule) => Rule.required() }),
+            defineField({ name: "hex", title: "Color (hex opcional)", type: "string", description: "Ej: #1a0f00 — se muestra como swatch visual", validation: (Rule) => Rule.regex(/^#[0-9A-Fa-f]{6}$/).warning("Formato esperado: #rrggbb") }),
+          ],
+          preview: {
+            select: { name: "name", hex: "hex" },
+            prepare: ({ name, hex }: { name?: string; hex?: string }) => ({
+              title: name ?? "Sin nombre",
+              subtitle: hex ?? "Sin color hex",
+            }),
+          },
+        },
+      ],
+    }),
+    defineField({
       name: "addons",
       title: "Opciones adicionales",
       type: "array",

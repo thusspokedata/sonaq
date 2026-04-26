@@ -9,6 +9,12 @@ export interface ProductAddon {
 
 export type SelectedAddon = Pick<ProductAddon, "_key" | "title" | "price">;
 
+export interface ProductColor {
+  _key: string;
+  name: string;   // "Negro", "Natural", "Nogal"
+  hex?: string;   // "#1a0f00" — opcional, para mostrar swatch
+}
+
 export interface CartItem {
   cartItemId: string; // productId + color key + addons key para permitir distintas combinaciones
   productId: string;
@@ -16,7 +22,7 @@ export interface CartItem {
   basePrice: number;
   price: number; // basePrice + suma de addons
   addons: SelectedAddon[];
-  color?: string;
+  color?: string; // nombre del color elegido
   quantity: number;
   image?: string;
   slug: string;
@@ -55,6 +61,7 @@ export interface SanityProduct {
   featured: boolean;
   localImages?: string[]; // fallback cuando Sanity no está configurado
   addons?: ProductAddon[];
+  colors?: ProductColor[];
 }
 
 export interface SanityImage {
