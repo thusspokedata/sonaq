@@ -3,14 +3,14 @@
  * Single-process safe (VPS + PM2 single instance). Resets on restart.
  */
 
-interface Window {
+interface RateLimitEntry {
   timestamps: number[];
 }
 
-const store = new Map<string, Window>();
+const store = new Map<string, RateLimitEntry>();
 
 // Prune entries older than the window to avoid unbounded memory growth
-function prune(entry: Window, windowMs: number, now: number) {
+function prune(entry: RateLimitEntry, windowMs: number, now: number) {
   const cutoff = now - windowMs;
   entry.timestamps = entry.timestamps.filter((t) => t > cutoff);
 }

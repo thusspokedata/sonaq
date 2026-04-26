@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { CartIcon } from "@/components/store/CartIcon";
 import { NewsletterForm } from "@/components/store/NewsletterForm";
 
@@ -125,13 +126,13 @@ export default function StoreLayout({
                   Thusspokedata
                 </a>
               </p>
-              <a
+              <Link
                 href="/admin/pedidos"
                 className="text-xs transition-opacity hover:opacity-70"
                 style={{ color: "#a08060" }}
               >
                 Admin
-              </a>
+              </Link>
             </div>
           </div>
         </div>
