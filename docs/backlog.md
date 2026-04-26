@@ -61,6 +61,15 @@ npx prisma migrate deploy
 
 ---
 
+## Newsletter
+
+### Envío de campañas a suscriptores
+**Prioridad:** Media  
+**Contexto:** Los emails captados en el footer se guardan en Resend Audiences. Hoy no hay forma de enviar un email a toda la lista desde la app — hay que hacerlo manualmente desde el dashboard de Resend (Broadcasts). Funciona para el volumen actual pero no escala bien.  
+**Solución:** Evaluar dos opciones: (1) seguir usando Resend Broadcasts manualmente para anuncios puntuales, o (2) construir un formulario en el panel admin (`/admin/newsletter`) que llame a la API de Resend para crear y enviar un broadcast programáticamente.
+
+---
+
 ## UX / Futuro
 
 - MercadoPago Checkout Pro con cuotas (bloqueante: validar precios server-side primero)
