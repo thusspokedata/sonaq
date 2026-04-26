@@ -12,9 +12,14 @@ const adapter = new PrismaPg(connectionString);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  const email = process.env.ADMIN_EMAIL ?? "admin@sonaq.com.ar";
-  const password = process.env.ADMIN_PASSWORD ?? "cambiar-esta-clave";
+  const email = process.env.ADMIN_EMAIL;
+  const password = process.env.ADMIN_PASSWORD;
   const name = process.env.ADMIN_NAME ?? "Administrador";
+
+  if (!email || !password) {
+    console.error("❌ ADMIN_EMAIL y ADMIN_PASSWORD son requeridos.");
+    process.exit(1);
+  }
 
   const existing = await prisma.user.findUnique({ where: { email } });
 

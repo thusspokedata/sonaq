@@ -102,7 +102,7 @@ export default function StoreLayout({
                   target="_blank"
                   rel="noopener noreferrer"
                   className="underline underline-offset-2 transition-opacity hover:opacity-70"
-                  style={{ color: "#a08060" }}
+                  style={{ color: "#5a4535" }}
                 >
                   Thusspokedata
                 </a>
@@ -110,7 +110,7 @@ export default function StoreLayout({
               <Link
                 href="/admin/pedidos"
                 className="text-xs transition-opacity hover:opacity-70"
-                style={{ color: "#a08060" }}
+                style={{ color: "#5a4535" }}
               >
                 Admin
               </Link>
@@ -124,7 +124,7 @@ export default function StoreLayout({
               >
                 Novedades y lanzamientos
               </p>
-              <p className="text-xs" style={{ color: "#a08060" }}>
+              <p className="text-xs" style={{ color: "#5a4535" }}>
                 Sin spam. Solo cuando hay algo nuevo.
               </p>
               <div className="w-full md:w-72">

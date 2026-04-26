@@ -45,7 +45,7 @@ export function NewsletterForm({ dark = false }: NewsletterFormProps) {
           className="px-4 py-2 text-xs font-semibold uppercase tracking-widest transition-opacity hover:opacity-80"
           style={{
             backgroundColor: pending ? (dark ? "#3d2a18" : "#d4c4ae") : "#b8521a",
-            color: "#f5f0e8",
+            color: pending && !dark ? "#5a4535" : "#f5f0e8",
             whiteSpace: "nowrap",
           }}
         >
