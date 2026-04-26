@@ -47,6 +47,7 @@ export default function ContactoPage() {
           <p className="text-2xl font-black uppercase text-[#1a0f00]" style={HEADING_FONT}>
             Córdoba, Argentina
           </p>
+          <p className={BODY}>12 de Octubre 486, Malagueño, Córdoba.</p>
           <p className={BODY}>Enviamos a todo el país.</p>
         </div>
       </div>
