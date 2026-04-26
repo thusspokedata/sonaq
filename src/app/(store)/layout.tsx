@@ -109,7 +109,7 @@ export default function StoreLayout({
               <p className="text-xs" style={{ color: "#5a4535" }}>
                 © {new Date().getFullYear()} Sonaq — Hecho en Argentina
               </p>
-              <p className="text-xs" style={{ color: "#a08060" }}>
+              <p className="text-xs" style={{ color: "#5a4535" }}>
                 Diseñado y desarrollado con{" "}
                 <span style={{ color: "#b8521a" }}>♥</span>{" "}
                 por{" "}
@@ -126,7 +126,7 @@ export default function StoreLayout({
               <Link
                 href="/admin/pedidos"
                 className="text-xs transition-opacity hover:opacity-70"
-                style={{ color: "#a08060" }}
+                style={{ color: "#5a4535" }}
               >
                 Admin
               </Link>
