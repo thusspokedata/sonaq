@@ -223,6 +223,22 @@ export function CheckoutForm() {
       >
         {isPending ? "Procesando..." : "Confirmar pedido"}
       </button>
+
+      {/* Indicador de compra segura */}
+      <div className="flex flex-col gap-2 pt-1">
+        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+          {[
+            { icon: "🔒", label: "Compra segura" },
+            { icon: "🚚", label: "Envío a todo el país" },
+            { icon: "✅", label: "Confirmación por email" },
+          ].map(({ icon, label }) => (
+            <div key={label} className="flex items-center gap-1.5">
+              <span className="text-sm" aria-hidden="true">{icon}</span>
+              <span className="text-xs" style={{ color: "#5a4535" }}>{label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
     </form>
   );
 }
