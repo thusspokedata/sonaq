@@ -116,10 +116,8 @@ export default async function HomePage() {
               style={{ aspectRatio: "9/16" }}
             >
               <iframe
-                src="https://www.youtube-nocookie.com/embed/P5aeAu4qlJo?autoplay=0&rel=0&modestbranding=1"
+                src="https://www.youtube.com/embed/P5aeAu4qlJo?rel=0"
                 title="Vitrina Sonaq"
-                loading="lazy"
-                referrerPolicy="strict-origin-when-cross-origin"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
                 className="absolute inset-0 w-full h-full"
