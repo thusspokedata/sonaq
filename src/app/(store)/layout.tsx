@@ -125,6 +125,13 @@ export default function StoreLayout({
                   Thusspokedata
                 </a>
               </p>
+              <a
+                href="/admin/pedidos"
+                className="text-xs transition-opacity hover:opacity-70"
+                style={{ color: "#a08060" }}
+              >
+                Admin
+              </a>
             </div>
           </div>
         </div>

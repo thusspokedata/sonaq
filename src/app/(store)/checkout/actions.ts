@@ -1,8 +1,10 @@
 "use server";
 
 import { z } from "zod";
+import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { CartItem } from "@/types";
+import { checkRateLimit } from "@/lib/rate-limit";
 import {
   sendOrderConfirmationToCustomer,
   sendNewOrderNotificationToTeam,
@@ -31,6 +33,19 @@ export async function createOrder(
 ): Promise<CheckoutFormState> {
   if (!items.length) {
     return { status: "error", errors: { _: ["El carrito está vacío"] } };
+  }
+
+  // Rate limit: 5 órdenes por IP por hora
+  const headersList = await headers();
+  const ip =
+    headersList.get("x-forwarded-for")?.split(",")[0].trim() ??
+    headersList.get("x-real-ip") ??
+    "unknown";
+  if (!checkRateLimit(`checkout:${ip}`, 5, 60 * 60 * 1000)) {
+    return {
+      status: "error",
+      errors: { _: ["Demasiados intentos. Esperá un momento y volvé a intentarlo."] },
+    };
   }
 
   const raw = {
