@@ -52,8 +52,17 @@ npx prisma migrate deploy
 
 ---
 
+## SEO
+
+### Imagen por defecto para Open Graph (`/public/og-default.jpg`)
+**Prioridad:** Baja  
+**Contexto:** El root layout y el PDP referencian `/og-default.jpg` como fallback cuando un producto no tiene imagen en Sanity. Si el archivo no existe, los crawlers de WhatsApp/Twitter/LinkedIn mostrarán la card sin imagen.  
+**Solución:** Crear una imagen de 1200×630px con el logo de Sonaq sobre fondo beige (`#f5f0e8`) y subirla a `public/og-default.jpg`. Se puede hacer en Canva o Figma.
+
+---
+
 ## UX / Futuro
 
 - MercadoPago Checkout Pro con cuotas (bloqueante: validar precios server-side primero)
 - Página `/nosotros`
-- SEO: OpenGraph, sitemap.xml, robots.txt, metadata por producto
+- Indicador de compra segura en checkout
