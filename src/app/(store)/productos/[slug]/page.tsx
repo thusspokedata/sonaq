@@ -38,7 +38,7 @@ export async function generateMetadata({
   const pageUrl = `${BASE_URL}/productos/${product.slug.current}`;
   const description = product.shortDescription ?? "Mueble para guitarra hecho a medida en Argentina.";
 
-  const ogImage = product.images?.[0]?.asset
+  const ogImage = product.images?.[0]?.asset?._ref
     ? urlFor(product.images[0]).width(1200).height(630).fit("crop").url()
     : `${BASE_URL}/og-default.jpg`;
 

@@ -24,11 +24,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Sanity not configured — sitemap will only include static routes
   }
 
-  const productRoutes: MetadataRoute.Sitemap = products.map((p) => ({
-    url: `${BASE_URL}/productos/${p.slug.current}`,
-    priority: 0.8,
-    changeFrequency: "weekly" as const,
-  }));
+  const productRoutes: MetadataRoute.Sitemap = products
+    .filter((p) => typeof p.slug?.current === "string" && p.slug.current.length > 0)
+    .map((p) => ({
+      url: `${BASE_URL}/productos/${p.slug.current}`,
+      priority: 0.8,
+      changeFrequency: "weekly" as const,
+    }));
 
   return [...staticRoutes, ...productRoutes];
 }

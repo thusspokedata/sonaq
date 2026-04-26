@@ -14,10 +14,21 @@ const barlowCondensed = Barlow_Condensed({
   weight: ["600", "700", "800"],
 });
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "https://sonaq.com.ar";
+function resolveBaseUrl(): URL {
+  const raw = process.env.NEXT_PUBLIC_BASE_URL ?? "https://sonaq.com.ar";
+  const normalized = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+  try {
+    return new URL(normalized);
+  } catch {
+    return new URL("https://sonaq.com.ar");
+  }
+}
+
+const baseUrl = resolveBaseUrl();
+const BASE_URL = baseUrl.origin;
 
 export const metadata: Metadata = {
-  metadataBase: new URL(BASE_URL),
+  metadataBase: baseUrl,
   title: { default: "Sonaq", template: "%s | Sonaq" },
   description: "Donde el sonido descansa. Muebles y vitrinas para guitarras hechos a medida en Argentina.",
   openGraph: {
