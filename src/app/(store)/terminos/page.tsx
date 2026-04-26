@@ -23,8 +23,8 @@ export default function TerminosPage() {
 
       <LegalSection title="1. Datos del vendedor">
         <p>
-          <strong>Sonaq</strong> es un nombre de fantasía. Titular: persona física con domicilio
-          legal en <strong>12 de Octubre 441, Malagueño, Córdoba, República Argentina</strong>.
+          <strong>Sonaq</strong>, con domicilio legal en{" "}
+          <strong>12 de Octubre 441, Malagueño, Córdoba, República Argentina</strong>.
           CUIT: <strong>20-26433102-2</strong>.
         </p>
         <p>

@@ -23,7 +23,7 @@ export default function PrivacidadPage() {
 
       <LegalSection title="1. Responsable del tratamiento">
         <p>
-          <strong>Sonaq</strong> (nombre de fantasía), con domicilio legal en{" "}
+          <strong>Sonaq</strong>, con domicilio legal en{" "}
           <strong>12 de Octubre 441, Malagueño, Córdoba, República Argentina</strong>. CUIT:{" "}
           <strong>20-26433102-2</strong>.
         </p>
