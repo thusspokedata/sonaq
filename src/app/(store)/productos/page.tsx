@@ -5,7 +5,16 @@ import { SanityProduct } from "@/types";
 import { ProductCard } from "@/components/store/ProductCard";
 import { MOCK_PRODUCTS } from "@/lib/mock-products";
 
-export const metadata: Metadata = { title: "Productos" };
+export const metadata: Metadata = {
+  title: "Productos",
+  description: "Vitrinas, soportes y racks para guitarras hechos a medida en Argentina. Descubrí toda la colección Sonaq.",
+  alternates: { canonical: `${process.env.NEXT_PUBLIC_BASE_URL ?? "https://sonaq.com.ar"}/productos` },
+  openGraph: {
+    title: "Productos | Sonaq",
+    description: "Vitrinas, soportes y racks para guitarras hechos a medida en Argentina.",
+    url: `${process.env.NEXT_PUBLIC_BASE_URL ?? "https://sonaq.com.ar"}/productos`,
+  },
+};
 export const revalidate = 60;
 
 const CATEGORIES: Record<string, string> = {
