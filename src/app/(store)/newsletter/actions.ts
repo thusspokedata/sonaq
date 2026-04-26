@@ -1,7 +1,9 @@
 "use server";
 
 import { z } from "zod";
+import { headers } from "next/headers";
 import { Resend } from "resend";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const schema = z.object({
   email: z.string().email(),
@@ -19,6 +21,16 @@ export async function subscribeToNewsletter(
 ): Promise<NewsletterState> {
   const parsed = schema.safeParse({ email: formData.get("email") });
   if (!parsed.success) return { status: "error" };
+
+  // Rate limit: 3 intentos por IP en 10 minutos
+  const headersList = await headers();
+  const ip =
+    headersList.get("x-forwarded-for")?.split(",")[0].trim() ??
+    headersList.get("x-real-ip") ??
+    "unknown";
+  if (!checkRateLimit(`newsletter:${ip}`, 3, 10 * 60 * 1000)) {
+    return { status: "error" };
+  }
 
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
