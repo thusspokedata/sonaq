@@ -1,0 +1,11 @@
+reviews:
+  auto_review:
+    enabled: true
+    # No revisar PRs de bots de dependencias para evitar costos de asientos adicionales
+    ignore_bots:
+      - dependabot[bot]
+      - dependabot
+    ignore_title_keywords:
+      - "chore(deps)"
+      - "chore(deps-dev)"
+      - "bump"
