@@ -31,11 +31,15 @@ export function AddToCartButton({ product, disabled }: AddToCartButtonProps) {
   const catalogExtra = selectedCatalog?.priceExtra ?? 0;
   const totalPrice = (product.price ?? 0) + addonsTotal + catalogExtra;
 
-  // Exclusión mutua: al elegir swatch se limpia catálogo y viceversa
+  // Toggle: click en el swatch seleccionado lo deselecciona, liberando el catálogo
   const handleColorChange = (colorName: string) => {
-    setSelectedColor(colorName);
-    setSelectedCatalog(null);
-    setCatalogColorText("");
+    if (selectedColor === colorName) {
+      setSelectedColor(null);
+    } else {
+      setSelectedColor(colorName);
+      setSelectedCatalog(null);
+      setCatalogColorText("");
+    }
   };
 
   const handleCatalogSelect = (catalog: ProductColorCatalog | null) => {
