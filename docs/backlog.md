@@ -70,8 +70,25 @@ npx prisma migrate deploy
 
 ---
 
+## Mejoras post-lanzamiento
+
+### Entorno de staging (`staging.sonaq.com.ar`)
+**Prioridad:** Media — habilita testing de MercadoPago y QA de features grandes antes de mergear a producción
+**Contexto:** Hoy todo se prueba en local (sin webhooks reales de MP) o directo en producción. Tener un entorno de staging permite (1) recibir webhooks de prueba de MP en una URL pública sin ensuciar producción, (2) validar features grandes con el dueño antes de mergear a main, (3) testear migraciones de Prisma con datos reales sin riesgo.
+**Solución:**
+- Subdominio `staging.sonaq.com.ar` apuntando al mismo VPS (Nginx + PM2 process aparte en otro puerto, o VPS dedicado si conviene).
+- DB separada: usar Neon branching (gratis) para que staging tenga su propia DB sin afectar la de producción.
+- Sanity dataset `staging` (separado del `production` actual).
+- Credenciales de servicios externos: MP en modo TEST, Resend con `from` claramente marcado como staging (ej: `staging@sonaq.com.ar`).
+- Bloquear indexación: `robots.txt` con `Disallow: /` + header `X-Robots-Tag: noindex` en Nginx.
+- Auth básica de Nginx (`htpasswd`) para que solo accedan el dev y el dueño.
+- Variables de entorno en `.env.staging` separadas, deploy con un script `./deploy-staging.sh` análogo al actual.
+- Configurar webhook de MP en modo prueba apuntando a `https://staging.sonaq.com.ar/api/webhooks/mercadopago`.
+**Estimación:** 2-4 horas. Implementar antes del PR de MercadoPago para poder testear el flujo completo end-to-end.
+
+---
+
 ## UX / Futuro
 
 - MercadoPago Checkout Pro con cuotas (bloqueante: validar precios server-side primero)
-- Página `/nosotros`
 - Indicador de compra segura en checkout
