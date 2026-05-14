@@ -3,6 +3,11 @@
 import { ProductColorCatalog } from "@/types";
 import { formatPrice } from "@/lib/order-utils";
 
+const CATALOG_URLS: Record<string, string> = {
+  Faplac: "https://www.faplaconline.com.ar/home/c/ar-faplac",
+  Egger: "https://www.egger.com/es/mobiliario-e-interiorismo/coleccion-decorativa/",
+};
+
 interface CatalogColorSelectorProps {
   catalogs: ProductColorCatalog[];
   selectedCatalog: ProductColorCatalog | null;
@@ -94,15 +99,15 @@ export function CatalogColorSelector({
           <ol className="flex flex-col gap-1.5 text-xs" style={{ color: "#5a4535" }}>
             <li>
               <span className="font-semibold">① </span>
-              {selectedCatalog.catalogUrl ? (
+              {selectedCatalog.showCatalogLink !== false && CATALOG_URLS[selectedCatalog.brand] ? (
                 <a
-                  href={selectedCatalog.catalogUrl}
+                  href={CATALOG_URLS[selectedCatalog.brand]}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="underline underline-offset-2 transition-opacity hover:opacity-70"
                   style={{ color: "#b8521a" }}
                 >
-                  Abrí el catálogo {selectedCatalog.brand} →
+                  Ver catálogo {selectedCatalog.brand} →
                 </a>
               ) : (
                 <span>Buscá el catálogo {selectedCatalog.brand} en su sitio web</span>

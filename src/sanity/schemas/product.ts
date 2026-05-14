@@ -170,10 +170,11 @@ export const productSchema = defineType({
               validation: (Rule) => Rule.required().positive(),
             }),
             defineField({
-              name: "catalogUrl",
-              title: "URL del catálogo",
-              type: "url",
-              description: "Link al PDF o web del catálogo para que el cliente vea los colores disponibles",
+              name: "showCatalogLink",
+              title: "Mostrar link al catálogo",
+              type: "boolean",
+              description: "Si está activado, el cliente verá un botón para ver el catálogo oficial de la marca.",
+              initialValue: true,
             }),
           ],
           preview: {

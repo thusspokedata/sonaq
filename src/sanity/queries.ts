@@ -45,7 +45,7 @@ export const PRODUCT_BY_SLUG_QUERY = groq`
     featured,
     "addons": addons[] { _key, title, description, price },
     "colors": colors[] { _key, name, hex, "textura": textura { asset->{ _id, url } } },
-    "colorCatalogs": colorCatalogs[] { _key, brand, priceExtra, catalogUrl }
+    "colorCatalogs": colorCatalogs[] { _key, brand, priceExtra, showCatalogLink }
   }
 `;
 

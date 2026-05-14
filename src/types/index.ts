@@ -13,7 +13,7 @@ export interface ProductColorCatalog {
   _key: string;
   brand: string;     // "Faplac" | "Egger"
   priceExtra: number;
-  catalogUrl?: string;
+  showCatalogLink?: boolean;
 }
 
 export interface ProductColor {
