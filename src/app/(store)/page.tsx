@@ -56,6 +56,7 @@ export default async function HomePage() {
             priority
             sizes="100vw"
             className="object-cover object-center"
+            style={{ transform: "scaleX(-1)" }}
           />
 
           {/* Gradiente: oscurece el fondo del texto sin tapar la imagen */}
