@@ -126,13 +126,62 @@ export const productSchema = defineType({
           type: "object",
           fields: [
             defineField({ name: "name", title: "Nombre del color", type: "string", validation: (Rule) => Rule.required() }),
-            defineField({ name: "hex", title: "Color (hex opcional)", type: "string", description: "Ej: #1a0f00 — se muestra como swatch visual", validation: (Rule) => Rule.regex(/^#[0-9A-Fa-f]{6}$/).warning("Formato esperado: #rrggbb") }),
+            defineField({ name: "hex", title: "Color (hex opcional)", type: "string", description: "Ej: #1a0f00 — fallback cuando no hay imagen de textura", validation: (Rule) => Rule.regex(/^#[0-9A-Fa-f]{6}$/).warning("Formato esperado: #rrggbb") }),
+            defineField({
+              name: "textura",
+              title: "Imagen de textura",
+              type: "image",
+              description: "Opcional. Si se carga, se muestra en el swatch en lugar del color sólido.",
+              options: { hotspot: false },
+            }),
           ],
           preview: {
-            select: { name: "name", hex: "hex" },
-            prepare: ({ name, hex }: { name?: string; hex?: string }) => ({
+            select: { name: "name", hex: "hex", media: "textura" },
+            prepare: ({ name, hex, media }: { name?: string; hex?: string; media?: Record<string, unknown> }) => ({
               title: name ?? "Sin nombre",
               subtitle: hex ?? "Sin color hex",
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              media: (media as any) ?? undefined,
+            }),
+          },
+        },
+      ],
+    }),
+    defineField({
+      name: "colorCatalogs",
+      title: "Catálogos de color personalizados",
+      type: "array",
+      description: "Catálogos externos (Faplac, Egger) para que el cliente elija un color a medida. Suma un precio adicional.",
+      of: [
+        {
+          type: "object",
+          fields: [
+            defineField({
+              name: "brand",
+              title: "Marca del catálogo",
+              type: "string",
+              options: { list: ["Faplac", "Egger"] },
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: "priceExtra",
+              title: "Precio adicional (ARS)",
+              type: "number",
+              validation: (Rule) => Rule.required().positive(),
+            }),
+            defineField({
+              name: "showCatalogLink",
+              title: "Mostrar link al catálogo",
+              type: "boolean",
+              description: "Si está activado, el cliente verá un botón para ver el catálogo oficial de la marca.",
+              initialValue: true,
+            }),
+          ],
+          preview: {
+            select: { brand: "brand", priceExtra: "priceExtra" },
+            prepare: ({ brand, priceExtra }: { brand?: string; priceExtra?: number }) => ({
+              title: brand ?? "Sin marca",
+              subtitle: typeof priceExtra === "number" ? `+ $${priceExtra.toLocaleString("es-AR")}` : "Sin precio extra",
             }),
           },
         },

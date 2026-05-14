@@ -9,10 +9,23 @@ export interface ProductAddon {
 
 export type SelectedAddon = Pick<ProductAddon, "_key" | "title" | "price">;
 
+export interface ProductColorCatalog {
+  _key: string;
+  brand: string;     // "Faplac" | "Egger"
+  priceExtra: number;
+  showCatalogLink?: boolean;
+}
+
 export interface ProductColor {
   _key: string;
   name: string;   // "Negro", "Natural", "Nogal"
-  hex?: string;   // "#1a0f00" — opcional, para mostrar swatch
+  hex?: string;   // "#1a0f00" — fallback cuando no hay textura
+  textura?: {
+    asset?: {
+      _id: string;
+      url: string;
+    };
+  };
 }
 
 export interface CartItem {
@@ -62,6 +75,7 @@ export interface SanityProduct {
   localImages?: string[]; // fallback cuando Sanity no está configurado
   addons?: ProductAddon[];
   colors?: ProductColor[];
+  colorCatalogs?: ProductColorCatalog[];
 }
 
 export interface SanityImage {
