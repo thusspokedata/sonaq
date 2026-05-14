@@ -146,7 +146,7 @@ export default async function HomePage() {
         {/* Video — izquierda: cover 9:16 con toggle de sonido */}
         <div
           className="relative w-full md:w-1/2 overflow-hidden"
-          style={{ minHeight: "460px", backgroundColor: "#1a0f00" }}
+          style={{ minHeight: "min(80vh, 620px)", backgroundColor: "#1a0f00" }}
         >
           <VideoWithSound />
         </div>
