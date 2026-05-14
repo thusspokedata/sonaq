@@ -4,6 +4,7 @@ import { sanityClient } from "@/lib/sanity";
 import { ALL_PRODUCTS_QUERY } from "@/sanity/queries";
 import { SanityProduct } from "@/types";
 import { ProductCard } from "@/components/store/ProductCard";
+import { VideoWithSound } from "@/components/store/VideoWithSound";
 
 export const revalidate = 60;
 
@@ -134,27 +135,12 @@ export default async function HomePage() {
           Mobile: apilado vertical (video arriba, texto abajo).
       ──────────────────────────────────────────────────────────────────────── */}
       <section className="flex flex-col md:flex-row overflow-hidden">
-        {/* Video — izquierda: cubre el contenedor, recorta superior/inferior */}
+        {/* Video — izquierda: cover 9:16 con toggle de sonido */}
         <div
           className="relative w-full md:w-1/2 overflow-hidden"
           style={{ minHeight: "460px", backgroundColor: "#1a0f00" }}
         >
-          <iframe
-            src="https://www.youtube.com/embed/P5aeAu4qlJo?autoplay=1&mute=1&loop=1&playlist=P5aeAu4qlJo&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&iv_load_policy=3&disablekb=1"
-            title="Vitrina Sonaq con guitarras"
-            allow="autoplay; encrypted-media; picture-in-picture"
-            loading="lazy"
-            style={{
-              border: 0,
-              pointerEvents: "none",
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: "100%",
-              aspectRatio: "9 / 16",
-            }}
-          />
+          <VideoWithSound />
         </div>
 
         {/* Copy — derecha */}
