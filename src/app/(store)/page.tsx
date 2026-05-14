@@ -42,10 +42,6 @@ export default async function HomePage() {
       {/* ─── Hero ─────────────────────────────────────────────────────────────
           Imagen estática full-width con texto superpuesto en la esquina
           inferior izquierda sobre un gradiente oscuro.
-          TODO (video para sección "Ver en acción" o /nosotros):
-            ID: P5aeAu4qlJo
-            URL: https://www.youtube.com/embed/P5aeAu4qlJo?rel=0&autoplay=1&mute=1
-                 &loop=1&playlist=P5aeAu4qlJo&controls=0&modestbranding=1&playsinline=1
       ──────────────────────────────────────────────────────────────────────── */}
       <section
         className="relative w-full overflow-hidden"
@@ -132,37 +128,36 @@ export default async function HomePage() {
         </p>
       </div>
 
-      {/* ─── Ambiente (split 50/50) ─────────────────────────────────────────
-          La foto ocupa exactamente la mitad izquierda del viewport, sin overlay
-          oscuro, para que la vitrina sea visible en todo su esplendor.
-          El copy va en la mitad derecha, sobre fondo crema.
+      {/* ─── "Más que un mueble" (video izq + copy der) ─────────────────────
+          Split 50/50. El iframe 9:16 se centra y recorta para cubrir la
+          mitad izquierda (igual que un <Image fill object-cover>).
+          Mobile: apilado vertical (video arriba, texto abajo).
       ──────────────────────────────────────────────────────────────────────── */}
-      <section
-        className="flex flex-col md:flex-row overflow-hidden"
-        style={{ minHeight: "560px" }}
-      >
-        {/* Imagen — mitad izquierda */}
-        <div className="relative w-full md:w-1/2" style={{ minHeight: "400px" }}>
-          <Image
-            src="/foto1.jpeg"
-            alt="Vitrina Sonaq iluminada con guitarras en ambiente musical"
-            fill
-            className="object-cover object-center"
-            sizes="(max-width: 768px) 100vw, 50vw"
-            priority={false}
-          />
-          {/* Sutil gradiente derecho para suavizar la transición hacia el panel de texto */}
-          <div
-            className="absolute inset-y-0 right-0 w-16 hidden md:block"
-            aria-hidden
+      <section className="flex flex-col md:flex-row overflow-hidden">
+        {/* Video — izquierda: cubre el contenedor, recorta superior/inferior */}
+        <div
+          className="relative w-full md:w-1/2 overflow-hidden"
+          style={{ minHeight: "460px", backgroundColor: "#1a0f00" }}
+        >
+          <iframe
+            src="https://www.youtube.com/embed/P5aeAu4qlJo?autoplay=1&mute=1&loop=1&playlist=P5aeAu4qlJo&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&iv_load_policy=3&disablekb=1"
+            title="Vitrina Sonaq con guitarras"
+            allow="autoplay; encrypted-media; picture-in-picture"
+            loading="lazy"
             style={{
-              background:
-                "linear-gradient(to right, transparent, rgba(245,240,232,0.18))",
+              border: 0,
+              pointerEvents: "none",
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "100%",
+              aspectRatio: "9 / 16",
             }}
           />
         </div>
 
-        {/* Copy — mitad derecha */}
+        {/* Copy — derecha */}
         <div
           className="w-full md:w-1/2 flex items-center px-8 py-16 md:px-14 lg:px-20"
           style={{ backgroundColor: "#f5f0e8" }}
