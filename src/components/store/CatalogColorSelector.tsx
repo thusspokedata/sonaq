@@ -5,7 +5,7 @@ import { formatPrice } from "@/lib/order-utils";
 
 const CATALOG_URLS: Record<string, string> = {
   Faplac: "https://www.faplaconline.com.ar/home/c/ar-faplac",
-  Egger: "https://www.egger.com/es/mobiliario-e-interiorismo/coleccion-decorativa/",
+  Egger: "https://www.egger.com/es/mobiliario-e-interiorismo/?country=AR",
 };
 
 interface CatalogColorSelectorProps {
