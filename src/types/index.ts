@@ -12,7 +12,13 @@ export type SelectedAddon = Pick<ProductAddon, "_key" | "title" | "price">;
 export interface ProductColor {
   _key: string;
   name: string;   // "Negro", "Natural", "Nogal"
-  hex?: string;   // "#1a0f00" — opcional, para mostrar swatch
+  hex?: string;   // "#1a0f00" — fallback cuando no hay textura
+  textura?: {
+    asset?: {
+      _id: string;
+      url: string;
+    };
+  };
 }
 
 export interface CartItem {
