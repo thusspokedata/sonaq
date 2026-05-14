@@ -29,7 +29,14 @@ const VALUE_PROPS = [
 export default async function HomePage() {
   let products: SanityProduct[] = [];
   try {
-    products = await sanityClient.fetch(ALL_PRODUCTS_QUERY);
+    const fetched = await sanityClient.fetch<SanityProduct[] | null>(ALL_PRODUCTS_QUERY);
+    if (Array.isArray(fetched)) {
+      products = fetched;
+    } else {
+      console.error("[HomePage] Unexpected products payload from Sanity:", {
+        receivedType: typeof fetched,
+      });
+    }
   } catch (err) {
     const e = err as Error | null;
     console.error("[HomePage] Error fetching products from Sanity:", {
