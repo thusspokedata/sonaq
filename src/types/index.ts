@@ -9,6 +9,13 @@ export interface ProductAddon {
 
 export type SelectedAddon = Pick<ProductAddon, "_key" | "title" | "price">;
 
+export interface ProductColorCatalog {
+  _key: string;
+  brand: string;     // "Faplac" | "Egger"
+  priceExtra: number;
+  catalogUrl?: string;
+}
+
 export interface ProductColor {
   _key: string;
   name: string;   // "Negro", "Natural", "Nogal"
@@ -68,6 +75,7 @@ export interface SanityProduct {
   localImages?: string[]; // fallback cuando Sanity no está configurado
   addons?: ProductAddon[];
   colors?: ProductColor[];
+  colorCatalogs?: ProductColorCatalog[];
 }
 
 export interface SanityImage {

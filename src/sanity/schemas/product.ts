@@ -148,6 +148,45 @@ export const productSchema = defineType({
       ],
     }),
     defineField({
+      name: "colorCatalogs",
+      title: "Catálogos de color personalizados",
+      type: "array",
+      description: "Catálogos externos (Faplac, Egger) para que el cliente elija un color a medida. Suma un precio adicional.",
+      of: [
+        {
+          type: "object",
+          fields: [
+            defineField({
+              name: "brand",
+              title: "Marca del catálogo",
+              type: "string",
+              options: { list: ["Faplac", "Egger"] },
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: "priceExtra",
+              title: "Precio adicional (ARS)",
+              type: "number",
+              validation: (Rule) => Rule.required().positive(),
+            }),
+            defineField({
+              name: "catalogUrl",
+              title: "URL del catálogo",
+              type: "url",
+              description: "Link al PDF o web del catálogo para que el cliente vea los colores disponibles",
+            }),
+          ],
+          preview: {
+            select: { brand: "brand", priceExtra: "priceExtra" },
+            prepare: ({ brand, priceExtra }: { brand?: string; priceExtra?: number }) => ({
+              title: brand ?? "Sin marca",
+              subtitle: typeof priceExtra === "number" ? `+ $${priceExtra.toLocaleString("es-AR")}` : "Sin precio extra",
+            }),
+          },
+        },
+      ],
+    }),
+    defineField({
       name: "addons",
       title: "Opciones adicionales",
       type: "array",
