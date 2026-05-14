@@ -1,10 +1,29 @@
 import Link from "next/link";
+import Image from "next/image";
 import { sanityClient } from "@/lib/sanity";
 import { ALL_PRODUCTS_QUERY } from "@/sanity/queries";
 import { SanityProduct } from "@/types";
 import { ProductCard } from "@/components/store/ProductCard";
 
 export const revalidate = 60;
+
+const VALUE_PROPS = [
+  {
+    titulo: "Diseño Premium",
+    texto:
+      "Cada vitrina está pensada para ser un objeto de culto, no solo almacenamiento.",
+  },
+  {
+    titulo: "Hecho a Medida",
+    texto:
+      "Adaptamos dimensiones y terminaciones a tu espacio y colección.",
+  },
+  {
+    titulo: "Protección Real",
+    texto:
+      "Control de humedad, protección UV y anclaje seguro para cada guitarra.",
+  },
+];
 
 export default async function HomePage() {
   let products: SanityProduct[] = [];
@@ -20,131 +39,191 @@ export default async function HomePage() {
 
   return (
     <div>
-      {/* Hero */}
+      {/* ─── Hero ─────────────────────────────────────────────────────────────
+          Imagen estática full-width con texto superpuesto en la esquina
+          inferior izquierda sobre un gradiente oscuro.
+          TODO (video para sección "Ver en acción" o /nosotros):
+            ID: P5aeAu4qlJo
+            URL: https://www.youtube.com/embed/P5aeAu4qlJo?rel=0&autoplay=1&mute=1
+                 &loop=1&playlist=P5aeAu4qlJo&controls=0&modestbranding=1&playsinline=1
+      ──────────────────────────────────────────────────────────────────────── */}
       <section
-        className="relative overflow-hidden py-28 px-4"
-        style={{ backgroundColor: "#b8521a" }}
+        className="relative w-full overflow-hidden"
+        style={{ height: "clamp(480px, 90vh, 1000px)", backgroundColor: "#1a0f00" }}
       >
-        {/* Texto gigante de fondo */}
-        <div
-          className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden"
-          aria-hidden
-        >
-          <span
-            className="text-[22vw] font-black uppercase leading-none opacity-10 tracking-tight"
-            style={{
-              fontFamily: "var(--font-barlow-condensed), sans-serif",
-              color: "#f5f0e8",
-            }}
-          >
-            SONAQ
-          </span>
-        </div>
+          {/* Imagen de fondo */}
+          <Image
+            src="/foto1.jpeg"
+            alt="Vitrina Sonaq con guitarras en el taller"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-center"
+          />
 
-        <div className="relative max-w-6xl mx-auto flex flex-col items-start gap-6">
-          <p
-            className="text-xs font-semibold uppercase tracking-[0.25em]"
-            style={{ color: "#ede5d8", opacity: 0.8 }}
-          >
-            Donde el sonido descansa
-          </p>
-          <h1
-            className="text-6xl md:text-8xl font-black uppercase leading-none"
+          {/* Gradiente: oscurece el fondo del texto sin tapar la imagen */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            aria-hidden
             style={{
-              fontFamily: "var(--font-barlow-condensed), sans-serif",
-              color: "#f5f0e8",
+              background:
+                "linear-gradient(to top, rgba(26,15,0,0.82) 0%, rgba(26,15,0,0.35) 40%, rgba(26,15,0,0.0) 70%)",
             }}
-          >
-            Muebles para
-            <br />
-            tus instrumentos
-          </h1>
-          <p
-            className="text-base md:text-lg max-w-md leading-relaxed"
-            style={{ color: "#ede5d8", opacity: 0.85 }}
-          >
-            Vitrinas y soportes standard y a medida.
-          </p>
-          <Link
-            href="/productos"
-            className="inline-block px-8 py-3 font-semibold uppercase tracking-widest text-sm transition-all hover:opacity-90"
-            style={{
-              backgroundColor: "#f5f0e8",
-              color: "#b8521a",
-              letterSpacing: "0.15em",
-            }}
-          >
-            Ver productos
-          </Link>
-        </div>
+          />
+
+          {/* Texto superpuesto — esquina inferior izquierda */}
+          <div className="absolute bottom-0 left-0 w-full px-6 pb-10 md:px-12 md:pb-14 lg:px-16 lg:pb-16">
+            <div className="max-w-6xl mx-auto flex flex-col items-start gap-5">
+              {/* Eyebrow */}
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-1 h-4 shrink-0"
+                  style={{ backgroundColor: "#b8521a" }}
+                />
+                <p
+                  className="text-xs font-semibold uppercase tracking-[0.25em]"
+                  style={{ color: "#f5f0e8", opacity: 0.8 }}
+                >
+                  Donde el sonido descansa
+                </p>
+              </div>
+
+              {/* Titular */}
+              <h1
+                className="text-5xl md:text-7xl lg:text-8xl font-black uppercase leading-none"
+                style={{
+                  fontFamily: "var(--font-barlow-condensed), sans-serif",
+                  color: "#f5f0e8",
+                  textShadow: "0 2px 24px rgba(26,15,0,0.4)",
+                }}
+              >
+                Muebles para
+                <br />
+                tus instrumentos
+              </h1>
+
+              {/* Bajada + CTA — en desktop en fila */}
+              <div className="flex flex-col sm:flex-row sm:items-end gap-5 sm:gap-10">
+                <p
+                  className="text-sm md:text-base max-w-xs leading-relaxed"
+                  style={{ color: "#f5f0e8", opacity: 0.85 }}
+                >
+                  Vitrinas y soportes standard y a medida, diseñados y fabricados en Argentina.
+                </p>
+                <Link
+                  href="/productos"
+                  className="shrink-0 inline-block px-8 py-3 text-sm font-semibold uppercase tracking-[0.15em] transition-opacity hover:opacity-80"
+                  style={{ backgroundColor: "#f5f0e8", color: "#b8521a" }}
+                >
+                  Ver productos
+                </Link>
+              </div>
+            </div>
+          </div>
       </section>
 
-      {/* Franja tagline */}
-      <div
-        className="py-4 overflow-hidden"
-        style={{ backgroundColor: "#1a0f00" }}
-      >
+      {/* ─── Tagline ───────────────────────────────────────────────────────── */}
+      <div className="py-4 overflow-hidden" style={{ backgroundColor: "#1a0f00" }}>
         <p
-          className="text-center text-xs uppercase tracking-[0.4em] font-medium"
-          style={{ color: "#ede5d8", opacity: 0.6 }}
+          className="text-center text-xs uppercase tracking-[0.45em] font-medium"
+          style={{ color: "#ede5d8", opacity: 0.55 }}
         >
-          Diseño &nbsp;<span style={{ verticalAlign: "middle" }}>·</span>&nbsp; Calidad &nbsp;<span style={{ verticalAlign: "middle" }}>·</span>&nbsp; Tecnología
+          Diseño&nbsp;&nbsp;·&nbsp;&nbsp;Calidad&nbsp;&nbsp;·&nbsp;&nbsp;Tecnología
         </p>
       </div>
 
-      {/* Video */}
-      <section className="py-20 px-4" style={{ backgroundColor: "#1a0f00" }}>
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12">
-          {/* Texto */}
-          <div className="flex flex-col gap-5 md:flex-1">
-            <div className="w-8 h-1" style={{ backgroundColor: "#b8521a" }} />
-            <h2
-              className="text-4xl md:text-5xl font-black uppercase leading-tight"
-              style={{ fontFamily: "var(--font-barlow-condensed), sans-serif", color: "#f5f0e8" }}
-            >
-              Más que un mueble,<br />una experiencia
-            </h2>
-            <p className="text-sm leading-relaxed max-w-sm" style={{ color: "#ede5d8", opacity: 0.75 }}>
-              Cada vitrina Sonaq está pensada para proteger tu colección y convertirla en el centro de cualquier ambiente. Materiales seleccionados, terminaciones artesanales y diseño hecho en Argentina.
-            </p>
-          </div>
+      {/* ─── Ambiente (split 50/50) ─────────────────────────────────────────
+          La foto ocupa exactamente la mitad izquierda del viewport, sin overlay
+          oscuro, para que la vitrina sea visible en todo su esplendor.
+          El copy va en la mitad derecha, sobre fondo crema.
+      ──────────────────────────────────────────────────────────────────────── */}
+      <section
+        className="flex flex-col md:flex-row overflow-hidden"
+        style={{ minHeight: "560px" }}
+      >
+        {/* Imagen — mitad izquierda */}
+        <div className="relative w-full md:w-1/2" style={{ minHeight: "400px" }}>
+          <Image
+            src="/foto1.jpeg"
+            alt="Vitrina Sonaq iluminada con guitarras en ambiente musical"
+            fill
+            className="object-cover object-center"
+            sizes="(max-width: 768px) 100vw, 50vw"
+            priority={false}
+          />
+          {/* Sutil gradiente derecho para suavizar la transición hacia el panel de texto */}
+          <div
+            className="absolute inset-y-0 right-0 w-16 hidden md:block"
+            aria-hidden
+            style={{
+              background:
+                "linear-gradient(to right, transparent, rgba(245,240,232,0.18))",
+            }}
+          />
+        </div>
 
-          {/* Video vertical (YouTube Shorts) */}
-          <div className="w-full md:w-auto flex justify-center">
-            <div
-              className="relative overflow-hidden rounded w-full max-w-[320px]"
-              style={{ aspectRatio: "9/16" }}
+        {/* Copy — mitad derecha */}
+        <div
+          className="w-full md:w-1/2 flex items-center px-8 py-16 md:px-14 lg:px-20"
+          style={{ backgroundColor: "#f5f0e8" }}
+        >
+          <div className="flex flex-col gap-6 max-w-md">
+            <div className="w-10 h-1" style={{ backgroundColor: "#b8521a" }} />
+            <h2
+              className="text-4xl md:text-5xl lg:text-6xl font-black uppercase leading-tight"
+              style={{
+                fontFamily: "var(--font-barlow-condensed), sans-serif",
+                color: "#1a0f00",
+              }}
             >
-              <iframe
-                src="https://www.youtube.com/embed/P5aeAu4qlJo?rel=0"
-                title="Vitrina Sonaq"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="absolute inset-0 w-full h-full"
-                style={{ border: "none" }}
-              />
-            </div>
+              Mas que un mueble,
+              <br />
+              una experiencia
+            </h2>
+            <p
+              className="text-sm md:text-base leading-relaxed"
+              style={{ color: "#5a4535" }}
+            >
+              Cada vitrina Sonaq está pensada para proteger tu coleccion y
+              convertirla en el centro de cualquier ambiente. Materiales
+              seleccionados, terminaciones artesanales y diseno hecho en
+              Argentina.
+            </p>
+            <Link
+              href="/productos"
+              className="self-start text-sm font-semibold uppercase tracking-[0.15em] underline underline-offset-4 transition-opacity hover:opacity-70"
+              style={{ color: "#b8521a" }}
+            >
+              Conocer las vitrinas
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Productos */}
-      <section className="max-w-6xl mx-auto px-4 py-20">
+      {/* ─── Productos ─────────────────────────────────────────────────────── */}
+      <section
+        className="max-w-6xl mx-auto px-4 py-20"
+        style={{ backgroundColor: "#f5f0e8" }}
+      >
         <div className="flex items-end justify-between mb-10">
           <h2
             className="text-4xl font-black uppercase"
-            style={{ fontFamily: "var(--font-barlow-condensed), sans-serif", color: "#1a0f00" }}
+            style={{
+              fontFamily: "var(--font-barlow-condensed), sans-serif",
+              color: "#1a0f00",
+            }}
           >
             Nuestros productos
           </h2>
           <Link
             href="/productos"
-            className="text-sm font-medium uppercase tracking-widest underline underline-offset-4"
+            className="text-sm font-medium uppercase tracking-widest underline underline-offset-4 transition-opacity hover:opacity-70"
             style={{ color: "#b8521a" }}
           >
             Ver todos
           </Link>
         </div>
+
         {products.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {products.map((product) => (
@@ -152,53 +231,64 @@ export default async function HomePage() {
             ))}
           </div>
         ) : (
-          <div className="py-16 text-center flex flex-col items-center gap-4">
+          <div className="py-16 text-center flex flex-col items-center gap-3">
             <p
               className="text-2xl font-black uppercase"
-              style={{ fontFamily: "var(--font-barlow-condensed), sans-serif", color: "#d4c4ae" }}
+              style={{
+                fontFamily: "var(--font-barlow-condensed), sans-serif",
+                color: "#d4c4ae",
+              }}
             >
-              Próximamente
+              Proximamente
             </p>
             <p className="text-sm" style={{ color: "#5a4535" }}>
-              Estamos cargando nuestros productos. Volvé pronto.
+              Estamos cargando nuestros productos. Volva pronto.
             </p>
           </div>
         )}
       </section>
 
-      {/* Bloque propuesta de valor */}
-      <section
-        className="py-20 px-4"
-        style={{ backgroundColor: "#ede5d8" }}
-      >
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10">
-          {[
-            {
-              titulo: "Diseño Premium",
-              texto: "Cada vitrina está pensada para ser un objeto de culto, no solo almacenamiento.",
-            },
-            {
-              titulo: "Hecho a Medida",
-              texto: "Adaptamos dimensiones y terminaciones a tu espacio y colección.",
-            },
-            {
-              titulo: "Protección Real",
-              texto: "Control de humedad, protección UV y anclaje seguro para cada guitarra.",
-            },
-          ].map((item) => (
-            <div key={item.titulo} className="flex flex-col gap-3">
-              <div className="w-8 h-1" style={{ backgroundColor: "#b8521a" }} />
-              <h3
-                className="text-2xl font-bold uppercase"
-                style={{ fontFamily: "var(--font-barlow-condensed), sans-serif", color: "#1a0f00" }}
-              >
-                {item.titulo}
-              </h3>
-              <p className="text-sm leading-relaxed" style={{ color: "#5a4535" }}>
-                {item.texto}
-              </p>
-            </div>
-          ))}
+      {/* ─── Propuesta de valor ────────────────────────────────────────────── */}
+      <section className="py-20 px-4" style={{ backgroundColor: "#ede5d8" }}>
+        <div className="max-w-6xl mx-auto">
+          {/* Encabezado de sección */}
+          <p
+            className="text-xs uppercase tracking-[0.35em] font-semibold mb-10"
+            style={{ color: "#b8521a" }}
+          >
+            Por que Sonaq
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8 lg:gap-14">
+            {VALUE_PROPS.map((item, index) => (
+              <div key={item.titulo} className="flex flex-col gap-4">
+                {/* Numero de item */}
+                <span
+                  className="text-6xl font-black leading-none select-none"
+                  style={{
+                    fontFamily: "var(--font-barlow-condensed), sans-serif",
+                    color: "#d4c4ae",
+                  }}
+                  aria-hidden
+                >
+                  0{index + 1}
+                </span>
+                <div className="w-8 h-px" style={{ backgroundColor: "#b8521a" }} />
+                <h3
+                  className="text-2xl font-black uppercase"
+                  style={{
+                    fontFamily: "var(--font-barlow-condensed), sans-serif",
+                    color: "#1a0f00",
+                  }}
+                >
+                  {item.titulo}
+                </h3>
+                <p className="text-sm leading-relaxed" style={{ color: "#5a4535" }}>
+                  {item.texto}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
     </div>
