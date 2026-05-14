@@ -20,6 +20,7 @@ declare global {
 // ─────────────────────────────────────────────────────────────────────────────
 
 const VIDEO_ID = "P5aeAu4qlJo";
+const SCRIPT_SRC = "https://www.youtube.com/iframe_api";
 
 function SoundOffIcon() {
   return (
@@ -44,10 +45,19 @@ export function VideoWithSound() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
+    let mounted = true;
+    // Referencia al callback que instalamos, para poder restaurar el anterior
+    // en el cleanup sin depender de una comparación frágil
+    let ourCallback: (() => void) | undefined;
+
     function initPlayer() {
-      if (!playerElRef.current) return;
+      if (!mounted || !playerElRef.current) return;
       playerRef.current = new window.YT.Player(playerElRef.current, {
         videoId: VIDEO_ID,
+        // Pasar dimensiones al constructor para que el iframe generado
+        // respete el tamaño del contenedor en lugar de usar el default 640×390
+        width: "100%",
+        height: "100%",
         playerVars: {
           autoplay: 1,
           mute: 1,
@@ -64,9 +74,13 @@ export function VideoWithSound() {
         },
         events: {
           onReady: (e: { target: { getIframe(): HTMLIFrameElement } }) => {
-            // Sacar el iframe del tab order — es decorativo, la interacción
-            // es solo el botón de sonido
+            if (!mounted) return;
             const iframe = e.target.getIframe();
+            // Forzar que el iframe generado por YouTube ocupe todo el contenedor
+            iframe.style.width = "100%";
+            iframe.style.height = "100%";
+            iframe.style.display = "block";
+            // Sacar el iframe del tab order — es decorativo
             iframe.setAttribute("tabindex", "-1");
             iframe.setAttribute("aria-hidden", "true");
             setReady(true);
@@ -81,16 +95,42 @@ export function VideoWithSound() {
     }
 
     if (window.YT?.Player) {
+      // API ya disponible (SPA navigation, Strict Mode second mount)
       initPlayer();
     } else {
-      window.onYouTubeIframeAPIReady = initPlayer;
-      const script = document.createElement("script");
-      script.src = "https://www.youtube.com/iframe_api";
-      script.async = true;
-      document.head.appendChild(script);
+      // Preservar cualquier callback previo (chaining) para no romper
+      // otros componentes que también usen la YouTube IFrame API
+      const previousCallback = window.onYouTubeIframeAPIReady;
+
+      ourCallback = () => {
+        if (typeof previousCallback === "function") {
+          try {
+            previousCallback();
+          } catch (err) {
+            console.error("Previous onYouTubeIframeAPIReady callback threw:", err);
+          }
+        }
+        if (mounted) initPlayer();
+      };
+
+      window.onYouTubeIframeAPIReady = ourCallback;
+
+      // Insertar el script solo si no existe ya (evita duplicados en remounts)
+      const existingScript = document.querySelector(`script[src="${SCRIPT_SRC}"]`);
+      if (!existingScript) {
+        const script = document.createElement("script");
+        script.src = SCRIPT_SRC;
+        script.async = true;
+        document.head.appendChild(script);
+      }
     }
 
     return () => {
+      mounted = false;
+      // Restaurar el callback anterior solo si nadie más lo sobreescribió
+      if (ourCallback && window.onYouTubeIframeAPIReady === ourCallback) {
+        window.onYouTubeIframeAPIReady = undefined;
+      }
       playerRef.current?.destroy();
     };
   }, []);
@@ -108,9 +148,11 @@ export function VideoWithSound() {
 
   return (
     <div className="relative w-full h-full">
-      {/* Div reemplazado por el iframe de YouTube vía IFrame Player API */}
+      {/* Contenedor con aspect ratio 9:16 centrado — simula object-fit cover
+          para iframes (que no soportan esa propiedad CSS directamente).
+          El wrapper fija el aspect ratio; el div interno es el target que
+          YouTube reemplaza con su iframe. */}
       <div
-        ref={playerElRef}
         style={{
           position: "absolute",
           top: "50%",
@@ -118,9 +160,10 @@ export function VideoWithSound() {
           transform: "translate(-50%, -50%)",
           width: "100%",
           aspectRatio: "9 / 16",
-          border: 0,
         }}
-      />
+      >
+        <div ref={playerElRef} style={{ width: "100%", height: "100%" }} />
+      </div>
 
       {/* Toggle de sonido — aparece cuando el player está listo */}
       {ready && (
