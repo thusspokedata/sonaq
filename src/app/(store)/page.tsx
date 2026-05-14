@@ -157,7 +157,7 @@ export default async function HomePage() {
                 color: "#1a0f00",
               }}
             >
-              Mas que un mueble,
+              Más que un mueble,
               <br />
               una experiencia
             </h2>
@@ -165,9 +165,9 @@ export default async function HomePage() {
               className="text-sm md:text-base leading-relaxed"
               style={{ color: "#5a4535" }}
             >
-              Cada vitrina Sonaq está pensada para proteger tu coleccion y
+              Cada vitrina Sonaq está pensada para proteger tu colección y
               convertirla en el centro de cualquier ambiente. Materiales
-              seleccionados, terminaciones artesanales y diseno hecho en
+              seleccionados, terminaciones artesanales y diseño hecho en
               Argentina.
             </p>
             <Link
@@ -220,10 +220,10 @@ export default async function HomePage() {
                 color: "#d4c4ae",
               }}
             >
-              Proximamente
+              Próximamente
             </p>
             <p className="text-sm" style={{ color: "#5a4535" }}>
-              Estamos cargando nuestros productos. Volva pronto.
+              Estamos cargando nuestros productos. Volvé pronto.
             </p>
           </div>
         )}
@@ -237,7 +237,7 @@ export default async function HomePage() {
             className="text-xs uppercase tracking-[0.35em] font-semibold mb-10"
             style={{ color: "#b8521a" }}
           >
-            Por que Sonaq
+            Por qué Sonaq
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8 lg:gap-14">

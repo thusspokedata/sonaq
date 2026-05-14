@@ -63,7 +63,14 @@ export function VideoWithSound() {
           enablejsapi: 1,
         },
         events: {
-          onReady: () => setReady(true),
+          onReady: (e: { target: { getIframe(): HTMLIFrameElement } }) => {
+            // Sacar el iframe del tab order — es decorativo, la interacción
+            // es solo el botón de sonido
+            const iframe = e.target.getIframe();
+            iframe.setAttribute("tabindex", "-1");
+            iframe.setAttribute("aria-hidden", "true");
+            setReady(true);
+          },
           // Reiniciar cuando termina el video (estado 0) para evitar
           // que YouTube muestre la pantalla de "ver más videos"
           onStateChange: (e: { data: number }) => {
