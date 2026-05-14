@@ -28,7 +28,8 @@ export default function StoreLayout({
               width={64}
               height={96}
               priority
-              style={{ mixBlendMode: "multiply", height: "auto" }}
+              className="w-16 h-auto"
+              style={{ mixBlendMode: "multiply" }}
             />
           </a>
 
