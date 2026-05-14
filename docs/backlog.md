@@ -70,8 +70,25 @@ npx prisma migrate deploy
 
 ---
 
-## UX / Futuro
+## Bloqueantes para lanzamiento real
 
 - MercadoPago Checkout Pro con cuotas (bloqueante: validar precios server-side primero)
+
+### Soporte de texturas (imágenes) en el selector de color de productos
+**Prioridad:** Alta — falta para vender bien
+**Contexto:** Los muebles Sonaq no se ofrecen en colores lisos sino con texturas (vetas de madera, acabados artesanales). El schema actual de variantes de color en Sanity tiene `nombre` + `hex (opcional)`, lo que no representa fielmente una textura. Se necesitan 3-4 opciones por producto con imagen real del acabado.
+**Solución:**
+- Extender el schema de Sanity del producto: agregar campo `textura` (asset de imagen) al objeto de variante de color, junto a `nombre` y `hex`.
+- Mantener `hex` como fallback para vistas previas pequeñas o cuando no hay textura cargada.
+- Adaptar el selector de color en el PDP (`src/app/(store)/productos/[slug]/`) para renderizar la imagen de textura como swatch en vez del color sólido. Tamaño de swatch sugerido: 48-64px circular o cuadrado redondeado, con `<Image>` de Next.js (no `<img>`).
+- Al hacer hover/click en un swatch, opcionalmente mostrar un preview ampliado de la textura.
+- Actualizar el tipo TypeScript de variante en `src/types/` y la query GROQ en `src/sanity/`.
+- Migración: revisar productos existentes en Sanity y subir la imagen de textura para las variantes que ya tengan `nombre` + `hex`.
+**Acceptance:** En el PDP, cada swatch del selector de color muestra la textura real del acabado. Si una variante no tiene `textura` cargada, fallback al `hex`. Si no tiene ninguno de los dos, no se rompe el render.
+
+---
+
+## UX / Futuro
+
 - Página `/nosotros`
 - Indicador de compra segura en checkout
