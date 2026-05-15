@@ -31,7 +31,7 @@ echo "→ Installing Linux-specific native packages..."
 ssh $VPS "cd $REMOTE_DIR && npm install @parcel/watcher-linux-x64-glibc --no-save 2>/dev/null || true"
 
 echo "→ Running Prisma migrations on VPS (staging DB)..."
-ssh $VPS "cd $REMOTE_DIR && source .env.staging && npx prisma migrate deploy"
+ssh $VPS "cd $REMOTE_DIR && set -a && source .env.staging && set +a && npx prisma migrate deploy"
 
 echo "→ Regenerating Prisma client on VPS..."
 ssh $VPS "cd $REMOTE_DIR && npx prisma generate"
