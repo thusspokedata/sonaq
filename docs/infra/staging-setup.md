@@ -102,7 +102,7 @@ server {
 Activar el sitio:
 
 ```bash
-ln -s /etc/nginx/sites-available/staging.sonaq.com.ar /etc/nginx/sites-enabled/
+ln -sfn /etc/nginx/sites-available/staging.sonaq.com.ar /etc/nginx/sites-enabled/
 nginx -t && systemctl reload nginx
 ```
 
@@ -175,7 +175,7 @@ Desde el VPS:
 
 ```bash
 cd /var/www/sonaq-staging
-source .env.staging
+set -a; source .env.staging; set +a
 npx prisma migrate deploy
 ```
 
