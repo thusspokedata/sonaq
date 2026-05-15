@@ -1,8 +1,17 @@
 import { resend } from "./resend";
 import type { CartItem } from "@/types";
 
-const FROM = process.env.RESEND_FROM ?? "pedidos@sonaq.com.ar";
+const FROM = process.env.EMAIL_FROM ?? process.env.RESEND_FROM ?? "pedidos@sonaq.com.ar";
 const NOTIFY_EMAIL = process.env.SONAQ_NOTIFY_EMAIL ?? "ventas@sonaq.com.ar";
+const DRY_RUN = process.env.EMAIL_DRY_RUN === "true";
+
+async function sendEmail(payload: Parameters<typeof resend.emails.send>[0]) {
+  if (DRY_RUN) {
+    console.log("[EMAIL DRY RUN]", JSON.stringify({ to: payload.to, from: payload.from, subject: payload.subject, html: payload.html }, null, 2));
+    return { data: { id: `dry-run-${Date.now()}` }, error: null };
+  }
+  return resend.emails.send(payload);
+}
 
 const TERRACOTA = "#b8521a";
 const DARK = "#1a0f00";
@@ -127,7 +136,7 @@ export async function sendOrderConfirmationToCustomer({
     </p>
   `);
 
-  return resend.emails.send({
+  return sendEmail({
     from: `Sonaq <${FROM}>`,
     to: customerEmail,
     subject: `Pedido recibido #${orderId.slice(-8).toUpperCase()}`,
@@ -210,7 +219,7 @@ export async function sendNewOrderNotificationToTeam({
     </table>
   `);
 
-  return resend.emails.send({
+  return sendEmail({
     from: `Sonaq <${FROM}>`,
     to: NOTIFY_EMAIL,
     subject: `🛒 Nuevo pedido — ${customerName} · $${total.toLocaleString("es-AR")}`,

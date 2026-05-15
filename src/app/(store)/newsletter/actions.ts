@@ -46,6 +46,11 @@ export async function subscribeToNewsletter(
 
   const resend = new Resend(apiKey);
 
+  if (process.env.EMAIL_DRY_RUN === "true") {
+    console.log(`[EMAIL DRY RUN] newsletter subscribe: ${parsed.data.email} → audience ${audienceId}`);
+    return { status: "success" };
+  }
+
   try {
     await resend.contacts.create({
       email: parsed.data.email,
