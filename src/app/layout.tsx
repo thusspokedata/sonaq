@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Barlow, Barlow_Condensed } from "next/font/google";
 import { BASE_URL } from "@/lib/base-url";
+import { StagingBanner } from "@/components/store/StagingBanner";
 import "./globals.css";
 
 const barlow = Barlow({
@@ -48,6 +49,7 @@ export default function RootLayout({
         className="min-h-full"
         style={{ fontFamily: "var(--font-barlow), sans-serif" }}
       >
+        <StagingBanner />
         {children}
       </body>
     </html>
