@@ -86,7 +86,7 @@ server {
     auth_basic_user_file /etc/nginx/.htpasswd-staging;
 
     location / {
-        proxy_pass         http://localhost:3001;
+        proxy_pass         http://localhost:3006;
         proxy_http_version 1.1;
         proxy_set_header   Upgrade $http_upgrade;
         proxy_set_header   Connection 'upgrade';
@@ -122,7 +122,7 @@ nginx -t && systemctl reload nginx
 
 ---
 
-## 5. PM2 — proceso staging en puerto 3001
+## 5. PM2 — proceso staging en puerto 3006
 
 PM2 no re-lee `.env.staging` en cada restart. Para que las variables persistan tras reinicios del VPS, usar un ecosystem file:
 
@@ -132,7 +132,7 @@ module.exports = {
   apps: [{
     name: "sonaq-staging",
     script: "npm",
-    args: "start -- -p 3001",
+    args: "start -- -p 3006",
     cwd: "/var/www/sonaq-staging",
     env_file: "/var/www/sonaq-staging/.env.staging",
   }],
