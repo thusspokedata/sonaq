@@ -75,7 +75,9 @@ export function CheckoutForm() {
 
     startTransition(async () => {
       const result = await createOrder(items, formData);
-      if (result.status === "success") {
+      if (result.status === "mp_redirect") {
+        window.location.href = result.initPoint;
+      } else if (result.status === "success") {
         clearCart();
         router.push(`/gracias?orden=${result.orderId}`);
       } else {
