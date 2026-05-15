@@ -151,7 +151,7 @@ export function CheckoutForm() {
         <div className="flex flex-col gap-2">
           {[
             { value: "BANK_TRANSFER", label: "Transferencia bancaria", desc: "Te enviamos los datos por email al confirmar" },
-            { value: "MERCADOPAGO", label: "MercadoPago", desc: "Tarjeta de crédito, débito o cuotas (próximamente)", disabled: true },
+            { value: "MERCADOPAGO", label: "MercadoPago", desc: "Tarjeta de crédito, débito o cuotas" },
           ].map(({ value, label, desc, disabled }) => (
             <label
               key={value}
