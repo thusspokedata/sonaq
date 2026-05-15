@@ -30,6 +30,9 @@ Editar `.env.staging` en el VPS con los valores reales:
 nano .env.staging
 ```
 
+> **Importante:** `RESEND_API_KEY` debe estar configurado incluso cuando `EMAIL_DRY_RUN=true`.
+> El módulo `src/lib/resend.ts` valida la clave al arrancar el servidor — si falta, el proceso crashea antes de servir requests.
+
 ---
 
 ## 2. HTTP Basic Auth (htpasswd)
@@ -105,7 +108,7 @@ Activar el sitio:
 
 ```bash
 ln -s /etc/nginx/sites-available/staging.sonaq.com.ar /etc/nginx/sites-enabled/
-nginx -t
+nginx -t && systemctl reload nginx
 ```
 
 ---
@@ -126,10 +129,22 @@ nginx -t && systemctl reload nginx
 
 ## 5. PM2 — proceso staging en puerto 3001
 
+PM2 no re-lee `.env.staging` en cada restart. Para que las variables persistan tras reinicios del VPS, usar un ecosystem file:
+
 ```bash
-cd /var/www/sonaq-staging
-source .env.staging
-pm2 start npm --name sonaq-staging -- start -- -p 3001
+cat > /var/www/sonaq-staging/ecosystem.staging.config.js << 'EOF'
+module.exports = {
+  apps: [{
+    name: "sonaq-staging",
+    script: "npm",
+    args: "start -- -p 3001",
+    cwd: "/var/www/sonaq-staging",
+    env_file: "/var/www/sonaq-staging/.env.staging",
+  }],
+};
+EOF
+
+pm2 start ecosystem.staging.config.js
 pm2 save
 ```
 

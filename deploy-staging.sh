@@ -11,6 +11,8 @@ if [ ! -f .env.staging ]; then
   echo "✗ .env.staging not found. Copy .env.staging.example and fill in real values."
   exit 1
 fi
+# NEXT_PUBLIC_* vars must be present at build time — source before npm run build.
+# Make sure no stale NEXT_PUBLIC_STAGING_BANNER is set in the current shell.
 set -a; source .env.staging; set +a
 
 echo "→ Building locally (staging)..."

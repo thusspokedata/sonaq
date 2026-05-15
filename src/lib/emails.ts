@@ -7,7 +7,13 @@ const DRY_RUN = process.env.EMAIL_DRY_RUN === "true";
 
 async function sendEmail(payload: Parameters<typeof resend.emails.send>[0]) {
   if (DRY_RUN) {
-    console.log("[EMAIL DRY RUN]", JSON.stringify({ to: payload.to, from: payload.from, subject: payload.subject, html: payload.html }, null, 2));
+    const htmlLen = typeof payload.html === "string" ? payload.html.length : 0;
+    console.log("[EMAIL DRY RUN]", JSON.stringify({
+      to: payload.to,
+      from: payload.from,
+      subject: payload.subject,
+      html: `[redacted — ${htmlLen} chars]`,
+    }, null, 2));
     return { data: { id: `dry-run-${Date.now()}` }, error: null };
   }
   return resend.emails.send(payload);

@@ -32,6 +32,13 @@ export async function subscribeToNewsletter(
     return { status: "error" };
   }
 
+  if (process.env.EMAIL_DRY_RUN === "true") {
+    const [local, domain] = parsed.data.email.split("@");
+    const redacted = `${local[0]}${"*".repeat(local.length - 1)}@${domain}`;
+    console.log(`[EMAIL DRY RUN] newsletter subscribe: ${redacted}`);
+    return { status: "success" };
+  }
+
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     console.error("RESEND_API_KEY no configurado");
@@ -45,11 +52,6 @@ export async function subscribeToNewsletter(
   }
 
   const resend = new Resend(apiKey);
-
-  if (process.env.EMAIL_DRY_RUN === "true") {
-    console.log(`[EMAIL DRY RUN] newsletter subscribe: ${parsed.data.email} → audience ${audienceId}`);
-    return { status: "success" };
-  }
 
   try {
     await resend.contacts.create({
