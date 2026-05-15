@@ -5,13 +5,19 @@ const FROM = process.env.EMAIL_FROM ?? process.env.RESEND_FROM ?? "pedidos@sonaq
 const NOTIFY_EMAIL = process.env.SONAQ_NOTIFY_EMAIL ?? "ventas@sonaq.com.ar";
 const DRY_RUN = process.env.EMAIL_DRY_RUN === "true";
 
+function redactEmail(addr: string | string[] | undefined): string {
+  const redact = (s: string) => s.replace(/(?<=.{2}).(?=.*@)/g, "*");
+  if (Array.isArray(addr)) return addr.map(redact).join(", ");
+  return addr ? redact(addr) : "[none]";
+}
+
 async function sendEmail(payload: Parameters<typeof resend.emails.send>[0]) {
   if (DRY_RUN) {
     const htmlLen = typeof payload.html === "string" ? payload.html.length : 0;
     console.log("[EMAIL DRY RUN]", JSON.stringify({
-      to: payload.to,
-      from: payload.from,
-      subject: payload.subject,
+      to: redactEmail(payload.to as string | string[]),
+      from: "[redacted]",
+      subject: "[redacted]",
       html: `[redacted — ${htmlLen} chars]`,
     }, null, 2));
     return { data: { id: `dry-run-${Date.now()}` }, error: null };

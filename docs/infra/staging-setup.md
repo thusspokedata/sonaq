@@ -21,13 +21,8 @@ Ejecutar como `root` en `187.33.155.194`.
 mkdir -p /var/www/sonaq-staging
 cd /var/www/sonaq-staging
 git clone git@github.com:thusspokedata/sonaq.git .
-cp /var/www/sonaq/.env.staging .env.staging   # copiar y editar los valores
-```
-
-Editar `.env.staging` en el VPS con los valores reales:
-
-```bash
-nano .env.staging
+cp .env.staging.example .env.staging
+nano .env.staging   # reemplazar cada REPLACE_WITH_... con el valor real
 ```
 
 > **Importante:** `RESEND_API_KEY` debe estar configurado incluso cuando `EMAIL_DRY_RUN=true`.
