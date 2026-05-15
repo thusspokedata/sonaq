@@ -41,7 +41,7 @@ export async function createOrder(
     headersList.get("x-forwarded-for")?.split(",")[0].trim() ??
     headersList.get("x-real-ip") ??
     "unknown";
-  if (!checkRateLimit(`checkout:${ip}`, 5, 60 * 60 * 1000)) {
+  if (process.env.RATE_LIMIT_DISABLED !== "true" && !checkRateLimit(`checkout:${ip}`, 5, 60 * 60 * 1000)) {
     return {
       status: "error",
       errors: { _: ["Demasiados intentos. Esperá un momento y volvé a intentarlo."] },
