@@ -28,7 +28,7 @@ export async function subscribeToNewsletter(
     headersList.get("x-forwarded-for")?.split(",")[0].trim() ??
     headersList.get("x-real-ip") ??
     "unknown";
-  if (!checkRateLimit(`newsletter:${ip}`, 3, 10 * 60 * 1000)) {
+  if (process.env.RATE_LIMIT_DISABLED !== "true" && !checkRateLimit(`newsletter:${ip}`, 3, 10 * 60 * 1000)) {
     return { status: "error" };
   }
 
