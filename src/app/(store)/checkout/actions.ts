@@ -9,6 +9,8 @@ import {
   sendOrderConfirmationToCustomer,
   sendNewOrderNotificationToTeam,
 } from "@/lib/emails";
+import { createMPPreference } from "@/lib/mercadopago";
+import { BASE_URL } from "@/lib/base-url";
 
 const checkoutSchema = z.object({
   name: z.string().min(2).max(120),
@@ -25,7 +27,8 @@ const checkoutSchema = z.object({
 export type CheckoutFormState =
   | { status: "idle" }
   | { status: "error"; errors: Record<string, string[]> }
-  | { status: "success"; orderId: string };
+  | { status: "success"; orderId: string }
+  | { status: "mp_redirect"; initPoint: string };
 
 export async function createOrder(
   items: CartItem[],
@@ -121,6 +124,21 @@ export async function createOrder(
       }
     });
   });
+
+  if (paymentMethod === "MERCADOPAGO") {
+    const initPoint = await createMPPreference({
+      orderId: order.id,
+      items: items.map((item) => ({
+        id: item.productId,
+        title: item.title,
+        quantity: item.quantity,
+        unit_price: Math.round(item.price),
+      })),
+      payerEmail: email,
+      siteUrl: BASE_URL,
+    });
+    return { status: "mp_redirect", initPoint };
+  }
 
   return { status: "success", orderId: order.id };
 }

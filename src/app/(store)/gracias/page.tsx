@@ -13,9 +13,9 @@ const HEADING: React.CSSProperties = {
 export default async function GraciasPage({
   searchParams,
 }: {
-  searchParams: Promise<{ orden?: string }>;
+  searchParams: Promise<{ orden?: string; mp?: string }>;
 }) {
-  const { orden } = await searchParams;
+  const { orden, mp } = await searchParams;
 
   const order = orden
     ? await prisma.order.findUnique({
@@ -128,9 +128,34 @@ export default async function GraciasPage({
 
       {order.paymentMethod === "MERCADOPAGO" && (
         <div className="flex flex-col gap-3 p-5 border" style={{ borderColor: "#d4c4ae" }}>
-          <p className="text-sm" style={{ color: "#5a4535" }}>
-            Nos pondremos en contacto para completar el pago.
-          </p>
+          {mp === "success" && (
+            <p className="text-sm font-bold" style={{ color: "#b8521a" }}>
+              ¡Pago confirmado! Tu orden está siendo procesada.
+            </p>
+          )}
+          {mp === "pending" && (
+            <p className="text-sm" style={{ color: "#5a4535" }}>
+              Tu pago está siendo procesado. Te avisaremos por email cuando se confirme.
+            </p>
+          )}
+          {mp === "failure" && (
+            <p className="text-sm" style={{ color: "#5a4535" }}>
+              Hubo un problema con el pago. Podés{" "}
+              <a href="/checkout" className="underline font-medium" style={{ color: "#b8521a" }}>
+                intentar de nuevo
+              </a>{" "}
+              o{" "}
+              <a href="https://wa.me/5493512881616" className="underline font-medium" style={{ color: "#b8521a" }}>
+                contactarnos
+              </a>
+              .
+            </p>
+          )}
+          {!mp && (
+            <p className="text-sm" style={{ color: "#5a4535" }}>
+              Tu pago está siendo procesado. Te avisaremos por email cuando se confirme.
+            </p>
+          )}
         </div>
       )}
 
