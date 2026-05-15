@@ -3,6 +3,7 @@ import type { NextAuthConfig } from "next-auth";
 // Config Edge-compatible: sin Prisma, sin bcrypt, sin pg.
 // Solo se usa en el middleware.
 export const authConfig: NextAuthConfig = {
+  trustHost: true,
   pages: {
     signIn: "/admin/login",
   },
