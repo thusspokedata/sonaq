@@ -11,7 +11,10 @@ import { BASE_URL } from "@/lib/base-url";
 export const revalidate = 60;
 
 export async function generateStaticParams() {
-  const products: SanityProduct[] = await sanityClient.fetch(ALL_PRODUCTS_QUERY).catch(() => []);
+  const products: SanityProduct[] = await sanityClient.fetch(ALL_PRODUCTS_QUERY).catch((err) => {
+    console.error("[generateStaticParams] Error fetching products from Sanity:", err instanceof Error ? err.message : err);
+    return [];
+  });
   return products.map((p) => ({ slug: p.slug.current }));
 }
 
@@ -21,7 +24,10 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const product: SanityProduct | null = await sanityClient.fetch(PRODUCT_BY_SLUG_QUERY, { slug }).catch(() => null);
+  const product: SanityProduct | null = await sanityClient.fetch(PRODUCT_BY_SLUG_QUERY, { slug }).catch((err) => {
+    console.error(`[generateMetadata] Error fetching product "${slug}" from Sanity:`, err instanceof Error ? err.message : err);
+    return null;
+  });
   if (!product) return {};
 
   const pageUrl = `${BASE_URL}/productos/${product.slug.current}`;
@@ -58,7 +64,10 @@ export default async function ProductPage({
 }) {
   const { slug } = await params;
 
-  const product: SanityProduct | null = await sanityClient.fetch(PRODUCT_BY_SLUG_QUERY, { slug }).catch(() => null);
+  const product: SanityProduct | null = await sanityClient.fetch(PRODUCT_BY_SLUG_QUERY, { slug }).catch((err) => {
+    console.error(`[ProductPage] Error fetching product "${slug}" from Sanity:`, err instanceof Error ? err.message : err);
+    return null;
+  });
   if (!product) notFound();
 
   const outOfStock = product.stock === 0;

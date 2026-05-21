@@ -25,7 +25,10 @@ const CATEGORIES: Record<string, string> = {
 };
 
 export default async function ProductosPage() {
-  const products: SanityProduct[] = await sanityClient.fetch(ALL_PRODUCTS_QUERY).catch(() => []);
+  const products: SanityProduct[] = await sanityClient.fetch(ALL_PRODUCTS_QUERY).catch((err) => {
+    console.error("[productos] Error fetching products from Sanity:", err instanceof Error ? err.message : err);
+    return [];
+  });
 
   const byCategory = products.reduce<Record<string, SanityProduct[]>>((acc, p) => {
     const cat = p.category ?? "otros";

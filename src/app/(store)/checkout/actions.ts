@@ -77,7 +77,8 @@ export async function createOrder(
   let sanityPrices: { _id: string; price: number; addons?: { _key: string; price: number }[]; colorCatalogs?: { _key: string; brand: string; priceExtra: number }[] }[] = [];
   try {
     sanityPrices = await sanityClient.fetch(PRODUCTS_PRICE_QUERY, { ids: productIds });
-  } catch {
+  } catch (err) {
+    console.error("[checkout] Error fetching product prices from Sanity:", err instanceof Error ? err.message : err);
     return { status: "error", errors: { _: ["No se pudo verificar los precios. Intentá de nuevo."] } };
   }
   const priceMap = new Map(sanityPrices.map((p) => [p._id, p]));

@@ -49,7 +49,12 @@ export async function changeEmail(_: CuentaState, formData: FormData): Promise<C
   const existing = await prisma.user.findUnique({ where: { email: newEmail } });
   if (existing) return { status: "error", message: "Ese email ya está en uso" };
 
-  await prisma.user.update({ where: { id: userId }, data: { email: newEmail } });
+  try {
+    await prisma.user.update({ where: { id: userId }, data: { email: newEmail } });
+  } catch (err) {
+    console.error("[cuenta] Error updating email:", err instanceof Error ? err.message : err);
+    return { status: "error", message: "No se pudo actualizar el email. Intentá de nuevo." };
+  }
 
   return { status: "success", message: "Email actualizado. Cerrá sesión y volvé a ingresar." };
 }
@@ -84,8 +89,13 @@ export async function changePassword(_: CuentaState, formData: FormData): Promis
     return { status: "error", message: "La nueva contraseña debe ser distinta a la actual" };
   }
 
-  const hashed = await bcrypt.hash(newPassword, 12);
-  await prisma.user.update({ where: { id: userId }, data: { password: hashed } });
+  try {
+    const hashed = await bcrypt.hash(newPassword, 12);
+    await prisma.user.update({ where: { id: userId }, data: { password: hashed } });
+  } catch (err) {
+    console.error("[cuenta] Error updating password:", err instanceof Error ? err.message : err);
+    return { status: "error", message: "No se pudo actualizar la contraseña. Intentá de nuevo." };
+  }
 
   return { status: "success", message: "Contraseña actualizada correctamente." };
 }

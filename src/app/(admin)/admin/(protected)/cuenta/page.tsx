@@ -12,7 +12,7 @@ const FIELD: React.CSSProperties = {
   padding: "10px 12px",
   fontSize: 13,
   width: "100%",
-  outline: "none",
+  outlineColor: "#b8521a",
 };
 
 const LABEL: React.CSSProperties = {
@@ -48,13 +48,13 @@ function EmailForm() {
       </h2>
 
       <div className="flex flex-col gap-1">
-        <label style={LABEL}>Nuevo email</label>
-        <input name="newEmail" type="email" required autoComplete="email" style={FIELD} />
+        <label htmlFor="newEmail" style={LABEL}>Nuevo email</label>
+        <input id="newEmail" name="newEmail" type="email" required autoComplete="email" style={FIELD} />
       </div>
 
       <div className="flex flex-col gap-1">
-        <label style={LABEL}>Contraseña actual (para confirmar)</label>
-        <input name="currentPassword" type="password" required autoComplete="current-password" style={FIELD} />
+        <label htmlFor="emailCurrentPassword" style={LABEL}>Contraseña actual (para confirmar)</label>
+        <input id="emailCurrentPassword" name="currentPassword" type="password" required autoComplete="current-password" style={FIELD} />
       </div>
 
       <Feedback state={state} />
@@ -81,19 +81,19 @@ function PasswordForm() {
       </h2>
 
       <div className="flex flex-col gap-1">
-        <label style={LABEL}>Contraseña actual</label>
-        <input name="currentPassword" type="password" required autoComplete="current-password" style={FIELD} />
+        <label htmlFor="pwdCurrentPassword" style={LABEL}>Contraseña actual</label>
+        <input id="pwdCurrentPassword" name="currentPassword" type="password" required autoComplete="current-password" style={FIELD} />
       </div>
 
       <div className="flex flex-col gap-1">
-        <label style={LABEL}>Nueva contraseña</label>
-        <input name="newPassword" type="password" required autoComplete="new-password" minLength={8} style={FIELD} />
+        <label htmlFor="newPassword" style={LABEL}>Nueva contraseña</label>
+        <input id="newPassword" name="newPassword" type="password" required autoComplete="new-password" minLength={8} style={FIELD} />
         <p className="text-xs" style={{ color: "#a08060" }}>Mínimo 8 caracteres</p>
       </div>
 
       <div className="flex flex-col gap-1">
-        <label style={LABEL}>Confirmar nueva contraseña</label>
-        <input name="confirmPassword" type="password" required autoComplete="new-password" style={FIELD} />
+        <label htmlFor="confirmPassword" style={LABEL}>Confirmar nueva contraseña</label>
+        <input id="confirmPassword" name="confirmPassword" type="password" required autoComplete="new-password" style={FIELD} />
       </div>
 
       <Feedback state={state} />
