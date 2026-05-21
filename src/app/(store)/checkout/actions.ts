@@ -142,6 +142,8 @@ export async function createOrder(
       orderId: order.id,
       customerName: name,
       customerEmail: email,
+      customerPhone: phone,
+      shippingAddress: { address, city, province },
       paymentMethod,
       items: validatedItems,
       total,

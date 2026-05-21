@@ -89,6 +89,8 @@ export async function sendOrderConfirmationToCustomer({
   orderId,
   customerName,
   customerEmail,
+  customerPhone,
+  shippingAddress,
   paymentMethod,
   items,
   total,
@@ -96,6 +98,8 @@ export async function sendOrderConfirmationToCustomer({
   orderId: string;
   customerName: string;
   customerEmail: string;
+  customerPhone?: string;
+  shippingAddress: { address: string; city: string; province: string };
   paymentMethod: "BANK_TRANSFER" | "MERCADOPAGO";
   items: CartItem[];
   total: number;
@@ -121,6 +125,28 @@ export async function sendOrderConfirmationToCustomer({
     <p style="margin:0 0 4px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:${TERRACOTA};">Pedido confirmado</p>
     <h1 style="margin:0 0 8px;font-size:26px;font-weight:900;text-transform:uppercase;color:${DARK};">¡Gracias, ${escapeHtml(customerName)}!</h1>
     <p style="margin:0 0 24px;font-size:13px;color:${MUTED};">Tu pedido fue recibido. Número de orden: <strong style="font-family:monospace;">${escapeHtml(orderId)}</strong></p>
+
+    <p style="margin:0 0 8px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:${MUTED};">Datos de envío</p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+      <tr>
+        <td style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:${MUTED};padding:6px 0 2px;">Nombre</td>
+        <td style="font-size:13px;color:${DARK};padding:6px 0 2px;text-align:right;">${escapeHtml(customerName)}</td>
+      </tr>
+      <tr>
+        <td style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:${MUTED};padding:6px 0 2px;border-top:1px solid ${BORDER};">Email</td>
+        <td style="font-size:13px;color:${DARK};padding:6px 0 2px;text-align:right;border-top:1px solid ${BORDER};">${escapeHtml(customerEmail)}</td>
+      </tr>
+      ${customerPhone ? `<tr>
+        <td style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:${MUTED};padding:6px 0 2px;border-top:1px solid ${BORDER};">Teléfono</td>
+        <td style="font-size:13px;color:${DARK};padding:6px 0 2px;text-align:right;border-top:1px solid ${BORDER};">${escapeHtml(customerPhone)}</td>
+      </tr>` : ""}
+      <tr>
+        <td style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:${MUTED};padding:6px 0 2px;border-top:1px solid ${BORDER};">Dirección</td>
+        <td style="font-size:13px;color:${DARK};padding:6px 0 2px;text-align:right;border-top:1px solid ${BORDER};">${escapeHtml(shippingAddress.address)}, ${escapeHtml(shippingAddress.city)}, ${escapeHtml(shippingAddress.province)}</td>
+      </tr>
+    </table>
+
+    <p style="margin:0 0 8px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:${MUTED};">Detalle del pedido</p>
 
     <table width="100%" cellpadding="0" cellspacing="0">
       <thead>
