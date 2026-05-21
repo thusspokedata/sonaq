@@ -106,14 +106,73 @@ export async function sendOrderConfirmationToCustomer({
   items: CartItem[];
   total: number;
 }) {
+  // Datos bancarios desde env vars — fallback si alguna no está configurada
+  const bankTitular = process.env.BANK_TITULAR || null;
+  const bankCbu     = process.env.BANK_CBU     || null;
+  const bankAlias   = process.env.BANK_ALIAS   || null;
+  const bankBanco   = process.env.BANK_BANCO   || null;
+  const bankCuit    = "20-26433102-2";
+  const hasBankData = bankTitular && bankCbu && bankAlias && bankBanco;
+
   const paymentBlock =
     paymentMethod === "BANK_TRANSFER"
-      ? `<div style="margin-top:24px;padding:16px;background:${BG};border:1px solid ${BORDER};">
-          <p style="margin:0 0 8px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:${TERRACOTA};">Datos para la transferencia</p>
-          <p style="margin:0;font-size:13px;color:${MUTED};">
-            Te enviaremos los datos bancarios en los próximos minutos. Una vez realizada la transferencia, mandanos el comprobante por
-            <a href="https://wa.me/5493512881616" style="color:${TERRACOTA};">WhatsApp al +54 9 351 288-1616</a>.
-          </p>
+      ? `<div style="margin-top:24px;border:1px solid ${BORDER};">
+          <div style="padding:14px 16px;background:${TERRACOTA};">
+            <p style="margin:0;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#f5f0e8;">
+              Datos para realizar la transferencia
+            </p>
+          </div>
+          <div style="padding:16px;background:${BG};">
+            ${hasBankData ? `
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;">
+              <tr>
+                <td style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:${MUTED};padding:6px 0 2px;width:40%;">Titular</td>
+                <td style="font-size:13px;color:${DARK};padding:6px 0 2px;text-align:right;">${escapeHtml(bankTitular!)}</td>
+              </tr>
+              <tr>
+                <td style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:${MUTED};padding:6px 0 2px;border-top:1px solid ${BORDER};">Banco</td>
+                <td style="font-size:13px;color:${DARK};padding:6px 0 2px;text-align:right;border-top:1px solid ${BORDER};">${escapeHtml(bankBanco!)}</td>
+              </tr>
+              <tr>
+                <td style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:${MUTED};padding:6px 0 2px;border-top:1px solid ${BORDER};">CBU</td>
+                <td style="font-size:13px;font-family:monospace;font-weight:700;color:${DARK};padding:6px 0 2px;text-align:right;border-top:1px solid ${BORDER};letter-spacing:0.05em;">${escapeHtml(bankCbu!)}</td>
+              </tr>
+              <tr>
+                <td style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:${MUTED};padding:6px 0 2px;border-top:1px solid ${BORDER};">Alias</td>
+                <td style="font-size:13px;font-family:monospace;font-weight:700;color:${DARK};padding:6px 0 2px;text-align:right;border-top:1px solid ${BORDER};letter-spacing:0.05em;">${escapeHtml(bankAlias!)}</td>
+              </tr>
+              <tr>
+                <td style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:${MUTED};padding:6px 0 2px;border-top:1px solid ${BORDER};">CUIT</td>
+                <td style="font-size:13px;color:${DARK};padding:6px 0 2px;text-align:right;border-top:1px solid ${BORDER};">${bankCuit}</td>
+              </tr>
+              <tr>
+                <td style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:${MUTED};padding:6px 0 2px;border-top:2px solid ${BORDER};">Monto a transferir</td>
+                <td style="font-size:16px;font-weight:900;color:${TERRACOTA};padding:6px 0 2px;text-align:right;border-top:2px solid ${BORDER};">$${total.toLocaleString("es-AR")}</td>
+              </tr>
+            </table>
+            ` : `
+            <p style="margin:0 0 16px;font-size:13px;color:${MUTED};">
+              Contactanos para recibir los datos bancarios:
+              <a href="mailto:ventas@sonaq.com.ar" style="color:${TERRACOTA};">ventas@sonaq.com.ar</a>
+            </p>
+            `}
+            <div style="border-top:1px solid ${BORDER};padding-top:14px;">
+              <p style="margin:0 0 6px;font-size:13px;color:${DARK};">
+                <strong>① Transferí el monto total</strong> a la cuenta indicada arriba.
+              </p>
+              <p style="margin:0 0 6px;font-size:13px;color:${DARK};">
+                <strong>② Enviá el comprobante</strong> a
+                <a href="mailto:ventas@sonaq.com.ar" style="color:${TERRACOTA};">ventas@sonaq.com.ar</a>
+                indicando tu número de pedido <strong style="font-family:monospace;">#${escapeHtml(orderId.slice(-8).toUpperCase())}</strong>.
+              </p>
+              <p style="margin:0 0 14px;font-size:13px;color:${DARK};">
+                <strong>③ Una vez confirmado el pago</strong>, tu pedido entra en producción.
+              </p>
+              <p style="margin:0;font-size:11px;color:${MUTED};border-top:1px solid ${BORDER};padding-top:10px;">
+                ⚠️ Tenés <strong>48 horas hábiles</strong> para realizar la transferencia. Pasado ese plazo el pedido puede cancelarse.
+              </p>
+            </div>
+          </div>
         </div>`
       : `<div style="margin-top:24px;padding:16px;background:${BG};border:1px solid ${BORDER};">
           <p style="margin:0 0 8px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:${TERRACOTA};">Pago con MercadoPago</p>
