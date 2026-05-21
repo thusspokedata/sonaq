@@ -56,11 +56,8 @@ export async function POST(req: NextRequest) {
     const orderId = result.external_reference;
     if (!orderId) return NextResponse.json(null, { status: 200 });
 
-    const order = await prisma.order.findUnique({
-      where: { id: orderId },
-      include: { items: true },
-    });
-    if (!order) return NextResponse.json(null, { status: 200 });
+    const orderExists = await prisma.order.findUnique({ where: { id: orderId }, select: { id: true } });
+    if (!orderExists) return NextResponse.json(null, { status: 200 });
 
     let newStatus: "PAID" | "PAYMENT_PENDING" | "CANCELLED" | null = null;
     if (result.status === "approved") {
@@ -71,13 +68,27 @@ export async function POST(req: NextRequest) {
       newStatus = "CANCELLED";
     }
 
-    if (newStatus) {
+    // Update atómico: solo actualiza si el status actual no es ya PAID.
+    // updateMany devuelve count=1 si efectivamente cambió, 0 si ya estaba PAID.
+    // Esto evita race conditions entre webhooks duplicados de MP.
+    let transitionedToPaid = false;
+    if (newStatus === "PAID") {
+      const updated = await prisma.order.updateMany({
+        where: { id: orderId, status: { not: "PAID" } },
+        data: { status: "PAID" },
+      });
+      transitionedToPaid = updated.count === 1;
+    } else if (newStatus) {
       await prisma.order.update({ where: { id: orderId }, data: { status: newStatus } });
     }
 
-    // Mandar emails de confirmación solo cuando el pago es aprobado
-    // y la orden todavía no tenía estado PAID (evita reenvíos por webhooks duplicados)
-    if (newStatus === "PAID" && order.status !== "PAID") {
+    // Mandar emails solo si fuimos nosotros quienes hicimos la transición a PAID
+    if (transitionedToPaid) {
+      const order = await prisma.order.findUnique({
+        where: { id: orderId },
+        include: { items: true },
+      });
+      if (!order) return NextResponse.json(null, { status: 200 });
       const shippingAddress = order.shippingAddress as { address: string; city: string; province: string } | null;
       const cartItems: CartItem[] = order.items.map((item) => ({
         productId: item.productId,
