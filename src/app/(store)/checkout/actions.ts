@@ -11,6 +11,8 @@ import {
 } from "@/lib/emails";
 import { createMPPreference } from "@/lib/mercadopago";
 import { BASE_URL } from "@/lib/base-url";
+import { sanityClient } from "@/lib/sanity";
+import { PRODUCTS_PRICE_QUERY } from "@/sanity/queries";
 
 const checkoutSchema = z.object({
   name: z.string().min(2).max(120),
@@ -32,7 +34,7 @@ export type CheckoutFormState =
 
 export async function createOrder(
   items: CartItem[],
-  formData: FormData
+  formValues: Record<string, string>
 ): Promise<CheckoutFormState> {
   if (!items.length) {
     return { status: "error", errors: { _: ["El carrito está vacío"] } };
@@ -52,15 +54,15 @@ export async function createOrder(
   }
 
   const raw = {
-    name: formData.get("name"),
-    email: formData.get("email"),
-    phone: formData.get("phone") || undefined,
-    address: formData.get("address"),
-    city: formData.get("city"),
-    province: formData.get("province"),
-    notes: formData.get("notes") || undefined,
-    paymentMethod: formData.get("paymentMethod"),
-    acceptsTerms: formData.get("acceptsTerms") === "on" ? true : undefined,
+    name: formValues.name,
+    email: formValues.email,
+    phone: formValues.phone || undefined,
+    address: formValues.address,
+    city: formValues.city,
+    province: formValues.province,
+    notes: formValues.notes || undefined,
+    paymentMethod: formValues.paymentMethod,
+    acceptsTerms: formValues.acceptsTerms === "on" ? true : undefined,
   };
 
   const parsed = checkoutSchema.safeParse(raw);
@@ -70,7 +72,37 @@ export async function createOrder(
 
   const { name, email, phone, address, city, province, notes, paymentMethod } = parsed.data;
 
-  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  // Revalidar precios contra Sanity — no confiar en los valores del cliente
+  const productIds = [...new Set(items.map((i) => i.productId))];
+  let sanityPrices: { _id: string; price: number; addons?: { _key: string; price: number }[]; colorCatalogs?: { _key: string; brand: string; priceExtra: number }[] }[] = [];
+  try {
+    sanityPrices = await sanityClient.fetch(PRODUCTS_PRICE_QUERY, { ids: productIds });
+  } catch (err) {
+    console.error("[checkout] Error fetching product prices from Sanity:", err instanceof Error ? err.message : err);
+    return { status: "error", errors: { _: ["No se pudo verificar los precios. Intentá de nuevo."] } };
+  }
+  const priceMap = new Map(sanityPrices.map((p) => [p._id, p]));
+
+  const validatedItems: CartItem[] = [];
+  for (const item of items) {
+    const sp = priceMap.get(item.productId);
+    if (!sp) {
+      return { status: "error", errors: { _: ["Uno de los productos no está disponible."] } };
+    }
+    const addonTotal = item.addons.reduce((sum, addon) => {
+      const sa = sp.addons?.find((a) => a._key === addon._key);
+      return sum + (sa?.price ?? 0);
+    }, 0);
+    let catalogExtra = 0;
+    if (item.color?.includes(" — ")) {
+      const brand = item.color.split(" — ")[0];
+      const scc = sp.colorCatalogs?.find((c) => c.brand === brand);
+      if (scc) catalogExtra = scc.priceExtra;
+    }
+    validatedItems.push({ ...item, basePrice: sp.price, price: sp.price + addonTotal + catalogExtra });
+  }
+
+  const total = validatedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   const order = await prisma.order.create({
     data: {
@@ -83,7 +115,7 @@ export async function createOrder(
       total,
       status: paymentMethod === "BANK_TRANSFER" ? "PAYMENT_PENDING" : "PENDING",
       items: {
-        create: items.map((item) => ({
+        create: validatedItems.map((item) => ({
           productId: item.productId,
           title: item.title,
           basePrice: item.basePrice,
@@ -104,7 +136,7 @@ export async function createOrder(
       customerName: name,
       customerEmail: email,
       paymentMethod,
-      items,
+      items: validatedItems,
       total,
     }),
     sendNewOrderNotificationToTeam({
@@ -114,7 +146,7 @@ export async function createOrder(
       customerPhone: phone,
       shippingAddress: { address, city, province },
       paymentMethod,
-      items,
+      items: validatedItems,
       total,
     }),
   ]).then((results) => {
@@ -128,7 +160,7 @@ export async function createOrder(
   if (paymentMethod === "MERCADOPAGO") {
     const initPoint = await createMPPreference({
       orderId: order.id,
-      items: items.map((item) => ({
+      items: validatedItems.map((item) => ({
         id: item.productId,
         title: item.title,
         quantity: item.quantity,
