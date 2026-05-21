@@ -24,5 +24,12 @@ export async function createMPPreference(params: {
     },
   });
   const isTest = (process.env.MP_ACCESS_TOKEN ?? '').startsWith('TEST-');
-  return isTest ? result.sandbox_init_point! : result.init_point!;
+  const initPoint = isTest ? result.sandbox_init_point : result.init_point;
+  if (!initPoint) {
+    throw new Error(
+      `MercadoPago no devolvió una URL de pago (init_point=${result.init_point ?? "null"}, sandbox=${result.sandbox_init_point ?? "null"}). ` +
+      `Verificar que la cuenta MP esté habilitada para cobros en producción.`
+    );
+  }
+  return initPoint;
 }
