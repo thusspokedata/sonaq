@@ -74,7 +74,7 @@ export async function createOrder(
 
   // Revalidar precios contra Sanity — no confiar en los valores del cliente
   const productIds = [...new Set(items.map((i) => i.productId))];
-  let sanityPrices: { _id: string; price: number; addons?: { _key: string; price: number }[]; colorCatalogs?: { _key: string; brand: string; priceExtra: number }[] }[] = [];
+  let sanityPrices: { _id: string; price: number; addons?: { _key: string; title: string; price: number }[]; colorCatalogs?: { _key: string; brand: string; priceExtra: number }[] }[] = [];
   try {
     sanityPrices = await sanityClient.fetch(PRODUCTS_PRICE_QUERY, { ids: productIds });
   } catch (err) {
@@ -89,10 +89,11 @@ export async function createOrder(
     if (!sp) {
       return { status: "error", errors: { _: ["Uno de los productos no está disponible."] } };
     }
-    // Filtrar addons contra Sanity: descartar cualquier _key que no exista
+    // Construir addons exclusivamente desde Sanity: ningún campo del cliente persiste
     const validatedAddons = item.addons.flatMap((addon) => {
       const sa = sp.addons?.find((a) => a._key === addon._key);
-      return sa ? [{ ...addon, price: sa.price }] : [];
+      if (!sa) return [];
+      return [{ _key: sa._key, title: sa.title, price: sa.price }];
     });
     const addonTotal = validatedAddons.reduce((sum, a) => sum + a.price, 0);
     let catalogExtra = 0;
