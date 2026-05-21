@@ -37,6 +37,6 @@ echo "→ Regenerating Prisma client on VPS..."
 ssh $VPS "cd $REMOTE_DIR && npx prisma generate"
 
 echo "→ Restarting PM2 (sonaq-staging)..."
-ssh $VPS "pm2 restart sonaq-staging"
+ssh $VPS "pm2 restart sonaq-staging --update-env"
 
 echo "✓ Deploy staging completo — https://staging.sonaq.com.ar"

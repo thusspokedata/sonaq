@@ -20,7 +20,7 @@ export default async function PedidosPage({ searchParams }: Props) {
   const [pedidos, counts] = await Promise.all([
     prisma.order.findMany({
       where: statusFilter ? { status: statusFilter } : undefined,
-      include: { items: true },
+
       orderBy: { createdAt: "desc" },
     }),
     prisma.order.groupBy({ by: ["status"], _count: { _all: true } }),
@@ -62,7 +62,7 @@ export default async function PedidosPage({ searchParams }: Props) {
               color: statusFilter === s ? "#f5f0e8" : "#5a4535",
             }}
           >
-            {STATUS_LABEL[s]}{countByStatus[s] ? ` ${countByStatus[s]}` : ""}
+            {STATUS_LABEL[s]} {countByStatus[s] ?? 0}
           </Link>
         ))}
       </div>
