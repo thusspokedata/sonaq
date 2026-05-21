@@ -34,7 +34,7 @@ export type CheckoutFormState =
 
 export async function createOrder(
   items: CartItem[],
-  formData: FormData
+  formValues: Record<string, string>
 ): Promise<CheckoutFormState> {
   if (!items.length) {
     return { status: "error", errors: { _: ["El carrito está vacío"] } };
@@ -54,15 +54,15 @@ export async function createOrder(
   }
 
   const raw = {
-    name: formData.get("name"),
-    email: formData.get("email"),
-    phone: formData.get("phone") || undefined,
-    address: formData.get("address"),
-    city: formData.get("city"),
-    province: formData.get("province"),
-    notes: formData.get("notes") || undefined,
-    paymentMethod: formData.get("paymentMethod"),
-    acceptsTerms: formData.get("acceptsTerms") === "on" ? true : undefined,
+    name: formValues.name,
+    email: formValues.email,
+    phone: formValues.phone || undefined,
+    address: formValues.address,
+    city: formValues.city,
+    province: formValues.province,
+    notes: formValues.notes || undefined,
+    paymentMethod: formValues.paymentMethod,
+    acceptsTerms: formValues.acceptsTerms === "on" ? true : undefined,
   };
 
   const parsed = checkoutSchema.safeParse(raw);

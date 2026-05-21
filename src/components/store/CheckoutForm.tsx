@@ -60,21 +60,24 @@ export function CheckoutForm() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    // Convertir a plain object — FormData no se serializa correctamente
+    // como segundo argumento en llamadas programáticas a Server Actions
+    const formValues = Object.fromEntries(formData.entries()) as Record<string, string>;
     // Guardar datos para la próxima compra
     try {
       const info: SavedInfo = {
-        name: String(formData.get("name") ?? ""),
-        email: String(formData.get("email") ?? ""),
-        phone: String(formData.get("phone") ?? ""),
-        address: String(formData.get("address") ?? ""),
-        city: String(formData.get("city") ?? ""),
-        province: String(formData.get("province") ?? ""),
+        name: formValues.name ?? "",
+        email: formValues.email ?? "",
+        phone: formValues.phone ?? "",
+        address: formValues.address ?? "",
+        city: formValues.city ?? "",
+        province: formValues.province ?? "",
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(info));
     } catch { /* ignorar errores de storage */ }
 
     startTransition(async () => {
-      const result = await createOrder(items, formData);
+      const result = await createOrder(items, formValues);
       if (result.status === "mp_redirect") {
         window.location.href = result.initPoint;
       } else if (result.status === "success") {
