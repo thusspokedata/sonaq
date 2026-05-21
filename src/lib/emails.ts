@@ -111,7 +111,7 @@ export async function sendOrderConfirmationToCustomer({
   const bankCbu     = process.env.BANK_CBU     || null;
   const bankAlias   = process.env.BANK_ALIAS   || null;
   const bankBanco   = process.env.BANK_BANCO   || null;
-  const bankCuit    = "20-26433102-2";
+  const bankCuit    = process.env.BANK_CUIT    || null;
   const hasBankData = bankTitular && bankCbu && bankAlias && bankBanco;
 
   const paymentBlock =
@@ -141,10 +141,10 @@ export async function sendOrderConfirmationToCustomer({
                 <td style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:${MUTED};padding:6px 0 2px;border-top:1px solid ${BORDER};">Alias</td>
                 <td style="font-size:13px;font-family:monospace;font-weight:700;color:${DARK};padding:6px 0 2px;text-align:right;border-top:1px solid ${BORDER};letter-spacing:0.05em;">${escapeHtml(bankAlias!)}</td>
               </tr>
-              <tr>
+              ${bankCuit ? `<tr>
                 <td style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:${MUTED};padding:6px 0 2px;border-top:1px solid ${BORDER};">CUIT</td>
-                <td style="font-size:13px;color:${DARK};padding:6px 0 2px;text-align:right;border-top:1px solid ${BORDER};">${bankCuit}</td>
-              </tr>
+                <td style="font-size:13px;color:${DARK};padding:6px 0 2px;text-align:right;border-top:1px solid ${BORDER};">${escapeHtml(bankCuit)}</td>
+              </tr>` : ""}
               <tr>
                 <td style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:${MUTED};padding:6px 0 2px;border-top:2px solid ${BORDER};">Monto a transferir</td>
                 <td style="font-size:16px;font-weight:900;color:${TERRACOTA};padding:6px 0 2px;text-align:right;border-top:2px solid ${BORDER};">$${total.toLocaleString("es-AR")}</td>
