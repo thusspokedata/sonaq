@@ -5,6 +5,7 @@ import { ALL_PRODUCTS_QUERY } from "@/sanity/queries";
 import { SanityProduct } from "@/types";
 import { ProductCard } from "@/components/store/ProductCard";
 import { VideoWithSound } from "@/components/store/VideoWithSound";
+import { PromoBanner } from "@/components/store/PromoBanner";
 
 export const revalidate = 60;
 
@@ -136,6 +137,9 @@ export default async function HomePage() {
           Diseño&nbsp;&nbsp;·&nbsp;&nbsp;Calidad&nbsp;&nbsp;·&nbsp;&nbsp;Tecnología
         </p>
       </div>
+
+      {/* ─── Banner promocional ─────────────────────────────────────────────── */}
+      <PromoBanner />
 
       {/* ─── "Más que un mueble" (video izq + copy der) ─────────────────────
           Split 50/50. El iframe 9:16 se centra y recorta para cubrir la
