@@ -23,10 +23,13 @@ export async function updateOrderStatus(orderId: string, newStatus: OrderStatus)
     throw new Error(`Transición no permitida: ${order.status} → ${newStatus}`);
   }
 
-  await prisma.order.update({
-    where: { id: orderId },
+  const updated = await prisma.order.updateMany({
+    where: { id: orderId, status: order.status },
     data: { status: newStatus },
   });
+  if (updated.count === 0) {
+    throw new Error("El estado cambió concurrentemente. Reintentá la operación.");
+  }
 
   revalidatePath(`/admin/pedidos/${orderId}`);
   revalidatePath("/admin/pedidos");
