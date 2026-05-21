@@ -109,7 +109,13 @@ export async function sendOrderConfirmationToCustomer({
             <a href="https://wa.me/5493512881616" style="color:${TERRACOTA};">WhatsApp al +54 9 351 288-1616</a>.
           </p>
         </div>`
-      : `<p style="font-size:13px;color:${MUTED};margin-top:16px;">Nos pondremos en contacto para coordinar el pago.</p>`;
+      : `<div style="margin-top:24px;padding:16px;background:${BG};border:1px solid ${BORDER};">
+          <p style="margin:0 0 8px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:${TERRACOTA};">Pago con MercadoPago</p>
+          <p style="margin:0;font-size:13px;color:${MUTED};">
+            Tu pago fue procesado por MercadoPago. Recibirás una confirmación por email cuando se acredite. Ante cualquier duda escribinos por
+            <a href="https://wa.me/5493512881616" style="color:${TERRACOTA};">WhatsApp al +54 9 351 288-1616</a>.
+          </p>
+        </div>`;
 
   const html = baseLayout(`
     <div style="margin-bottom:24px;padding:16px;background:#fff3cd;border:2px solid #f0ad00;border-radius:4px;">
