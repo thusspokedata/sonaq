@@ -29,24 +29,19 @@ function isPromoActive(): boolean {
   return new Date() < new Date(PROMO_END_DATE);
 }
 
-// Bloque de contenido repetido para el marquee seamless
+// Bloque de contenido del marquee — duplicado para loop seamless
 function MarqueeContent() {
   return (
     <span className="promo-segment" aria-hidden>
-      <span>🎸</span>
-      <span style={{ margin: "0 24px" }}>PROMO DE LANZAMIENTO</span>
-      <span style={{ margin: "0 16px", opacity: 0.35 }}>·</span>
-      <span style={{ margin: "0 24px" }}>3 CUOTAS SIN INTERÉS con</span>
+      <span>Pagá en 3 cuotas sin interés con tarjetas Visa y Mastercard bancarizadas, a través de</span>
       <Image
         src="/MP_RGB_HANDSHAKE_color_vertical.svg"
         alt="MercadoPago"
-        width={52}
-        height={52}
+        width={40}
+        height={40}
         style={{ display: "inline-block", verticalAlign: "middle", margin: "0 10px" }}
       />
-      <span style={{ margin: "0 16px", opacity: 0.35 }}>·</span>
-      <span style={{ margin: "0 24px" }}>MUEBLES PARA TUS INSTRUMENTOS</span>
-      <span style={{ margin: "0 16px", opacity: 0.35 }}>✦</span>
+      <span style={{ margin: "0 32px", opacity: 0.3 }}>·</span>
     </span>
   );
 }
@@ -65,7 +60,7 @@ export function PromoBanner() {
         }
 
         .promo-track {
-          animation: marquee-scroll 32s linear infinite;
+          animation: marquee-scroll 36s linear infinite;
         }
 
         .promo-track:hover {
@@ -81,14 +76,13 @@ export function PromoBanner() {
         @media (prefers-reduced-motion: reduce) {
           .promo-track {
             animation: none;
-            justify-content: center;
           }
         }
       `}</style>
 
       <div
         role="banner"
-        aria-label="Promoción de lanzamiento: 3 cuotas sin interés con MercadoPago"
+        aria-label="Oferta de lanzamiento: 3 cuotas sin interés con MercadoPago"
         style={{
           backgroundColor: "#f5f0e8",
           borderBottom: "1px solid #d4c4ae",
@@ -108,7 +102,6 @@ export function PromoBanner() {
             paddingRight: "20px",
             borderRight: "1px solid #d4c4ae",
             backgroundColor: "#f5f0e8",
-            zIndex: 2,
           }}
         >
           <Image
@@ -116,42 +109,57 @@ export function PromoBanner() {
             alt="Sonaq"
             width={52}
             height={58}
-            style={{
-              width: "auto",
-              height: "58px",
-              mixBlendMode: "multiply",
-            }}
+            style={{ width: "auto", height: "52px", mixBlendMode: "multiply" }}
           />
         </div>
 
-        {/* ── Área del marquee (flex:1, overflow hidden) ───────────────────── */}
+        {/* ── Columna derecha: título fijo + marquee ───────────────────────── */}
         <div
           style={{
             flex: 1,
-            overflow: "hidden",
             display: "flex",
-            alignItems: "center",
+            flexDirection: "column",
+            justifyContent: "center",
+            gap: "4px",
             minWidth: 0,
+            paddingLeft: "20px",
           }}
         >
-          {/* Track: duplicado para loop seamless (-50% = exactamente 1 copia) */}
-          <div
-            className="promo-track"
+          {/* Renglón 1 — fijo, no se mueve */}
+          <p
             style={{
-              display: "inline-flex",
-              alignItems: "center",
-              whiteSpace: "nowrap",
-              willChange: "transform",
+              margin: 0,
               fontFamily: "var(--font-barlow-condensed), sans-serif",
-              fontSize: "22px",
-              fontWeight: 600,
-              letterSpacing: "0.18em",
+              fontSize: "11px",
+              fontWeight: 700,
+              letterSpacing: "0.25em",
               textTransform: "uppercase",
-              color: "#1a0f00",
+              color: "#b8521a",
+              whiteSpace: "nowrap",
             }}
           >
-            <MarqueeContent />
-            <MarqueeContent />
+            Oferta de lanzamiento
+          </p>
+
+          {/* Renglón 2 — marquee */}
+          <div style={{ overflow: "hidden", minWidth: 0 }}>
+            <div
+              className="promo-track"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                whiteSpace: "nowrap",
+                willChange: "transform",
+                fontFamily: "var(--font-barlow-condensed), sans-serif",
+                fontSize: "19px",
+                fontWeight: 500,
+                letterSpacing: "0.04em",
+                color: "#1a0f00",
+              }}
+            >
+              <MarqueeContent />
+              <MarqueeContent />
+            </div>
           </div>
         </div>
 
@@ -170,7 +178,6 @@ export function PromoBanner() {
             lineHeight: 1,
             padding: "6px 16px",
             opacity: 0.5,
-            zIndex: 2,
           }}
           onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = "1")}
           onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = "0.5")}
