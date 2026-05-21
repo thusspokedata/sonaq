@@ -26,13 +26,15 @@ const PROMO_END_DATE = "2026-07-31";
 
 function isPromoActive(): boolean {
   if (process.env.NEXT_PUBLIC_PROMO_BANNER !== "true") return false;
-  return new Date() < new Date(PROMO_END_DATE);
+  // T23:59:59-03:00 → corte a medianoche hora Argentina, sin drift por timezone
+  return new Date() < new Date(PROMO_END_DATE + "T23:59:59-03:00");
 }
 
 // Bloque de contenido del marquee — duplicado para loop seamless
-function MarqueeContent() {
+// isHidden: true en la copia duplicada para no repetir el contenido a lectores de pantalla
+function MarqueeContent({ isHidden = false }: { isHidden?: boolean }) {
   return (
-    <span className="promo-segment" aria-hidden>
+    <span className="promo-segment" aria-hidden={isHidden || undefined}>
       <span>Pagá en 3 cuotas sin interés con tarjetas Visa y Mastercard bancarizadas, a través de</span>
       <Image
         src="/MP_RGB_HANDSHAKE_color_vertical.svg"
@@ -82,7 +84,7 @@ export function PromoBanner() {
 
       <div
         role="banner"
-        aria-label="Oferta de lanzamiento: 3 cuotas sin interés con MercadoPago"
+        aria-label="Oferta de lanzamiento: pagá en 3 cuotas sin interés con tarjetas Visa y Mastercard bancarizadas, a través de MercadoPago"
         style={{
           backgroundColor: "#f5f0e8",
           borderBottom: "1px solid #d4c4ae",
@@ -158,7 +160,7 @@ export function PromoBanner() {
               }}
             >
               <MarqueeContent />
-              <MarqueeContent />
+              <MarqueeContent isHidden />
             </div>
           </div>
         </div>
