@@ -6,18 +6,13 @@ import { SanityProduct } from "@/types";
 import { ProductGallery } from "@/components/store/ProductGallery";
 import { AddToCartButton } from "@/components/store/AddToCartButton";
 import { PortableText } from "@portabletext/react";
-import { MOCK_PRODUCTS } from "@/lib/mock-products";
 import { BASE_URL } from "@/lib/base-url";
 
 export const revalidate = 60;
 
 export async function generateStaticParams() {
-  try {
-    const products: SanityProduct[] = await sanityClient.fetch(ALL_PRODUCTS_QUERY);
-    return products.map((p) => ({ slug: p.slug.current }));
-  } catch {
-    return MOCK_PRODUCTS.map((p) => ({ slug: p.slug.current }));
-  }
+  const products: SanityProduct[] = await sanityClient.fetch(ALL_PRODUCTS_QUERY).catch(() => []);
+  return products.map((p) => ({ slug: p.slug.current }));
 }
 
 export async function generateMetadata({
@@ -26,12 +21,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  let product: SanityProduct | null = null;
-  try {
-    product = await sanityClient.fetch(PRODUCT_BY_SLUG_QUERY, { slug });
-  } catch {
-    product = MOCK_PRODUCTS.find((p) => p.slug.current === slug) ?? null;
-  }
+  const product: SanityProduct | null = await sanityClient.fetch(PRODUCT_BY_SLUG_QUERY, { slug }).catch(() => null);
   if (!product) return {};
 
   const pageUrl = `${BASE_URL}/productos/${product.slug.current}`;
@@ -68,13 +58,7 @@ export default async function ProductPage({
 }) {
   const { slug } = await params;
 
-  let product: SanityProduct | null = null;
-  try {
-    product = await sanityClient.fetch(PRODUCT_BY_SLUG_QUERY, { slug });
-  } catch {
-    product = MOCK_PRODUCTS.find((p) => p.slug.current === slug) ?? null;
-  }
-
+  const product: SanityProduct | null = await sanityClient.fetch(PRODUCT_BY_SLUG_QUERY, { slug }).catch(() => null);
   if (!product) notFound();
 
   const outOfStock = product.stock === 0;

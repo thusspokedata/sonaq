@@ -3,7 +3,6 @@ import { sanityClient } from "@/lib/sanity";
 import { ALL_PRODUCTS_QUERY } from "@/sanity/queries";
 import { SanityProduct } from "@/types";
 import { ProductCard } from "@/components/store/ProductCard";
-import { MOCK_PRODUCTS } from "@/lib/mock-products";
 import { BASE_URL } from "@/lib/base-url";
 
 export const metadata: Metadata = {
@@ -26,17 +25,9 @@ const CATEGORIES: Record<string, string> = {
 };
 
 export default async function ProductosPage() {
-  let products: SanityProduct[] = [];
-  try {
-    products = await sanityClient.fetch(ALL_PRODUCTS_QUERY);
-  } catch {
-    // Sin credenciales de Sanity configuradas
-  }
+  const products: SanityProduct[] = await sanityClient.fetch(ALL_PRODUCTS_QUERY).catch(() => []);
 
-  const usingMockData = products.length === 0;
-  const displayProducts = usingMockData ? MOCK_PRODUCTS : products;
-
-  const byCategory = displayProducts.reduce<Record<string, SanityProduct[]>>((acc, p) => {
+  const byCategory = products.reduce<Record<string, SanityProduct[]>>((acc, p) => {
     const cat = p.category ?? "otros";
     if (!acc[cat]) acc[cat] = [];
     acc[cat].push(p);
@@ -59,15 +50,10 @@ export default async function ProductosPage() {
         </div>
       </div>
 
-      {usingMockData && (
-        <div className="border-b py-3 px-4 text-center text-xs uppercase tracking-widest"
-          style={{ backgroundColor: "#fef3c7", borderColor: "#fde68a", color: "#92400e" }}>
-          ⚠ Catálogo de ejemplo — los precios mostrados no son reales
-        </div>
-      )}
-
       <div className="max-w-6xl mx-auto px-4 py-14">
-        {Object.entries(byCategory).map(([cat, items]) => (
+        {products.length === 0 ? (
+          <p className="text-sm" style={{ color: "#5a4535" }}>No hay productos disponibles por el momento.</p>
+        ) : Object.entries(byCategory).map(([cat, items]) => (
           <section key={cat} className="mb-16">
             <div className="flex items-center gap-4 mb-8">
               <div className="w-6 h-1" style={{ backgroundColor: "#b8521a" }} />
@@ -86,6 +72,7 @@ export default async function ProductosPage() {
           </section>
         ))}
       </div>
+
     </div>
   );
 }

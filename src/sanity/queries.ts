@@ -49,6 +49,15 @@ export const PRODUCT_BY_SLUG_QUERY = groq`
   }
 `;
 
+export const PRODUCTS_PRICE_QUERY = groq`
+  *[_type == "product" && _id in $ids && available == true] {
+    _id,
+    price,
+    "addons": addons[] { _key, price },
+    "colorCatalogs": colorCatalogs[] { _key, brand, priceExtra }
+  }
+`;
+
 export const PRODUCTS_BY_CATEGORY_QUERY = groq`
   *[_type == "product" && available == true && category == $category] | order(_createdAt desc) {
     _id,
