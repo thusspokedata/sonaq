@@ -5,10 +5,9 @@ import {
   STATUS_LABEL,
   STATUS_COLOR,
   STATUS_TRANSITIONS,
+  BACKWARD_TRANSITIONS,
   formatPrice,
 } from "@/lib/order-utils";
-
-const ALL_STATUSES = Object.values(OrderStatus);
 import { updateOrderStatus } from "./actions";
 import Link from "next/link";
 
@@ -32,9 +31,7 @@ export default async function PedidoDetailPage({ params }: Props) {
   if (!pedido) notFound();
 
   const forwardStatuses = STATUS_TRANSITIONS[pedido.status];
-  const otherStatuses = ALL_STATUSES.filter(
-    (s) => s !== pedido.status && !forwardStatuses.includes(s)
-  );
+  const backwardStatuses = BACKWARD_TRANSITIONS[pedido.status];
   const address = pedido.shippingAddress as {
     address?: string;
     city?: string;
@@ -173,7 +170,7 @@ export default async function PedidoDetailPage({ params }: Props) {
         )}
 
       {/* Cambiar estado */}
-      {(forwardStatuses.length > 0 || otherStatuses.length > 0) && (
+      {(forwardStatuses.length > 0 || backwardStatuses.length > 0) && (
         <section
           className="p-5 border rounded"
           style={{ borderColor: "#d4c4ae", backgroundColor: "#fff" }}
@@ -207,13 +204,13 @@ export default async function PedidoDetailPage({ params }: Props) {
               ))}
             </div>
           )}
-          {otherStatuses.length > 0 && (
+          {backwardStatuses.length > 0 && (
             <>
               <p className="text-xs uppercase tracking-widest mb-2" style={{ color: "#9a7a65" }}>
                 Revertir a
               </p>
               <div className="flex flex-wrap gap-2">
-                {otherStatuses.map((status) => (
+                {backwardStatuses.map((status) => (
                   <form
                     key={status}
                     action={async () => {

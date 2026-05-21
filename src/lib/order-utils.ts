@@ -30,6 +30,18 @@ export const STATUS_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   CANCELLED:       [],
 };
 
+// Transiciones hacia atrás: permite deshacer el último paso del flujo.
+// CANCELLED puede volver a cualquier estado desde el que se pudo cancelar.
+export const BACKWARD_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
+  PENDING:         [],
+  PAYMENT_PENDING: ["PENDING"],
+  PAID:            ["PAYMENT_PENDING"],
+  PROCESSING:      ["PAID"],
+  SHIPPED:         ["PROCESSING"],
+  DELIVERED:       ["SHIPPED"],
+  CANCELLED:       ["PENDING", "PAYMENT_PENDING", "PAID", "PROCESSING"],
+};
+
 export function formatPrice(value: number | string | { toNumber(): number }) {
   return new Intl.NumberFormat("es-AR", {
     style: "currency",
