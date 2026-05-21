@@ -177,6 +177,14 @@ export async function sendOrderConfirmationToCustomer({
       ¿Tenés alguna consulta? Escribinos por
       <a href="https://wa.me/5493512881616" style="color:${TERRACOTA};">WhatsApp</a>.
     </p>
+
+    <div style="margin-top:32px;padding-top:24px;border-top:1px solid ${BORDER};">
+      <p style="margin:0 0 4px;font-size:13px;font-weight:700;color:${DARK};">Jose Nallib Saleme</p>
+      <p style="margin:0;font-size:12px;color:${MUTED};line-height:1.6;">
+        Dir.: 12 de octubre 486 · Malagueño, Córdoba<br>
+        <a href="mailto:ventas@sonaq.com.ar" style="color:${TERRACOTA};">ventas@sonaq.com.ar</a>
+      </p>
+    </div>
   `);
 
   return sendEmail({
