@@ -4,7 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { OrderStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
-import { STATUS_TRANSITIONS } from "@/lib/order-utils";
 
 export async function updateOrderStatus(orderId: string, newStatus: OrderStatus) {
   const session = await auth();
@@ -15,9 +14,9 @@ export async function updateOrderStatus(orderId: string, newStatus: OrderStatus)
   const order = await prisma.order.findUnique({ where: { id: orderId } });
   if (!order) throw new Error("Pedido no encontrado");
 
-  const allowed = STATUS_TRANSITIONS[order.status];
-  if (!allowed.includes(newStatus)) {
-    throw new Error(`Transición inválida: ${order.status} → ${newStatus}`);
+  const allStatuses = Object.values(OrderStatus);
+  if (!allStatuses.includes(newStatus) || newStatus === order.status) {
+    throw new Error(`Estado inválido: ${newStatus}`);
   }
 
   await prisma.order.update({

@@ -7,6 +7,8 @@ import {
   STATUS_TRANSITIONS,
   formatPrice,
 } from "@/lib/order-utils";
+
+const ALL_STATUSES = Object.values(OrderStatus);
 import { updateOrderStatus } from "./actions";
 import Link from "next/link";
 
@@ -29,7 +31,10 @@ export default async function PedidoDetailPage({ params }: Props) {
 
   if (!pedido) notFound();
 
-  const nextStatuses = STATUS_TRANSITIONS[pedido.status];
+  const forwardStatuses = STATUS_TRANSITIONS[pedido.status];
+  const otherStatuses = ALL_STATUSES.filter(
+    (s) => s !== pedido.status && !forwardStatuses.includes(s)
+  );
   const address = pedido.shippingAddress as {
     address?: string;
     city?: string;
@@ -150,8 +155,25 @@ export default async function PedidoDetailPage({ params }: Props) {
         </section>
       )}
 
+      {/* Nota MercadoPago pendiente */}
+      {pedido.paymentMethod === "MERCADOPAGO" &&
+        (pedido.status === "PENDING" || pedido.status === "PAYMENT_PENDING") && (
+          <section
+            className="p-5 border rounded mb-6"
+            style={{ borderColor: "#f0ad00", backgroundColor: "#fff8e1" }}
+          >
+            <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: "#7a5500" }}>
+              Pago via MercadoPago
+            </p>
+            <p className="text-sm" style={{ color: "#7a5500" }}>
+              El estado se actualiza automáticamente cuando MercadoPago confirma el pago vía webhook.
+              Si el pago ya fue acreditado y el estado no se actualizó (común en sandbox), podés cambiarlo manualmente abajo.
+            </p>
+          </section>
+        )}
+
       {/* Cambiar estado */}
-      {nextStatuses.length > 0 && (
+      {(forwardStatuses.length > 0 || otherStatuses.length > 0) && (
         <section
           className="p-5 border rounded"
           style={{ borderColor: "#d4c4ae", backgroundColor: "#fff" }}
@@ -159,30 +181,63 @@ export default async function PedidoDetailPage({ params }: Props) {
           <h2 className="text-xs uppercase tracking-widest font-semibold mb-4" style={{ color: "#5a4535" }}>
             Cambiar estado
           </h2>
-          <div className="flex flex-wrap gap-3">
-            {nextStatuses.map((status) => (
-              <form
-                key={status}
-                action={async () => {
-                  "use server";
-                  try {
-                    await updateOrderStatus(id, status);
-                  } catch (e) {
-                    console.error("[updateOrderStatus]", e);
-                    throw e;
-                  }
-                }}
-              >
-                <button
-                  type="submit"
-                  className="px-5 py-2 text-sm font-semibold uppercase tracking-widest transition-opacity hover:opacity-80"
-                  style={{ backgroundColor: "#b8521a", color: "#f5f0e8" }}
+          {forwardStatuses.length > 0 && (
+            <div className="flex flex-wrap gap-3 mb-4">
+              {forwardStatuses.map((status) => (
+                <form
+                  key={status}
+                  action={async () => {
+                    "use server";
+                    try {
+                      await updateOrderStatus(id, status);
+                    } catch (e) {
+                      console.error("[updateOrderStatus]", e);
+                      throw e;
+                    }
+                  }}
                 >
-                  {STATUS_LABEL[status]}
-                </button>
-              </form>
-            ))}
-          </div>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 text-sm font-semibold uppercase tracking-widest transition-opacity hover:opacity-80"
+                    style={{ backgroundColor: "#b8521a", color: "#f5f0e8" }}
+                  >
+                    {STATUS_LABEL[status]}
+                  </button>
+                </form>
+              ))}
+            </div>
+          )}
+          {otherStatuses.length > 0 && (
+            <>
+              <p className="text-xs uppercase tracking-widest mb-2" style={{ color: "#9a7a65" }}>
+                Revertir a
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {otherStatuses.map((status) => (
+                  <form
+                    key={status}
+                    action={async () => {
+                      "use server";
+                      try {
+                        await updateOrderStatus(id, status);
+                      } catch (e) {
+                        console.error("[updateOrderStatus]", e);
+                        throw e;
+                      }
+                    }}
+                  >
+                    <button
+                      type="submit"
+                      className="px-4 py-1.5 text-xs font-semibold uppercase tracking-widest border transition-opacity hover:opacity-70"
+                      style={{ borderColor: "#d4c4ae", color: "#5a4535", backgroundColor: "transparent" }}
+                    >
+                      {STATUS_LABEL[status]}
+                    </button>
+                  </form>
+                ))}
+              </div>
+            </>
+          )}
         </section>
       )}
     </div>
