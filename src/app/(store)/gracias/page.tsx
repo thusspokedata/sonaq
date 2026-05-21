@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
+import { ClearCartOnMount } from "@/components/store/ClearCartOnMount";
 
 export const metadata: Metadata = { title: "¡Pedido confirmado!" };
 
@@ -46,6 +47,7 @@ export default async function GraciasPage({
 
   return (
     <div className="max-w-xl mx-auto px-4 py-20 flex flex-col gap-8">
+      <ClearCartOnMount />
       {/* Icono + título */}
       <div className="flex flex-col items-center gap-4 text-center">
         <div
