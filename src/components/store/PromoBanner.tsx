@@ -22,10 +22,6 @@ import Image from "next/image";
 // ─── Configuración de la promo ───────────────────────────────────────────────
 // Cambiá esta fecha para extender o acortar la promo de lanzamiento.
 const PROMO_END_DATE = "2026-07-31";
-
-// Logo oficial de MercadoPago
-const MP_LOGO_PATH = "/MP_RGB_HANDSHAKE_color_vertical.svg";
-const MP_LOGO_EXISTS = true;
 // ─────────────────────────────────────────────────────────────────────────────
 
 function isPromoActive(): boolean {
@@ -36,35 +32,21 @@ function isPromoActive(): boolean {
 // Bloque de contenido repetido para el marquee seamless
 function MarqueeContent() {
   return (
-    <span className="flex items-center gap-0" aria-hidden>
+    <span className="promo-segment" aria-hidden>
       <span>🎸</span>
-      <span style={{ margin: "0 20px" }}>PROMO DE LANZAMIENTO</span>
-      <span style={{ margin: "0 12px", opacity: 0.4 }}>·</span>
-      <span style={{ margin: "0 20px" }}>3 CUOTAS SIN INTERÉS con</span>
-      {MP_LOGO_EXISTS ? (
-        <Image
-          src={MP_LOGO_PATH}
-          alt="MercadoPago"
-          width={36}
-          height={36}
-          style={{ display: "inline-block", verticalAlign: "middle", margin: "0 8px" }}
-        />
-      ) : (
-        /* TODO: reemplazar por logo oficial de MP en public/mercadopago-logo.svg */
-        <span
-          style={{
-            margin: "0 8px",
-            fontWeight: 700,
-            color: "#009EE3",
-            letterSpacing: "0.02em",
-          }}
-        >
-          MercadoPago
-        </span>
-      )}
-      <span style={{ margin: "0 12px", opacity: 0.4 }}>·</span>
-      <span style={{ margin: "0 20px" }}>MUEBLES PARA TUS INSTRUMENTOS</span>
-      <span style={{ margin: "0 12px", opacity: 0.4 }}>✦</span>
+      <span style={{ margin: "0 24px" }}>PROMO DE LANZAMIENTO</span>
+      <span style={{ margin: "0 16px", opacity: 0.35 }}>·</span>
+      <span style={{ margin: "0 24px" }}>3 CUOTAS SIN INTERÉS con</span>
+      <Image
+        src="/MP_RGB_HANDSHAKE_color_vertical.svg"
+        alt="MercadoPago"
+        width={52}
+        height={52}
+        style={{ display: "inline-block", verticalAlign: "middle", margin: "0 10px" }}
+      />
+      <span style={{ margin: "0 16px", opacity: 0.35 }}>·</span>
+      <span style={{ margin: "0 24px" }}>MUEBLES PARA TUS INSTRUMENTOS</span>
+      <span style={{ margin: "0 16px", opacity: 0.35 }}>✦</span>
     </span>
   );
 }
@@ -83,11 +65,17 @@ export function PromoBanner() {
         }
 
         .promo-track {
-          animation: marquee-scroll 28s linear infinite;
+          animation: marquee-scroll 32s linear infinite;
         }
 
         .promo-track:hover {
           animation-play-state: paused;
+        }
+
+        .promo-segment {
+          display: inline-flex;
+          align-items: center;
+          white-space: nowrap;
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -100,59 +88,92 @@ export function PromoBanner() {
 
       <div
         role="banner"
-        aria-label="Promoción de lanzamiento"
+        aria-label="Promoción de lanzamiento: 3 cuotas sin interés con MercadoPago"
         style={{
           backgroundColor: "#f5f0e8",
           borderBottom: "1px solid #d4c4ae",
-          position: "relative",
-          overflow: "hidden",
-          height: "48px",
+          height: "88px",
           display: "flex",
-          alignItems: "center",
+          alignItems: "stretch",
+          position: "relative",
         }}
       >
-        {/* Track del marquee: contenido duplicado para loop seamless */}
+        {/* ── Logo Sonaq fijo a la izquierda ───────────────────────────────── */}
         <div
-          className="promo-track"
           style={{
+            flexShrink: 0,
             display: "flex",
-            whiteSpace: "nowrap",
-            willChange: "transform",
-            fontFamily: "var(--font-barlow-condensed), sans-serif",
-            fontSize: "13px",
-            fontWeight: 600,
-            letterSpacing: "0.18em",
-            textTransform: "uppercase",
-            color: "#1a0f00",
+            alignItems: "center",
+            paddingLeft: "20px",
+            paddingRight: "20px",
+            borderRight: "1px solid #d4c4ae",
+            backgroundColor: "#f5f0e8",
+            zIndex: 2,
           }}
         >
-          {/* Duplicado para loop seamless: el primer set ocupa el 50%, el
-              segundo el otro 50%. Al llegar a -50% se reinicia sin salto. */}
-          <MarqueeContent />
-          <MarqueeContent />
+          <Image
+            src="/logo-sonaq.png"
+            alt="Sonaq"
+            width={52}
+            height={58}
+            style={{
+              width: "auto",
+              height: "58px",
+              mixBlendMode: "multiply",
+            }}
+          />
         </div>
 
-        {/* Botón cerrar */}
+        {/* ── Área del marquee (flex:1, overflow hidden) ───────────────────── */}
+        <div
+          style={{
+            flex: 1,
+            overflow: "hidden",
+            display: "flex",
+            alignItems: "center",
+            minWidth: 0,
+          }}
+        >
+          {/* Track: duplicado para loop seamless (-50% = exactamente 1 copia) */}
+          <div
+            className="promo-track"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              whiteSpace: "nowrap",
+              willChange: "transform",
+              fontFamily: "var(--font-barlow-condensed), sans-serif",
+              fontSize: "22px",
+              fontWeight: 600,
+              letterSpacing: "0.18em",
+              textTransform: "uppercase",
+              color: "#1a0f00",
+            }}
+          >
+            <MarqueeContent />
+            <MarqueeContent />
+          </div>
+        </div>
+
+        {/* ── Botón cerrar ─────────────────────────────────────────────────── */}
         <button
           onClick={() => setClosed(true)}
           aria-label="Cerrar banner promocional"
           style={{
-            position: "absolute",
-            right: "12px",
-            top: "50%",
-            transform: "translateY(-50%)",
+            flexShrink: 0,
+            alignSelf: "center",
             background: "transparent",
             border: "none",
             cursor: "pointer",
             color: "#5a4535",
-            fontSize: "18px",
+            fontSize: "22px",
             lineHeight: 1,
-            padding: "4px 6px",
-            opacity: 0.6,
-            zIndex: 10,
+            padding: "6px 16px",
+            opacity: 0.5,
+            zIndex: 2,
           }}
           onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = "1")}
-          onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = "0.6")}
+          onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = "0.5")}
         >
           ×
         </button>
