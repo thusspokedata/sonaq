@@ -153,7 +153,7 @@ export async function sendOrderConfirmationToCustomer({
             ` : `
             <p style="margin:0 0 16px;font-size:13px;color:${MUTED};">
               Contactanos para recibir los datos bancarios:
-              <a href="mailto:${NOTIFY_EMAIL}" style="color:${TERRACOTA};">${NOTIFY_EMAIL}</a>
+              <a href="mailto:${escapeHtml(NOTIFY_EMAIL)}" style="color:${TERRACOTA};">${escapeHtml(NOTIFY_EMAIL)}</a>
             </p>
             `}
             <div style="border-top:1px solid ${BORDER};padding-top:14px;">
@@ -162,7 +162,7 @@ export async function sendOrderConfirmationToCustomer({
               </p>
               <p style="margin:0 0 6px;font-size:13px;color:${DARK};">
                 <strong>② Enviá el comprobante</strong> a
-                <a href="mailto:${NOTIFY_EMAIL}" style="color:${TERRACOTA};">${NOTIFY_EMAIL}</a>
+                <a href="mailto:${escapeHtml(NOTIFY_EMAIL)}" style="color:${TERRACOTA};">${escapeHtml(NOTIFY_EMAIL)}</a>
                 indicando tu número de pedido <strong style="font-family:monospace;">#${escapeHtml(orderId.slice(-8).toUpperCase())}</strong>.
               </p>
               <p style="margin:0 0 14px;font-size:13px;color:${DARK};">
@@ -241,7 +241,7 @@ export async function sendOrderConfirmationToCustomer({
       <p style="margin:0 0 4px;font-size:13px;font-weight:700;color:${DARK};">Jose Nallib Saleme</p>
       <p style="margin:0;font-size:12px;color:${MUTED};line-height:1.6;">
         Dir.: 12 de octubre 486 · Malagueño, Córdoba<br>
-        <a href="mailto:${NOTIFY_EMAIL}" style="color:${TERRACOTA};">${NOTIFY_EMAIL}</a>
+        <a href="mailto:${escapeHtml(NOTIFY_EMAIL)}" style="color:${TERRACOTA};">${escapeHtml(NOTIFY_EMAIL)}</a>
       </p>
     </div>
   `);
