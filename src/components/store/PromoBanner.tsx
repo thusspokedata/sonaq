@@ -24,7 +24,7 @@ import Image from "next/image";
 const PROMO_END_DATE = "2026-07-31";
 
 // Logo oficial de MercadoPago
-const MP_LOGO_PATH = "/MP_RGB_HANDSHAKE_color_horizontal.png";
+const MP_LOGO_PATH = "/MP_RGB_HANDSHAKE_color_vertical.svg";
 const MP_LOGO_EXISTS = true;
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -45,8 +45,8 @@ function MarqueeContent() {
         <Image
           src={MP_LOGO_PATH}
           alt="MercadoPago"
-          width={54}
-          height={22}
+          width={36}
+          height={36}
           style={{ display: "inline-block", verticalAlign: "middle", margin: "0 8px" }}
         />
       ) : (
