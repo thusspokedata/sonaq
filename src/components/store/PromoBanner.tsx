@@ -32,9 +32,9 @@ function isPromoActive(): boolean {
 
 // Bloque de contenido del marquee — duplicado para loop seamless
 // isHidden: true en la copia duplicada para no repetir el contenido a lectores de pantalla
-function MarqueeContent({ isHidden = false }: { isHidden?: boolean }) {
+function MarqueeContent({ isHidden = false, className }: { isHidden?: boolean; className?: string }) {
   return (
-    <span className="promo-segment" aria-hidden={isHidden || undefined}>
+    <span className={`promo-segment${className ? ` ${className}` : ""}`} aria-hidden={isHidden || undefined}>
       <span>Pagá en 3 cuotas sin interés con tarjetas Visa y Mastercard bancarizadas, a través de</span>
       <Image
         src="/MP_RGB_HANDSHAKE_color_vertical.svg"
@@ -78,6 +78,9 @@ export function PromoBanner() {
         @media (prefers-reduced-motion: reduce) {
           .promo-track {
             animation: none;
+          }
+          .promo-duplicate {
+            display: none;
           }
         }
       `}</style>
@@ -160,7 +163,7 @@ export function PromoBanner() {
               }}
             >
               <MarqueeContent />
-              <MarqueeContent isHidden />
+              <MarqueeContent isHidden className="promo-duplicate" />
             </div>
           </div>
         </div>
