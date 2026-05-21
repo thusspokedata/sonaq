@@ -52,6 +52,10 @@ export async function changeEmail(_: CuentaState, formData: FormData): Promise<C
   try {
     await prisma.user.update({ where: { id: userId }, data: { email: newEmail } });
   } catch (err) {
+    // P2002 = unique constraint violation (race window entre findUnique y update)
+    if (err instanceof Error && "code" in err && (err as { code: string }).code === "P2002") {
+      return { status: "error", message: "Ese email ya está en uso" };
+    }
     console.error("[cuenta] Error updating email:", err instanceof Error ? err.message : err);
     return { status: "error", message: "No se pudo actualizar el email. Intentá de nuevo." };
   }
