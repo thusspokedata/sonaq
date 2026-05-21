@@ -170,17 +170,26 @@ export async function createOrder(
   });
 
   if (paymentMethod === "MERCADOPAGO") {
-    const initPoint = await createMPPreference({
-      orderId: order.id,
-      items: validatedItems.map((item) => ({
-        id: item.productId,
-        title: item.title,
-        quantity: item.quantity,
-        unit_price: Math.round(item.price),
-      })),
-      payerEmail: email,
-      siteUrl: BASE_URL,
-    });
+    let initPoint: string;
+    try {
+      initPoint = await createMPPreference({
+        orderId: order.id,
+        items: validatedItems.map((item) => ({
+          id: item.productId,
+          title: item.title,
+          quantity: item.quantity,
+          unit_price: Math.round(item.price),
+        })),
+        payerEmail: email,
+        siteUrl: BASE_URL,
+      });
+    } catch (err) {
+      console.error(`[checkout] Error creando preferencia MP para orden ${order.id}:`, err instanceof Error ? err.message : err);
+      return {
+        status: "error",
+        errors: { _: ["No pudimos conectar con MercadoPago. Tu pedido fue guardado — contactanos por WhatsApp al +54 9 351 288-1616 para coordinar el pago."] },
+      };
+    }
     return { status: "mp_redirect", initPoint };
   }
 
