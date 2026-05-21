@@ -17,11 +17,17 @@ export default async function PedidosPage({ searchParams }: Props) {
     ? (estado as OrderStatus)
     : undefined;
 
-  const pedidos = await prisma.order.findMany({
-    where: statusFilter ? { status: statusFilter } : undefined,
-    include: { items: true },
-    orderBy: { createdAt: "desc" },
-  });
+  const [pedidos, counts] = await Promise.all([
+    prisma.order.findMany({
+      where: statusFilter ? { status: statusFilter } : undefined,
+      include: { items: true },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.order.groupBy({ by: ["status"], _count: { _all: true } }),
+  ]);
+  const countByStatus = Object.fromEntries(
+    counts.map((c) => [c.status, c._count._all])
+  ) as Partial<Record<OrderStatus, number>>;
 
   return (
     <div className="p-8">
@@ -56,7 +62,7 @@ export default async function PedidosPage({ searchParams }: Props) {
               color: statusFilter === s ? "#f5f0e8" : "#5a4535",
             }}
           >
-            {STATUS_LABEL[s]}
+            {STATUS_LABEL[s]}{countByStatus[s] ? ` ${countByStatus[s]}` : ""}
           </Link>
         ))}
       </div>
