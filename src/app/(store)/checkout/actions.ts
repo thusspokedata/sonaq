@@ -137,37 +137,41 @@ export async function createOrder(
     },
   });
 
-  // Enviar emails en paralelo — no bloqueamos la orden si falla
-  void Promise.allSettled([
-    sendOrderConfirmationToCustomer({
-      orderId: order.id,
-      customerName: name,
-      customerEmail: email,
-      customerPhone: phone,
-      shippingAddress: { address, city, province },
-      notes,
-      paymentMethod,
-      items: validatedItems,
-      total,
-    }),
-    sendNewOrderNotificationToTeam({
-      orderId: order.id,
-      customerName: name,
-      customerEmail: email,
-      customerPhone: phone,
-      shippingAddress: { address, city, province },
-      notes,
-      paymentMethod,
-      items: validatedItems,
-      total,
-    }),
-  ]).then((results) => {
-    results.forEach((r, i) => {
-      if (r.status === "rejected") {
-        console.error(`Email ${i === 0 ? "cliente" : "equipo"} falló para orden ${order.id}:`, r.reason instanceof Error ? r.reason.message : r.reason);
-      }
+  // Para MERCADOPAGO los emails se mandan desde el webhook cuando el pago
+  // es confirmado (status approved). Para BANK_TRANSFER se mandan ahora
+  // porque el cliente necesita los datos bancarios de inmediato.
+  if (paymentMethod === "BANK_TRANSFER") {
+    void Promise.allSettled([
+      sendOrderConfirmationToCustomer({
+        orderId: order.id,
+        customerName: name,
+        customerEmail: email,
+        customerPhone: phone,
+        shippingAddress: { address, city, province },
+        notes,
+        paymentMethod,
+        items: validatedItems,
+        total,
+      }),
+      sendNewOrderNotificationToTeam({
+        orderId: order.id,
+        customerName: name,
+        customerEmail: email,
+        customerPhone: phone,
+        shippingAddress: { address, city, province },
+        notes,
+        paymentMethod,
+        items: validatedItems,
+        total,
+      }),
+    ]).then((results) => {
+      results.forEach((r, i) => {
+        if (r.status === "rejected") {
+          console.error(`Email ${i === 0 ? "cliente" : "equipo"} falló para orden ${order.id}:`, r.reason instanceof Error ? r.reason.message : r.reason);
+        }
+      });
     });
-  });
+  }
 
   if (paymentMethod === "MERCADOPAGO") {
     let initPoint: string;
