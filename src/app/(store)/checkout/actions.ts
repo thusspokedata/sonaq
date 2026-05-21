@@ -89,17 +89,24 @@ export async function createOrder(
     if (!sp) {
       return { status: "error", errors: { _: ["Uno de los productos no está disponible."] } };
     }
-    const addonTotal = item.addons.reduce((sum, addon) => {
+    // Filtrar addons contra Sanity: descartar cualquier _key que no exista
+    const validatedAddons = item.addons.flatMap((addon) => {
       const sa = sp.addons?.find((a) => a._key === addon._key);
-      return sum + (sa?.price ?? 0);
-    }, 0);
+      return sa ? [{ ...addon, price: sa.price }] : [];
+    });
+    const addonTotal = validatedAddons.reduce((sum, a) => sum + a.price, 0);
     let catalogExtra = 0;
     if (item.color?.includes(" — ")) {
       const brand = item.color.split(" — ")[0];
       const scc = sp.colorCatalogs?.find((c) => c.brand === brand);
       if (scc) catalogExtra = scc.priceExtra;
     }
-    validatedItems.push({ ...item, basePrice: sp.price, price: sp.price + addonTotal + catalogExtra });
+    validatedItems.push({
+      ...item,
+      addons: validatedAddons,
+      basePrice: sp.price,
+      price: sp.price + addonTotal + catalogExtra,
+    });
   }
 
   const total = validatedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
