@@ -74,7 +74,7 @@ export async function createOrder(
 
   // Revalidar precios contra Sanity — no confiar en los valores del cliente
   const productIds = [...new Set(items.map((i) => i.productId))];
-  let sanityPrices: { _id: string; price: number; addons?: { _key: string; price: number }[]; colorCatalogs?: { _key: string; brand: string; priceExtra: number }[] }[] = [];
+  let sanityPrices: { _id: string; price: number; addons?: { _key: string; title: string; price: number }[]; colorCatalogs?: { _key: string; brand: string; priceExtra: number }[] }[] = [];
   try {
     sanityPrices = await sanityClient.fetch(PRODUCTS_PRICE_QUERY, { ids: productIds });
   } catch (err) {
@@ -89,17 +89,25 @@ export async function createOrder(
     if (!sp) {
       return { status: "error", errors: { _: ["Uno de los productos no está disponible."] } };
     }
-    const addonTotal = item.addons.reduce((sum, addon) => {
+    // Construir addons exclusivamente desde Sanity: ningún campo del cliente persiste
+    const validatedAddons = item.addons.flatMap((addon) => {
       const sa = sp.addons?.find((a) => a._key === addon._key);
-      return sum + (sa?.price ?? 0);
-    }, 0);
+      if (!sa) return [];
+      return [{ _key: sa._key, title: sa.title, price: sa.price }];
+    });
+    const addonTotal = validatedAddons.reduce((sum, a) => sum + a.price, 0);
     let catalogExtra = 0;
     if (item.color?.includes(" — ")) {
       const brand = item.color.split(" — ")[0];
       const scc = sp.colorCatalogs?.find((c) => c.brand === brand);
       if (scc) catalogExtra = scc.priceExtra;
     }
-    validatedItems.push({ ...item, basePrice: sp.price, price: sp.price + addonTotal + catalogExtra });
+    validatedItems.push({
+      ...item,
+      addons: validatedAddons,
+      basePrice: sp.price,
+      price: sp.price + addonTotal + catalogExtra,
+    });
   }
 
   const total = validatedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -135,6 +143,9 @@ export async function createOrder(
       orderId: order.id,
       customerName: name,
       customerEmail: email,
+      customerPhone: phone,
+      shippingAddress: { address, city, province },
+      notes,
       paymentMethod,
       items: validatedItems,
       total,
@@ -145,6 +156,7 @@ export async function createOrder(
       customerEmail: email,
       customerPhone: phone,
       shippingAddress: { address, city, province },
+      notes,
       paymentMethod,
       items: validatedItems,
       total,

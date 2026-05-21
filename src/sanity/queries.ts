@@ -53,7 +53,7 @@ export const PRODUCTS_PRICE_QUERY = groq`
   *[_type == "product" && _id in $ids && available == true] {
     _id,
     price,
-    "addons": addons[] { _key, price },
+    "addons": addons[] { _key, title, price },
     "colorCatalogs": colorCatalogs[] { _key, brand, priceExtra }
   }
 `;
