@@ -151,9 +151,11 @@ export default async function HomePage() {
             flex-1.
       ──────────────────────────────────────────────────────────────────────── */}
       <section className="flex flex-col md:flex-row overflow-hidden">
-        {/* Video — contenedor 9:16 estricto, alto-driven en desktop */}
+        {/* Video — contenedor 9:16 estricto, alto-driven en desktop.
+            ml en desktop espeja el px del bloque de copy para que el video
+            no quede pegado al borde izquierdo. */}
         <div
-          className="relative w-full md:w-auto aspect-[9/16] max-h-[70vh] md:h-[80vh] md:max-h-none md:shrink-0 overflow-hidden"
+          className="relative w-full md:w-auto aspect-[9/16] max-h-[70vh] md:h-[80vh] md:max-h-none md:shrink-0 md:ml-14 lg:ml-20 overflow-hidden"
           style={{ backgroundColor: "#1a0f00" }}
         >
           <VideoWithSound />
