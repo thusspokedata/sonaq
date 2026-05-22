@@ -106,8 +106,10 @@ export function PromoBanner() {
         }
       `}</style>
 
+      {/* role="region" en vez de "banner": el <header> del layout ya es el
+          landmark banner del documento (ARIA permite uno solo). */}
       <div
-        role="banner"
+        role="region"
         aria-label="Oferta de lanzamiento: pagá en 3 cuotas sin interés con tarjetas Visa y Mastercard bancarizadas, a través de MercadoPago"
         style={{
           backgroundColor: "#f5f0e8",
