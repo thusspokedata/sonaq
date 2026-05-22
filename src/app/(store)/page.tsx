@@ -142,15 +142,17 @@ export default async function HomePage() {
       <PromoBanner />
 
       {/* ─── "Más que un mueble" (video izq + copy der) ─────────────────────
-          Split 50/50. El iframe 9:16 se centra y recorta para cubrir la
-          mitad izquierda (igual que un <Image fill object-cover>).
+          Split 50/50. El contenedor del video toma la proporción 9:16 del
+          video (aspect-[9/16]) para que coincida sin franja negra.
+          max-h limita el alto en pantallas grandes (cuando recorta, lo hace
+          en cover centrado — nunca deja borde negro).
           Mobile: apilado vertical (video arriba, texto abajo).
       ──────────────────────────────────────────────────────────────────────── */}
       <section className="flex flex-col md:flex-row overflow-hidden">
-        {/* Video — izquierda: cover 9:16 con toggle de sonido */}
+        {/* Video — izquierda: contenedor 9:16 con toggle de sonido */}
         <div
-          className="relative w-full md:w-1/2 overflow-hidden"
-          style={{ minHeight: "min(80vh, 620px)", backgroundColor: "#1a0f00" }}
+          className="relative w-full md:w-1/2 overflow-hidden aspect-[9/16] max-h-[70vh] md:max-h-[80vh]"
+          style={{ backgroundColor: "#1a0f00" }}
         >
           <VideoWithSound />
         </div>
