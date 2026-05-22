@@ -142,24 +142,26 @@ export default async function HomePage() {
       <PromoBanner />
 
       {/* ─── "Más que un mueble" (video izq + copy der) ─────────────────────
-          Split 50/50. El contenedor del video toma la proporción 9:16 del
-          video (aspect-[9/16]) para que coincida sin franja negra.
-          max-h limita el alto en pantallas grandes (cuando recorta, lo hace
-          en cover centrado — nunca deja borde negro).
-          Mobile: apilado vertical (video arriba, texto abajo).
+          El contenedor del video siempre mantiene aspect-[9/16] = el video
+          se ve completo, sin franja negra y sin recorte.
+          - Mobile: w-full manda el ancho, el alto sale del aspect y se
+            limita con max-h-[70vh]; el texto va apilado debajo.
+          - Desktop: md:h-[80vh] manda el alto, el ancho sale del aspect
+            (~45vh ≈ 400-500px). La columna de copy ocupa el resto con
+            flex-1.
       ──────────────────────────────────────────────────────────────────────── */}
       <section className="flex flex-col md:flex-row overflow-hidden">
-        {/* Video — izquierda: contenedor 9:16 con toggle de sonido */}
+        {/* Video — contenedor 9:16 estricto, alto-driven en desktop */}
         <div
-          className="relative w-full md:w-1/2 overflow-hidden aspect-[9/16] max-h-[70vh] md:max-h-[80vh]"
+          className="relative w-full md:w-auto aspect-[9/16] max-h-[70vh] md:h-[80vh] md:max-h-none md:shrink-0 overflow-hidden"
           style={{ backgroundColor: "#1a0f00" }}
         >
           <VideoWithSound />
         </div>
 
-        {/* Copy — derecha */}
+        {/* Copy — toma el ancho restante en desktop */}
         <div
-          className="w-full md:w-1/2 flex items-center px-8 py-16 md:px-14 lg:px-20"
+          className="w-full md:flex-1 flex items-center px-8 py-16 md:px-14 lg:px-20"
           style={{ backgroundColor: "#f5f0e8" }}
         >
           <div className="flex flex-col gap-6 max-w-md">
