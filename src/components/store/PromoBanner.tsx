@@ -36,12 +36,15 @@ function MarqueeContent({ isHidden = false, className }: { isHidden?: boolean; c
   return (
     <span className={`promo-segment${className ? ` ${className}` : ""}`} aria-hidden={isHidden || undefined}>
       <span>Pagá en 3 cuotas sin interés con tarjetas Visa y Mastercard bancarizadas, a través de</span>
+      {/* Logo oficial de MP (SVG → escala nítido a cualquier tamaño).
+          48px: un poco más grande que el texto del marquee (19px) para que
+          resalte sin dominar. El margen lateral hace de área de protección. */}
       <Image
         src="/MP_RGB_HANDSHAKE_color_vertical.svg"
         alt="MercadoPago"
-        width={40}
-        height={40}
-        style={{ display: "inline-block", verticalAlign: "middle", margin: "0 10px" }}
+        width={48}
+        height={48}
+        style={{ display: "inline-block", verticalAlign: "middle", margin: "0 12px" }}
       />
       <span style={{ margin: "0 32px", opacity: 0.3 }}>·</span>
     </span>
@@ -75,6 +78,24 @@ export function PromoBanner() {
           white-space: nowrap;
         }
 
+        .promo-logo {
+          flex-shrink: 0;
+          display: flex;
+          align-items: center;
+          padding-left: 20px;
+          padding-right: 20px;
+          border-right: 1px solid #d4c4ae;
+          background-color: #f5f0e8;
+        }
+
+        /* En mobile el header ya muestra el logo Sonaq justo arriba: ocultarlo
+           acá evita el duplicado y le da todo el ancho al marquee. */
+        @media (max-width: 767px) {
+          .promo-logo {
+            display: none;
+          }
+        }
+
         @media (prefers-reduced-motion: reduce) {
           .promo-track {
             animation: none;
@@ -85,8 +106,10 @@ export function PromoBanner() {
         }
       `}</style>
 
+      {/* role="region" en vez de "banner": el <header> del layout ya es el
+          landmark banner del documento (ARIA permite uno solo). */}
       <div
-        role="banner"
+        role="region"
         aria-label="Oferta de lanzamiento: pagá en 3 cuotas sin interés con tarjetas Visa y Mastercard bancarizadas, a través de MercadoPago"
         style={{
           backgroundColor: "#f5f0e8",
@@ -97,18 +120,8 @@ export function PromoBanner() {
           position: "relative",
         }}
       >
-        {/* ── Logo Sonaq fijo a la izquierda ───────────────────────────────── */}
-        <div
-          style={{
-            flexShrink: 0,
-            display: "flex",
-            alignItems: "center",
-            paddingLeft: "20px",
-            paddingRight: "20px",
-            borderRight: "1px solid #d4c4ae",
-            backgroundColor: "#f5f0e8",
-          }}
-        >
+        {/* ── Logo Sonaq fijo a la izquierda (oculto en mobile, ver .promo-logo) ── */}
+        <div className="promo-logo">
           <Image
             src="/logo-sonaq.png"
             alt="Sonaq"
