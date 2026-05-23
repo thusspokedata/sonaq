@@ -70,6 +70,22 @@ npx prisma migrate deploy
 
 ---
 
+## Tooling / CodeRabbit
+
+### Nit no aplicado sobre informe de auditoría legacy
+**Prioridad:** Baja (informativo)
+**Contexto:** En la review de [PR #54](https://github.com/thusspokedata/sonaq/pull/54), CodeRabbit dejó un nit clasificado por él mismo como "💤 Low value" sobre `docs/prompts/audit-fix-responsive-banner-video.md:60`: la referencia hardcodeada `[VideoWithSound.tsx:84-85]` se va a poner stale cuando ese archivo cambie. **No se aplicó el fix** porque la convención de commitear informes de auditoría en `docs/prompts/` se descartó (decisión de proceso 2026-05-23) y los archivos legacy que ya están en `main` se dejan como están sin reescribir historia. Si en algún momento se limpia el directorio, el archivo se borra y el nit muere con él.
+**Solución:** Ninguna acción inmediata. Si más adelante se decide borrar los audits legacy de `docs/prompts/`, este nit queda resuelto por descarte.
+
+---
+
+### Ruido del check "Docstring Coverage" en PRs de UI/CSS
+**Prioridad:** Baja
+**Contexto:** El pre-merge check de CodeRabbit "Docstring Coverage" falla con warning ⚠️ en cualquier PR de presentación sin funciones documentables nuevas. Apareció en los PRs #54, #55 y #56 — ruido recurrente sin señal real para cambios de UI/CSS. Hoy se ignora a mano.
+**Solución:** En `.coderabbit.yaml`, configurar el check para skip cuando el changeset es solo `.tsx`/`.css` sin nuevas funciones exportadas, bajar el umbral, o desactivar el check. Ver docs de CodeRabbit pre-merge checks.
+
+---
+
 ## UX / Futuro
 
 - MercadoPago Checkout Pro con cuotas (bloqueante: validar precios server-side primero)
