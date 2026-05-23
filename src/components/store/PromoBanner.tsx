@@ -78,24 +78,6 @@ export function PromoBanner() {
           white-space: nowrap;
         }
 
-        .promo-logo {
-          flex-shrink: 0;
-          display: flex;
-          align-items: center;
-          padding-left: 20px;
-          padding-right: 20px;
-          border-right: 1px solid #d4c4ae;
-          background-color: #f5f0e8;
-        }
-
-        /* En mobile el header ya muestra el logo Sonaq justo arriba: ocultarlo
-           acá evita el duplicado y le da todo el ancho al marquee. */
-        @media (max-width: 767px) {
-          .promo-logo {
-            display: none;
-          }
-        }
-
         @media (prefers-reduced-motion: reduce) {
           .promo-track {
             animation: none;
@@ -120,22 +102,7 @@ export function PromoBanner() {
           position: "relative",
         }}
       >
-        {/* ── Logo Sonaq fijo a la izquierda (oculto en mobile, ver .promo-logo) ── */}
-        <div className="promo-logo">
-          {/* Props alineadas con el tamaño realmente mostrado (sin override CSS):
-              el archivo intrínseco es 52×58, pero el banner usa el logo a 52px de
-              alto. Pasando width/height ya en esa proporción evitamos el warning
-              "modified, but not the other" de next/image. */}
-          <Image
-            src="/logo-sonaq.png"
-            alt="Sonaq"
-            width={47}
-            height={52}
-            style={{ mixBlendMode: "multiply" }}
-          />
-        </div>
-
-        {/* ── Columna derecha: título fijo + marquee ───────────────────────── */}
+        {/* ── Contenido principal: título fijo + marquee a todo el ancho ──── */}
         <div
           style={{
             flex: 1,
