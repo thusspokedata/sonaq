@@ -38,6 +38,44 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
+// ─── JSON-LD: Organization + WebSite ─────────────────────────────────────────
+// Datos del negocio para structured data (rich results en SERP).
+// Schema.org: Organization https://schema.org/Organization
+//             WebSite      https://schema.org/WebSite
+// Se inyecta server-side en el body del root layout — todas las páginas lo incluyen.
+const ORGANIZATION_LD = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Sonaq",
+  url: BASE_URL,
+  logo: `${BASE_URL}/logo-sonaq.png`,
+  sameAs: ["https://instagram.com/sonaq.muebles"],
+  contactPoint: {
+    "@type": "ContactPoint",
+    telephone: "+5493512881616",
+    email: "ventas@sonaq.com.ar",
+    contactType: "customer service",
+    areaServed: "AR",
+    availableLanguage: "Spanish",
+  },
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "12 de Octubre 441",
+    addressLocality: "Malagueño",
+    addressRegion: "Córdoba",
+    addressCountry: "AR",
+  },
+  taxID: "20-26433102-2",
+};
+
+const WEBSITE_LD = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Sonaq",
+  url: BASE_URL,
+  inLanguage: "es-AR",
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -49,6 +87,15 @@ export default function RootLayout({
         className="min-h-full"
         style={{ fontFamily: "var(--font-barlow), sans-serif" }}
       >
+        {/* Structured data — Organization + WebSite (rich results en Google) */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(ORGANIZATION_LD) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(WEBSITE_LD) }}
+        />
         <StagingBanner />
         {children}
       </body>
