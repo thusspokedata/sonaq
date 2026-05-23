@@ -22,11 +22,14 @@ export async function subscribeToNewsletter(
   const parsed = schema.safeParse({ email: formData.get("email") });
   if (!parsed.success) return { status: "error" };
 
-  // Rate limit: 3 intentos por IP en 10 minutos
+  // Rate limit: 3 intentos por IP en 10 minutos.
+  // Usar X-Real-IP (Nginx lo setea con $remote_addr, no es spoofable). El
+  // primer elemento de X-Forwarded-For sí lo es; fallback al último elemento.
   const headersList = await headers();
+  const xff = headersList.get("x-forwarded-for");
   const ip =
-    headersList.get("x-forwarded-for")?.split(",")[0].trim() ??
-    headersList.get("x-real-ip") ??
+    headersList.get("x-real-ip")?.trim() ||
+    xff?.split(",").pop()?.trim() ||
     "unknown";
   if (process.env.RATE_LIMIT_DISABLED !== "true" && !checkRateLimit(`newsletter:${ip}`, 3, 10 * 60 * 1000)) {
     return { status: "error" };
