@@ -105,6 +105,18 @@ npx prisma migrate deploy
 
 ---
 
+### Pulido breadcrumbs PDP (Sprint 2)
+**Prioridad:** Baja (cada uno independiente)
+**Contexto:** Hallazgos opcionales de la auditoría del PR de breadcrumbs (Sprint 2 SEO) que quedaron sin aplicar por bajo costo/beneficio.
+**Solución:**
+- **Omitir `item` del último `ListItem`** en el BreadcrumbList JSON-LD (`src/app/(store)/productos/[slug]/page.tsx`): la doc de Google recomienda omitir `item` para la página actual ([ref](https://developers.google.com/search/docs/appearance/structured-data/breadcrumb)). Ambas formas son válidas, solo "más limpio" sin él.
+- **Migrar colores hex inline a tokens Tailwind** (`src/app/(store)/productos/[slug]/page.tsx`): `#b8521a`, `#5a4535`, `#1a0f00`, `#d4c4ae` aparecen repetidos. Hay tokens en `globals.css` (`--color-terracota`, `--color-ink`, `--color-ink-muted`, `--color-cream-dark`) sin usar. Refactor amplio que cubriría el PDP entero — deuda heredada, no del PR de breadcrumbs.
+- **Truncar título largo del breadcrumb en mobile**: en ~360 px con títulos largos (ej. "Vitrina para 4 Guitarras con Módulo para Amplificador y Cajón") el `<li>` actual baja entero a 2da línea con el separador `›` colgado arriba. Aceptable visualmente pero se puede mejorar con `line-clamp-1` y `max-w-[60ch]` o `break-words` en el último `<li>`.
+- **Subir tipografía del breadcrumb de `text-xs` a `text-sm`**: el resto del PDP usa `text-sm` mínimo; los 12px del breadcrumb se sienten apretados en mobile. Cosmético.
+- **Ajustar `mb-8` del breadcrumb a `mb-6`**: poca respiración entre el header sticky (80px) y el breadcrumb. Cosmético, a gusto.
+
+---
+
 ## Newsletter
 
 ### Envío de campañas a suscriptores
