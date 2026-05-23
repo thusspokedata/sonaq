@@ -91,6 +91,7 @@ export default async function HomePage() {
                   Donde el sonido descansa
                 </p>
                 <div
+                  aria-hidden
                   className="w-1 h-4 shrink-0"
                   style={{ backgroundColor: "#b8521a" }}
                 />
@@ -111,7 +112,7 @@ export default async function HomePage() {
               </h1>
 
               {/* Bajada + CTA — en desktop en fila */}
-              <div className="flex flex-col items-end sm:flex-row sm:items-end gap-5 sm:gap-10">
+              <div className="flex flex-col items-end sm:flex-row gap-5 sm:gap-10">
                 <p
                   className="text-sm md:text-base max-w-xs leading-relaxed"
                   style={{ color: "#f5f0e8", opacity: 0.85 }}
