@@ -1,4 +1,29 @@
+import type { Metadata } from "next";
+import { BASE_URL } from "@/lib/base-url";
+
 const HEADING_FONT = { fontFamily: "var(--font-barlow-condensed), sans-serif" };
+
+export const metadata: Metadata = {
+  title: "Quiénes somos",
+  description:
+    "Sonaq es un taller en Malagueño, Córdoba, dedicado a diseñar y fabricar vitrinas y muebles a medida para guitarristas. Diseño, oficio y permanencia.",
+  alternates: { canonical: `${BASE_URL}/nosotros` },
+  openGraph: {
+    title: "Quiénes somos — Sonaq",
+    description:
+      "Taller en Malagueño, Córdoba, dedicado a diseñar y fabricar vitrinas y muebles a medida para guitarristas. Diseño, oficio y permanencia.",
+    url: `${BASE_URL}/nosotros`,
+    type: "website",
+    images: [{ url: "/og-default.jpg", width: 1200, height: 630, alt: "Sonaq — Muebles para guitarras" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Quiénes somos — Sonaq",
+    description:
+      "Taller en Malagueño, Córdoba, dedicado a diseñar y fabricar vitrinas y muebles a medida para guitarristas.",
+    images: ["/og-default.jpg"],
+  },
+};
 
 export default function NosotrosPage() {
   return (

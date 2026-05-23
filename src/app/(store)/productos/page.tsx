@@ -13,6 +13,14 @@ export const metadata: Metadata = {
     title: "Productos | Sonaq",
     description: "Vitrinas, soportes y racks para guitarras hechos a medida en Argentina.",
     url: `${BASE_URL}/productos`,
+    type: "website",
+    images: [{ url: "/og-default.jpg", width: 1200, height: 630, alt: "Sonaq — Muebles para guitarras" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Productos | Sonaq",
+    description: "Vitrinas, soportes y racks para guitarras hechos a medida en Argentina.",
+    images: ["/og-default.jpg"],
   },
 };
 export const revalidate = 60;

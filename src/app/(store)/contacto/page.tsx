@@ -1,9 +1,33 @@
+import type { Metadata } from "next";
 import { EmailReveal } from "@/components/store/EmailReveal";
+import { BASE_URL } from "@/lib/base-url";
 
 const CARD = "flex flex-col gap-2 p-6 border border-[#d4c4ae] bg-white";
 const LABEL = "text-xs uppercase tracking-widest font-semibold text-[#5a4535]";
 const BODY = "text-xs text-[#5a4535]";
 const HEADING_FONT = { fontFamily: "var(--font-barlow-condensed), sans-serif" };
+
+export const metadata: Metadata = {
+  title: "Contacto",
+  description:
+    "Hablá con Sonaq por WhatsApp (+54 9 351 288-1616) o email (ventas@sonaq.com.ar). Vitrinas y muebles a medida para guitarras en Córdoba, Argentina.",
+  alternates: { canonical: `${BASE_URL}/contacto` },
+  openGraph: {
+    title: "Contacto — Sonaq",
+    description:
+      "Hablá con Sonaq por WhatsApp o email. Vitrinas y muebles a medida para guitarras en Córdoba, Argentina.",
+    url: `${BASE_URL}/contacto`,
+    type: "website",
+    images: [{ url: "/og-default.jpg", width: 1200, height: 630, alt: "Sonaq — Muebles para guitarras" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Contacto — Sonaq",
+    description:
+      "Hablá con Sonaq por WhatsApp o email. Vitrinas y muebles a medida para guitarras en Córdoba, Argentina.",
+    images: ["/og-default.jpg"],
+  },
+};
 
 export default function ContactoPage() {
   return (

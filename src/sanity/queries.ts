@@ -70,3 +70,11 @@ export const PRODUCTS_BY_CATEGORY_QUERY = groq`
     stock
   }
 `;
+
+// Proyección mínima para sitemap: solo lo que el sitemap necesita.
+export const SITEMAP_PRODUCTS_QUERY = groq`
+  *[_type == "product" && available == true && !(_id in path("drafts.**"))] {
+    "slug": slug.current,
+    _updatedAt
+  }
+`;

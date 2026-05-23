@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { sanityClient } from "@/lib/sanity";
@@ -6,8 +7,31 @@ import { SanityProduct } from "@/types";
 import { ProductCard } from "@/components/store/ProductCard";
 import { VideoWithSound } from "@/components/store/VideoWithSound";
 import { PromoBanner } from "@/components/store/PromoBanner";
+import { BASE_URL } from "@/lib/base-url";
 
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "Vitrinas y muebles para guitarras — hechos a medida en Argentina",
+  description:
+    "Vitrinas, soportes y muebles para guitarras hechos a medida en Córdoba, Argentina. Diseño artesanal, protección real y fabricación a pedido. Donde el sonido descansa.",
+  alternates: { canonical: `${BASE_URL}/` },
+  openGraph: {
+    title: "Vitrinas y muebles para guitarras — hechos a medida en Argentina",
+    description:
+      "Vitrinas, soportes y muebles para guitarras hechos a medida en Córdoba, Argentina. Diseño artesanal, protección real y fabricación a pedido.",
+    url: `${BASE_URL}/`,
+    type: "website",
+    images: [{ url: "/og-default.jpg", width: 1200, height: 630, alt: "Sonaq — Muebles para guitarras" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Vitrinas y muebles para guitarras — hechos a medida en Argentina",
+    description:
+      "Vitrinas, soportes y muebles para guitarras hechos a medida en Córdoba, Argentina. Diseño artesanal, protección real y fabricación a pedido.",
+    images: ["/og-default.jpg"],
+  },
+};
 
 const VALUE_PROPS = [
   {

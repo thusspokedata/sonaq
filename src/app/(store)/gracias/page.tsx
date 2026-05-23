@@ -4,7 +4,10 @@ import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { ClearCartOnMount } from "@/components/store/ClearCartOnMount";
 
-export const metadata: Metadata = { title: "Tu pedido — Sonaq" };
+export const metadata: Metadata = {
+  title: "Tu pedido — Sonaq",
+  robots: { index: false, follow: false },
+};
 
 const HEADING: React.CSSProperties = {
   fontFamily: "var(--font-barlow-condensed), sans-serif",
