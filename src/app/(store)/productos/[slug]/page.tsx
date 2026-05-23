@@ -105,13 +105,16 @@ export default async function ProductPage({
   // ─── BreadcrumbList JSON-LD (Inicio › Productos › {producto}) ─────────────
   // Mismo patrón que Product LD: script aparte. Google soporta múltiples
   // bloques ld+json en la misma página.
+  // Fallback defensivo si Sanity devuelve title vacío — evita que Google
+  // marque warning por `name: ""` en el LD.
+  const breadcrumbTitle = product.title || "Producto";
   const breadcrumbLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Inicio", item: BASE_URL },
+      { "@type": "ListItem", position: 1, name: "Inicio", item: `${BASE_URL}/` },
       { "@type": "ListItem", position: 2, name: "Productos", item: `${BASE_URL}/productos` },
-      { "@type": "ListItem", position: 3, name: product.title, item: pageUrl },
+      { "@type": "ListItem", position: 3, name: breadcrumbTitle, item: pageUrl },
     ],
   };
 
@@ -137,7 +140,7 @@ export default async function ProductPage({
           <li>
             <Link
               href="/"
-              className="transition-opacity hover:opacity-70"
+              className="transition-opacity hover:opacity-70 hover:underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b8521a] rounded-sm"
               style={{ color: "#b8521a" }}
             >
               Inicio
@@ -147,7 +150,7 @@ export default async function ProductPage({
           <li>
             <Link
               href="/productos"
-              className="transition-opacity hover:opacity-70"
+              className="transition-opacity hover:opacity-70 hover:underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b8521a] rounded-sm"
               style={{ color: "#b8521a" }}
             >
               Productos
@@ -155,7 +158,7 @@ export default async function ProductPage({
           </li>
           <li aria-hidden="true" style={{ color: "#d4c4ae" }}>›</li>
           <li aria-current="page" className="font-semibold" style={{ color: "#1a0f00" }}>
-            {product.title}
+            {breadcrumbTitle}
           </li>
         </ol>
       </nav>
