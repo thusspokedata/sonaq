@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { sanityClient, urlFor } from "@/lib/sanity";
 import { PRODUCT_BY_SLUG_QUERY, ALL_PRODUCTS_QUERY } from "@/sanity/queries";
@@ -101,6 +102,22 @@ export default async function ProductPage({
     };
   }
 
+  // ─── BreadcrumbList JSON-LD (Inicio › Productos › {producto}) ─────────────
+  // Mismo patrón que Product LD: script aparte. Google soporta múltiples
+  // bloques ld+json en la misma página.
+  // Fallback defensivo si Sanity devuelve title vacío — evita que Google
+  // marque warning por `name: ""` en el LD.
+  const breadcrumbTitle = product.title || "Producto";
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Inicio", item: `${BASE_URL}/` },
+      { "@type": "ListItem", position: 2, name: "Productos", item: `${BASE_URL}/productos` },
+      { "@type": "ListItem", position: 3, name: breadcrumbTitle, item: pageUrl },
+    ],
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-12">
       {/* Structured data — Product (rich results en Google) */}
@@ -108,6 +125,44 @@ export default async function ProductPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productLd) }}
       />
+      {/* Structured data — BreadcrumbList (ruta en SERP en vez de URL cruda) */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+      />
+
+      {/* Breadcrumbs visibles — versión accesible de la jerarquía */}
+      <nav aria-label="Breadcrumb" className="mb-8">
+        <ol
+          className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs"
+          style={{ color: "#5a4535" }}
+        >
+          <li>
+            <Link
+              href="/"
+              className="transition-opacity hover:opacity-70 hover:underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b8521a] rounded-sm"
+              style={{ color: "#b8521a" }}
+            >
+              Inicio
+            </Link>
+          </li>
+          <li aria-hidden="true" style={{ color: "#d4c4ae" }}>›</li>
+          <li>
+            <Link
+              href="/productos"
+              className="transition-opacity hover:opacity-70 hover:underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b8521a] rounded-sm"
+              style={{ color: "#b8521a" }}
+            >
+              Productos
+            </Link>
+          </li>
+          <li aria-hidden="true" style={{ color: "#d4c4ae" }}>›</li>
+          <li aria-current="page" className="font-semibold" style={{ color: "#1a0f00" }}>
+            {breadcrumbTitle}
+          </li>
+        </ol>
+      </nav>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         {/* Galeria */}
         <ProductGallery
