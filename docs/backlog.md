@@ -68,6 +68,43 @@ npx prisma migrate deploy
 
 ---
 
+### Refinar Product JSON-LD para rich results
+**Prioridad:** Media
+**Contexto:** El `Product` LD agregado en `src/app/(store)/productos/[slug]/page.tsx` funciona pero Google Search Console marca warnings (no errores) por campos opcionales faltantes. Además `sku: product._id` usa el `_id` interno de Sanity, que no es portable a feeds (Mercado Libre, Google Merchant).
+**Solución:**
+- Agregar `itemCondition: "https://schema.org/NewCondition"` al Product LD (1 línea).
+- Opcional: `priceValidUntil` con fecha ~6 meses a futuro dentro del `Offer`.
+- Generar 2 variantes extra de imagen (4:3 y 16:9) con `urlFor(img).width(...).height(...).fit("crop")` y mergearlas al array `image` — Google sugiere las 3 ratios para mejor rendering del rich card.
+- Agregar campo `sku` al schema de Sanity (`src/sanity/schemas/product.ts`) y usar `product.sku ?? product._id` como fallback.
+
+---
+
+### DRY y consistencia de descripciones SEO en metadata
+**Prioridad:** Baja
+**Contexto:** En `(store)/page.tsx`, `nosotros/page.tsx`, `contacto/page.tsx` y `productos/page.tsx` las descripciones se repiten literalmente entre `title`/`description`/`openGraph.description`/`twitter.description`. Riesgo de drift cuando se ajuste copy SEO. Además la PDP arma `ogImage` como URL absoluta (`${BASE_URL}/og-default.jpg`) mientras el resto usa path relativo (`/og-default.jpg`) — ambos resuelven via `metadataBase`, pero la inconsistencia se nota.
+**Solución:** Extraer constantes `PAGE_TITLE` y `PAGE_DESCRIPTION` al tope de cada página y referenciarlas en los 4 lugares. Unificar todas las referencias de `og-default.jpg` a path relativo (Next.js lo resuelve con el `metadataBase` del root).
+
+---
+
+### Hardening del JSON-LD (escape `</script>` + tipado schema-dts)
+**Prioridad:** Baja (defensivo)
+**Contexto:** Los JSON-LD se inyectan con `dangerouslySetInnerHTML={{ __html: JSON.stringify(obj) }}`. Hoy los datos vienen de Sanity (input confiable, no público), pero si alguna vez una `shortDescription` contiene la string literal `</script>`, rompería el tag. Además los objetos LD usan `Record<string, unknown>` — pierde autocompletado vs un tipado con `schema-dts`.
+**Solución:**
+- Hacer `JSON.stringify(obj).replace(/</g, "\\u003c")` post-stringify en `layout.tsx` y `productos/[slug]/page.tsx`. Mitigación standard, 1 línea por script.
+- Opcional: agregar `schema-dts` como devDep e importar `import type { Product, Organization, WebSite, WithContext } from "schema-dts"` para tipar los objetos LD.
+
+---
+
+### Pulido SEO misceláneo
+**Prioridad:** Baja (cada uno independiente)
+**Contexto:** Hallazgos chicos detectados en la auditoría del Sprint 1 SEO que quedaron sin aplicar.
+**Solución:**
+- **`STATIC_LAST_MODIFIED` hardcodeado** (`src/app/sitemap.ts`): si nadie acuerda bumpearlo cuando cambia el contenido estático, el sitemap miente a Google. Alternativas: leer fecha de commit de cada page via build hook, o env var `SITE_RELEASE_DATE` con valor por env. Sin solución limpia hoy.
+- **Enriquecer `Organization` LD** (`src/app/layout.tsx`): agregar `founder` y `foundingDate` para mejor Knowledge Panel en Google.
+- **Combinar `Organization` + `WebSite` en un solo `<script>`** con un array `[ORGANIZATION_LD, WEBSITE_LD]` — equivalente funcional, más idiomático.
+
+---
+
 ## Newsletter
 
 ### Envío de campañas a suscriptores
