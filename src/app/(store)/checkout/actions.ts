@@ -1,6 +1,7 @@
 "use server";
 
 import { z } from "zod";
+import { randomUUID } from "node:crypto";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { CartItem } from "@/types";
@@ -26,6 +27,36 @@ const checkoutSchema = z.object({
   acceptsTerms: z.literal(true, { message: "Debés aceptar los términos" }),
 });
 
+const itemSchema = z.object({
+  // CartItem.cartItemId / .slug existen para el cliente; el server no los
+  // persiste pero el tipo los requiere — usamos defaults vacíos para evitar
+  // que el spread los deje en undefined sin agregar lógica condicional.
+  cartItemId: z.string().max(200).default(""),
+  productId: z.string().min(1).max(100),
+  quantity: z.number().int().min(1).max(50),
+  title: z.string().min(1).max(200),
+  image: z
+    .string()
+    .url()
+    .max(2048)
+    .refine((u) => /^https?:\/\//i.test(u), { message: "Esquema de URL no permitido" })
+    .optional(),
+  color: z.string().max(100).optional(),
+  slug: z.string().max(200).default(""),
+  addons: z
+    .array(
+      z.object({
+        _key: z.string().min(1).max(100),
+        title: z.string().max(200),
+        price: z.number(),
+      })
+    )
+    .max(20)
+    .default([]),
+});
+
+const itemsArraySchema = z.array(itemSchema).min(1).max(20);
+
 export type CheckoutFormState =
   | { status: "idle" }
   | { status: "error"; errors: Record<string, string[]> }
@@ -36,16 +67,44 @@ export async function createOrder(
   items: CartItem[],
   formValues: Record<string, string>
 ): Promise<CheckoutFormState> {
+  // Extraemos IP y UA temprano para poder loggear contexto del honeypot
+  // sin filtrar PII (nombre/email/teléfono/dirección quedan fuera del log).
+  // X-Real-IP lo setea Nginx con $remote_addr (no spoofable); fallback al
+  // último elemento de X-Forwarded-For (el que Nginx anexa). El primer
+  // elemento de XFF sí es controlable por el cliente.
+  const headersList = await headers();
+  const xff = headersList.get("x-forwarded-for");
+  const ip =
+    headersList.get("x-real-ip")?.trim() ||
+    xff?.split(",").pop()?.trim() ||
+    "unknown";
+  const userAgent = headersList.get("user-agent")?.slice(0, 200) ?? "unknown";
+
+  // Honeypot: si un bot rellenó el campo oculto, devolvemos un success falso
+  // sin crear orden ni mandar emails. El bot no sabe que fue detectado.
+  // Loggeamos sin PII para detectar autofills agresivos vs bots reales.
+  const honeypot = formValues.website;
+  if (typeof honeypot === "string" && honeypot.trim() !== "") {
+    console.warn(
+      `[checkout] honeypot triggered at ${new Date().toISOString()} ip=${ip} ua="${userAgent}"`
+    );
+    return { status: "success", orderId: randomUUID() };
+  }
+
   if (!items.length) {
     return { status: "error", errors: { _: ["El carrito está vacío"] } };
   }
 
-  // Rate limit: 5 órdenes por IP por hora
-  const headersList = await headers();
-  const ip =
-    headersList.get("x-forwarded-for")?.split(",")[0].trim() ??
-    headersList.get("x-real-ip") ??
-    "unknown";
+  // Validación de forma de los items ANTES de cualquier cálculo o persistencia.
+  // El re-fetch de precios desde Sanity (más abajo) sigue siendo la fuente de
+  // verdad para los valores; este check solo cierra forma y rangos.
+  const itemsParsed = itemsArraySchema.safeParse(items);
+  if (!itemsParsed.success) {
+    return { status: "error", errors: { _: ["Carrito inválido"] } };
+  }
+  const safeItems = itemsParsed.data;
+
+  // Rate limit: 5 órdenes por IP por hora.
   if (process.env.RATE_LIMIT_DISABLED !== "true" && !checkRateLimit(`checkout:${ip}`, 5, 60 * 60 * 1000)) {
     return {
       status: "error",
@@ -73,7 +132,7 @@ export async function createOrder(
   const { name, email, phone, address, city, province, notes, paymentMethod } = parsed.data;
 
   // Revalidar precios contra Sanity — no confiar en los valores del cliente
-  const productIds = [...new Set(items.map((i) => i.productId))];
+  const productIds = [...new Set(safeItems.map((i) => i.productId))];
   let sanityPrices: { _id: string; price: number; addons?: { _key: string; title: string; price: number }[]; colorCatalogs?: { _key: string; brand: string; priceExtra: number }[] }[] = [];
   try {
     sanityPrices = await sanityClient.fetch(PRODUCTS_PRICE_QUERY, { ids: productIds });
@@ -84,7 +143,7 @@ export async function createOrder(
   const priceMap = new Map(sanityPrices.map((p) => [p._id, p]));
 
   const validatedItems: CartItem[] = [];
-  for (const item of items) {
+  for (const item of safeItems) {
     const sp = priceMap.get(item.productId);
     if (!sp) {
       return { status: "error", errors: { _: ["Uno de los productos no está disponible."] } };

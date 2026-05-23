@@ -91,6 +91,20 @@ export function CheckoutForm() {
 
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
+      {/* Honeypot: invisible para humanos, atractivo para bots. Si llega lleno
+          al server, la action descarta la orden silenciosamente. */}
+      <div aria-hidden="true" style={{ position: "absolute", left: "-9999px", width: 1, height: 1, overflow: "hidden" }}>
+        <label htmlFor="website">No completar este campo</label>
+        <input
+          id="website"
+          name="website"
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+          defaultValue=""
+        />
+      </div>
+
       {/* Datos personales */}
       <section className="flex flex-col gap-4">
         <h2 className="text-lg font-black uppercase" style={{ fontFamily: "var(--font-barlow-condensed), sans-serif", color: "#1a0f00" }}>
