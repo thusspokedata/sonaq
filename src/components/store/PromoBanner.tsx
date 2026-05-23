@@ -109,12 +109,16 @@ export function PromoBanner() {
             backgroundColor: "#f5f0e8",
           }}
         >
+          {/* Props alineadas con el tamaño realmente mostrado (sin override CSS):
+              el archivo intrínseco es 52×58, pero el banner usa el logo a 52px de
+              alto. Pasando width/height ya en esa proporción evitamos el warning
+              "modified, but not the other" de next/image. */}
           <Image
             src="/logo-sonaq.png"
             alt="Sonaq"
-            width={52}
-            height={58}
-            style={{ width: "auto", height: "52px", mixBlendMode: "multiply" }}
+            width={47}
+            height={52}
+            style={{ mixBlendMode: "multiply" }}
           />
         </div>
 
