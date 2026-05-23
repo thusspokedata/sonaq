@@ -19,7 +19,7 @@ declare global {
 }
 // ─────────────────────────────────────────────────────────────────────────────
 
-const VIDEO_ID = "P5aeAu4qlJo";
+const VIDEO_ID = "rkoVntX4oVY";
 const SCRIPT_SRC = "https://www.youtube.com/iframe_api";
 
 function SoundOffIcon() {
