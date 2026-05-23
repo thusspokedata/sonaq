@@ -20,12 +20,17 @@
 ```
 src/
   app/
+    layout.tsx        # Root layout: metadata global + JSON-LD Organization + WebSite
+    sitemap.ts        # Sitemap dinámico (revalida 1h) con productos + lastModified
+    robots.ts         # Robots: allow / + disallow admin/api/studio; noindex en staging
     (store)/          # Tienda pública — layout con header + footer
-      page.tsx        # Home con video YouTube y secciones
-      productos/      # Catálogo + PDP (datos de Sanity con ISR 1min)
-      checkout/       # Formulario + server action createOrder()
-      gracias/        # Confirmación post-compra (MP y transferencia)
-      carrito/        # Vista del carrito
+      page.tsx        # Home con metadata SEO + hero + video YouTube + secciones
+      productos/      # Listado + PDP con generateMetadata + JSON-LD Product + Breadcrumbs
+      checkout/       # Formulario + server action createOrder() (noindex)
+      gracias/        # Confirmación post-compra MP/transferencia (noindex)
+      carrito/        # Vista del carrito (noindex)
+      nosotros/       # Página de marca con metadata SEO
+      contacto/       # Contacto WhatsApp + email con metadata SEO
     (admin)/admin/    # Panel protegido por rol ADMIN
       pedidos/        # Listado y detalle con cambio de estado
       cuenta/         # Datos de la cuenta
@@ -40,9 +45,21 @@ src/
     mercadopago.ts    # createMPPreference() — usa sandbox en TEST tokens
     rate-limit.ts     # In-memory sliding window (RATE_LIMIT_DISABLED para staging)
     base-url.ts       # Usa NEXT_PUBLIC_SITE_URL ?? NEXT_PUBLIC_BASE_URL
-  components/store/   # Componentes de la tienda
-  sanity/             # Schemas, queries GROQ, cliente
+  components/store/   # Componentes de la tienda (PromoBanner, VideoWithSound, etc.)
+  sanity/             # Schemas, queries GROQ (incluye SITEMAP_PRODUCTS_QUERY), cliente
+
+public/
+  og-default.jpg      # Open Graph fallback 1200×630 (home + páginas sin imagen propia)
+  logo-sonaq.png      # Logo del header
+  MP_RGB_HANDSHAKE_color_vertical.svg  # Logo oficial MercadoPago (banner promocional)
 ```
+
+**SEO foundation** (mergeado en PRs #57 + #58 el 2026-05-23):
+- Metadata por página: home, /productos, /nosotros, /contacto, PDP — todas con title/description/canonical/OG/Twitter
+- JSON-LD `Organization` + `WebSite` en root layout
+- JSON-LD `Product` (con offers/availability) + `BreadcrumbList` en la PDP
+- Páginas privadas (`/carrito`, `/checkout`, `/gracias`) con `robots: noindex, nofollow`
+- `og-default.jpg` 1200×630 como fallback OG
 
 **Flujo de compra MercadoPago:**
 1. `createOrder()` crea orden en DB (status `PENDING`)
@@ -71,6 +88,8 @@ bash deploy.sh
 nvm use 22 && bash deploy-staging.sh
 ```
 
+⚠️ **Gotcha**: antes de correr `deploy.sh`, **matar el `next dev` local de Sonaq** (`pgrep -f "sonaq.*next dev"` + `kill <pid>`). El dev server churnea archivos en `.next/dev/cache/turbopack/` y el `rsync -az --delete .next/` falla con `open (2): No such file or directory`. Si querés mantener dev activo, agregá `--exclude='dev/' --exclude='cache/'` al rsync (no está hoy en `deploy.sh`).
+
 PM2 staging usa un wrapper script en el VPS que hace `set -a; source .env.staging; set +a` antes de arrancar Next.js (el `env_file` de PM2 no parsea comillas correctamente).
 
 ---
@@ -79,10 +98,17 @@ PM2 staging usa un wrapper script en el VPS que hace `set -a; source .env.stagin
 
 **Workflow de código:**
 - Para cambios significativos: crear branch → implementar → PR → esperar CodeRabbit → aplicar fixes → mergear
-- Para fixes simples: commitear directo en main está bien
+- Para fixes simples (doc-only, backlog updates): commitear directo en main está bien
 - Antes de mergear un PR, siempre revisar si CodeRabbit dejó comentarios (`gh pr view <n> --comments`)
+- CodeRabbit a veces falla con "Review failed — error occurred". Retriggear con `gh pr comment <n> --body "@coderabbitai full review"` y esperar 1-2 min.
 - Todos los commits van firmados: `git commit -S` (Bitwarden SSH agent — el usuario aprueba la firma)
-- Si Bitwarden está bloqueado, el commit falla — avisar al usuario para que lo desbloquee
+- Si Bitwarden está bloqueado, el commit/push falla con error de SSH — avisar al usuario para desbloquearlo
+- **Sin atribución a Claude/Anthropic** en commits ni PR bodies
+- Para PRs grandes, auditoría con agentes en paralelo (`ui` + `general-purpose`); reportan a texto, **no se commitea ningún `.md` de auditoría** (la convención de `docs/prompts/audit-*.md` se descartó el 2026-05-23 — los archivos legacy ya en main se dejan, no se crean más)
+
+**Backlog y planificación:**
+- La fuente de verdad de items pendientes es **`docs/backlog.md`** (Seguridad, Notificaciones, Admin, Confianza/legal, Deploy, SEO, Newsletter, Tooling/CodeRabbit, UX/Futuro)
+- Cuando CodeRabbit deja un nit que decidimos no aplicar, anotarlo en `docs/backlog.md` con la decisión explícita
 
 **Estilo de comunicación:**
 - El usuario habla en español rioplatense, responder en español
@@ -103,19 +129,26 @@ PM2 staging usa un wrapper script en el VPS que hace `set -a; source .env.stagin
 
 ---
 
-## Estado actual (al cierre de la sesión anterior)
+## Estado actual (cierre 2026-05-23)
 
-**En main, deployado en staging:**
-- ✅ Flujo completo de MercadoPago (preference → redirect → webhook → gracias)
-- ✅ Entorno staging completo con banner, robots noindex, EMAIL_DRY_RUN
+**En main + deployado a producción** (https://sonaq.com.ar):
+- ✅ Flujo completo de MercadoPago (preference → redirect → webhook con HMAC → /gracias con estados success/pending/failure)
+- ✅ Email de confirmación MP **solo tras pago aprobado** vía webhook (PR #51) — antes se mandaba prematuramente
+- ✅ Datos bancarios + instrucciones en email de transferencia (PR #48)
+- ✅ Carrito se limpia al confirmar pago, distinguiendo estados en /gracias (PR #53)
+- ✅ Banner promocional con marquee de 3 cuotas sin interés + logo MP (PRs #47, #54, #59)
+- ✅ Hero con imagen en orientación natural + texto a la derecha (PR #55)
+- ✅ Sección "Más que un mueble" con video YouTube en 9:16 (PR #54), nuevo VIDEO_ID `rkoVntX4oVY` del canal Sonaq
 - ✅ Selector de color con texturas (Faplac/Egger) en PDP
-- ✅ Página Nosotros
+- ✅ Páginas Nosotros + Contacto con metadata SEO propia
 - ✅ Panel admin con gestión de pedidos
+- ✅ **SEO foundation (PR #57)**: metadata por página, JSON-LD Organization+WebSite, Product en PDP con offers/availability, sitemap.ts dinámico con `_updatedAt` de Sanity, robots.ts con disallow correcto, noindex en privadas
+- ✅ **Breadcrumbs visibles + BreadcrumbList JSON-LD** en PDP (PR #58)
+- ✅ Banner sin logo de Sonaq duplicado (PR #59) — header del layout ya tiene el logo
 
-**Branch pendiente de deploy:**
-- `fix/cart-clear-after-mp` — limpia el carrito al aterrizar en `/gracias` (commit sin pushear, Bitwarden estaba bloqueado)
+**Sin branches abiertas en GitHub** (todas las PRs de SEO + UI mergeadas y deployadas).
 
-**Backlog conocido:**
-- Bug: el stock no se descuenta al confirmar una compra (se puede comprar más unidades de las disponibles)
-- Email al cliente con datos bancarios para transferencia (falta CBU/alias del vendedor)
-- Dashboard de métricas en el admin
+**Backlog**: ver `docs/backlog.md` para items pendientes con prioridades. Highlights:
+- **Alta**: validar precios server-side antes de crear orden (bloqueante para activar MP en prod), completar `[COMPLETAR]` en `/terminos` y `/privacidad` (CUIT + domicilio legal)
+- **Media**: refinar Product JSON-LD (itemCondition, sku dedicado en Sanity, image variants 4:3/16:9), enviar campañas a suscriptores Resend
+- **Baja**: varios pulidos SEO (DRY descripciones, hardening JSON-LD, lastModified strategy), pulidos breadcrumbs, double-Sonaq en title de /gracias, `LocalBusiness` JSON-LD si Sonaq atiende público en Malagueño
