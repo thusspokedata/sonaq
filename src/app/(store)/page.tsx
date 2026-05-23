@@ -15,12 +15,12 @@ export const metadata: Metadata = {
   title: "Vitrinas y muebles para guitarras — hechos a medida en Argentina",
   description:
     "Vitrinas, soportes y muebles para guitarras hechos a medida en Córdoba, Argentina. Diseño artesanal, protección real y fabricación a pedido. Donde el sonido descansa.",
-  alternates: { canonical: BASE_URL },
+  alternates: { canonical: `${BASE_URL}/` },
   openGraph: {
     title: "Vitrinas y muebles para guitarras — hechos a medida en Argentina",
     description:
       "Vitrinas, soportes y muebles para guitarras hechos a medida en Córdoba, Argentina. Diseño artesanal, protección real y fabricación a pedido.",
-    url: BASE_URL,
+    url: `${BASE_URL}/`,
     type: "website",
     images: [{ url: "/og-default.jpg", width: 1200, height: 630, alt: "Sonaq — Muebles para guitarras" }],
   },

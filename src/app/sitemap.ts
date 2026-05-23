@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
-import { groq } from "next-sanity";
 import { sanityClient } from "@/lib/sanity";
+import { SITEMAP_PRODUCTS_QUERY } from "@/sanity/queries";
 import { BASE_URL } from "@/lib/base-url";
 
 export const revalidate = 3600;
@@ -10,15 +10,7 @@ export const revalidate = 3600;
 // presupuesto de crawl y no la queremos mover en cada revalidate.
 const STATIC_LAST_MODIFIED = new Date("2026-05-23");
 
-// Query mínima específica para sitemap (solo slug y fecha de update).
-const SITEMAP_PRODUCTS_QUERY = groq`
-  *[_type == "product" && available == true && !(_id in path("drafts.**"))] {
-    "slug": slug.current,
-    _updatedAt
-  }
-`;
-
-type SitemapProduct = { slug: string | null; _updatedAt: string };
+type SitemapProduct = { slug: string | null; _updatedAt: string | null };
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -38,7 +30,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   const productRoutes: MetadataRoute.Sitemap = products
-    .filter((p): p is { slug: string; _updatedAt: string } => typeof p.slug === "string" && p.slug.length > 0)
+    .filter(
+      (p): p is { slug: string; _updatedAt: string } =>
+        typeof p.slug === "string" && p.slug.length > 0 && typeof p._updatedAt === "string"
+    )
     .map((p) => ({
       url: `${BASE_URL}/productos/${p.slug}`,
       lastModified: new Date(p._updatedAt),
