@@ -72,8 +72,42 @@ export default async function ProductPage({
 
   const outOfStock = product.stock === 0;
 
+  // ─── JSON-LD: Product ───────────────────────────────────────────────────────
+  // Structured data para rich results en Google (precio, disponibilidad, marca).
+  // Schema.org: https://schema.org/Product
+  const pageUrl = `${BASE_URL}/productos/${product.slug.current}`;
+  const ldImages = product.images
+    ?.filter((img) => img?.asset?._ref)
+    .slice(0, 4)
+    .map((img) => urlFor(img).width(1200).height(1200).fit("crop").url())
+    ?? [];
+  const productLd: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.title,
+    description: product.shortDescription ?? `${product.title} — mueble para guitarra hecho a medida en Argentina.`,
+    sku: product._id,
+    brand: { "@type": "Brand", name: "Sonaq" },
+    url: pageUrl,
+  };
+  if (ldImages.length > 0) productLd.image = ldImages;
+  if (typeof product.price === "number" && product.price > 0) {
+    productLd.offers = {
+      "@type": "Offer",
+      price: product.price,
+      priceCurrency: "ARS",
+      availability: outOfStock ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
+      url: pageUrl,
+    };
+  }
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-12">
+      {/* Structured data — Product (rich results en Google) */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productLd) }}
+      />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         {/* Galeria */}
         <ProductGallery
