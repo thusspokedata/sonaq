@@ -25,8 +25,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let products: SitemapProduct[] = [];
   try {
     products = await sanityClient.fetch(SITEMAP_PRODUCTS_QUERY);
-  } catch {
-    // Sanity no configurado — sitemap solo incluye rutas estáticas
+  } catch (error) {
+    // Sanity no configurado o fallo temporal — sitemap solo incluye rutas estáticas.
+    // Logueado para no perder de vista regresiones SEO silenciosas.
+    console.warn("[sitemap] Failed to fetch products from Sanity", error);
   }
 
   const productRoutes: MetadataRoute.Sitemap = products
