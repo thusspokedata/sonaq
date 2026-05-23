@@ -49,14 +49,16 @@ export default async function HomePage() {
   return (
     <div>
       {/* ─── Hero ─────────────────────────────────────────────────────────────
-          Imagen estática full-width con texto superpuesto en la esquina
-          inferior izquierda sobre un gradiente oscuro.
+          Imagen estática full-width en orientación natural (las guitarras
+          se ven como diestro: clavijero a la izquierda). Texto superpuesto
+          en la esquina inferior derecha sobre un gradiente diagonal que
+          oscurece el bottom-right donde vive el texto.
       ──────────────────────────────────────────────────────────────────────── */}
       <section
         className="relative w-full overflow-hidden"
         style={{ height: "clamp(480px, 90vh, 1000px)", backgroundColor: "#1a0f00" }}
       >
-          {/* Imagen de fondo */}
+          {/* Imagen de fondo — orientación natural (sin scaleX). */}
           <Image
             src="/foto1.jpeg"
             alt="Vitrina Sonaq con guitarras en el taller"
@@ -64,34 +66,34 @@ export default async function HomePage() {
             priority
             sizes="100vw"
             className="object-cover object-center"
-            style={{ transform: "scaleX(-1)" }}
           />
 
-          {/* Gradiente: oscurece el fondo del texto sin tapar la imagen */}
+          {/* Gradiente diagonal: oscurece bottom-right (donde va el texto)
+              sin tapar la vitrina del lado izquierdo. */}
           <div
             className="absolute inset-0 pointer-events-none"
             aria-hidden
             style={{
               background:
-                "linear-gradient(to top, rgba(26,15,0,0.82) 0%, rgba(26,15,0,0.35) 40%, rgba(26,15,0,0.0) 70%)",
+                "linear-gradient(to top left, rgba(26,15,0,0.85) 0%, rgba(26,15,0,0.45) 40%, rgba(26,15,0,0.0) 75%)",
             }}
           />
 
-          {/* Texto superpuesto — esquina inferior izquierda */}
+          {/* Texto superpuesto — esquina inferior derecha */}
           <div className="absolute bottom-0 left-0 w-full px-6 pb-10 md:px-12 md:pb-14 lg:px-16 lg:pb-16">
-            <div className="max-w-6xl mx-auto flex flex-col items-start gap-5">
-              {/* Eyebrow */}
+            <div className="max-w-6xl mx-auto flex flex-col items-end gap-5 text-right">
+              {/* Eyebrow — orden invertido: texto primero, bar como remate a la derecha */}
               <div className="flex items-center gap-3">
-                <div
-                  className="w-1 h-4 shrink-0"
-                  style={{ backgroundColor: "#b8521a" }}
-                />
                 <p
                   className="text-xs font-semibold uppercase tracking-[0.25em]"
                   style={{ color: "#f5f0e8", opacity: 0.8 }}
                 >
                   Donde el sonido descansa
                 </p>
+                <div
+                  className="w-1 h-4 shrink-0"
+                  style={{ backgroundColor: "#b8521a" }}
+                />
               </div>
 
               {/* Titular */}
@@ -109,7 +111,7 @@ export default async function HomePage() {
               </h1>
 
               {/* Bajada + CTA — en desktop en fila */}
-              <div className="flex flex-col sm:flex-row sm:items-end gap-5 sm:gap-10">
+              <div className="flex flex-col items-end sm:flex-row sm:items-end gap-5 sm:gap-10">
                 <p
                   className="text-sm md:text-base max-w-xs leading-relaxed"
                   style={{ color: "#f5f0e8", opacity: 0.85 }}
