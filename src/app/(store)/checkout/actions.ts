@@ -14,6 +14,7 @@ import { createMPPreference } from "@/lib/mercadopago";
 import { BASE_URL } from "@/lib/base-url";
 import { sanityClient } from "@/lib/sanity";
 import { PRODUCTS_PRICE_QUERY } from "@/sanity/queries";
+import { itemsArraySchema, extractClientIp } from "./validation";
 
 const checkoutSchema = z.object({
   name: z.string().min(2).max(120),
@@ -27,36 +28,6 @@ const checkoutSchema = z.object({
   acceptsTerms: z.literal(true, { message: "Debés aceptar los términos" }),
 });
 
-const itemSchema = z.object({
-  // CartItem.cartItemId / .slug existen para el cliente; el server no los
-  // persiste pero el tipo los requiere — usamos defaults vacíos para evitar
-  // que el spread los deje en undefined sin agregar lógica condicional.
-  cartItemId: z.string().max(200).default(""),
-  productId: z.string().min(1).max(100),
-  quantity: z.number().int().min(1).max(50),
-  title: z.string().min(1).max(200),
-  image: z
-    .string()
-    .url()
-    .max(2048)
-    .refine((u) => /^https?:\/\//i.test(u), { message: "Esquema de URL no permitido" })
-    .optional(),
-  color: z.string().max(100).optional(),
-  slug: z.string().max(200).default(""),
-  addons: z
-    .array(
-      z.object({
-        _key: z.string().min(1).max(100),
-        title: z.string().max(200),
-        price: z.number(),
-      })
-    )
-    .max(20)
-    .default([]),
-});
-
-const itemsArraySchema = z.array(itemSchema).min(1).max(20);
-
 export type CheckoutFormState =
   | { status: "idle" }
   | { status: "error"; errors: Record<string, string[]> }
@@ -69,15 +40,9 @@ export async function createOrder(
 ): Promise<CheckoutFormState> {
   // Extraemos IP y UA temprano para poder loggear contexto del honeypot
   // sin filtrar PII (nombre/email/teléfono/dirección quedan fuera del log).
-  // X-Real-IP lo setea Nginx con $remote_addr (no spoofable); fallback al
-  // último elemento de X-Forwarded-For (el que Nginx anexa). El primer
-  // elemento de XFF sí es controlable por el cliente.
+  // La lógica de extracción de IP vive en ./validation para poder testearla.
   const headersList = await headers();
-  const xff = headersList.get("x-forwarded-for");
-  const ip =
-    headersList.get("x-real-ip")?.trim() ||
-    xff?.split(",").pop()?.trim() ||
-    "unknown";
+  const ip = extractClientIp(headersList);
   const userAgent = headersList.get("user-agent")?.slice(0, 200) ?? "unknown";
 
   // Honeypot: si un bot rellenó el campo oculto, devolvemos un success falso
