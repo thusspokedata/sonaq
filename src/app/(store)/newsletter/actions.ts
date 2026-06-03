@@ -4,6 +4,7 @@ import { z } from "zod";
 import { headers } from "next/headers";
 import { Resend } from "resend";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { extractClientIp } from "../checkout/validation";
 
 const schema = z.object({
   email: z.string().email(),
@@ -23,14 +24,9 @@ export async function subscribeToNewsletter(
   if (!parsed.success) return { status: "error" };
 
   // Rate limit: 3 intentos por IP en 10 minutos.
-  // Usar X-Real-IP (Nginx lo setea con $remote_addr, no es spoofable). El
-  // primer elemento de X-Forwarded-For sí lo es; fallback al último elemento.
+  // La lógica de extracción de IP vive en ../checkout/validation para poder testearla.
   const headersList = await headers();
-  const xff = headersList.get("x-forwarded-for");
-  const ip =
-    headersList.get("x-real-ip")?.trim() ||
-    xff?.split(",").pop()?.trim() ||
-    "unknown";
+  const ip = extractClientIp(headersList);
   if (process.env.RATE_LIMIT_DISABLED !== "true" && !checkRateLimit(`newsletter:${ip}`, 3, 10 * 60 * 1000)) {
     return { status: "error" };
   }
