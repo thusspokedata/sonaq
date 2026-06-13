@@ -18,7 +18,7 @@ export default function PrivacidadPage() {
         >
           Política de privacidad
         </h1>
-        <p className="text-xs text-[#5a4535] mt-3">Última actualización: abril 2026</p>
+        <p className="text-xs text-[#5a4535] mt-3">Última actualización: mayo 2026</p>
       </div>
 
       <LegalSection title="1. Responsable del tratamiento">
@@ -102,7 +102,26 @@ export default function PrivacidadPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="8. Cambios en esta política">
+      <LegalSection title="8. Analytics y métricas de uso">
+        <p>
+          Utilizamos una herramienta de analítica web auto-alojada (
+          <strong>Umami</strong>) en nuestro propio servidor. La herramienta
+          recopila únicamente datos agregados de navegación: páginas visitadas,
+          sitio de procedencia (referrer), tipo de navegador y país aproximado.
+        </p>
+        <p>
+          No utiliza cookies, no almacena direcciones IP, no crea perfiles
+          personales ni permite identificar visitantes individuales. La
+          información se utiliza exclusivamente para entender qué contenido
+          resulta útil y mejorar el sitio.
+        </p>
+        <p>
+          Base legal: interés legítimo del responsable del tratamiento en
+          comprender el uso del sitio y mejorar el servicio.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="9. Cambios en esta política">
         <p>
           Podemos actualizar esta política en cualquier momento. La fecha de última actualización
           figura al inicio de este documento. El uso continuado del sitio tras los cambios implica
