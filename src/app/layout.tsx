@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Barlow, Barlow_Condensed } from "next/font/google";
 import { BASE_URL } from "@/lib/base-url";
 import { StagingBanner } from "@/components/store/StagingBanner";
+import { UmamiScript } from "@/components/analytics/UmamiScript";
 import "./globals.css";
 
 const barlow = Barlow({
@@ -98,6 +99,7 @@ export default function RootLayout({
         />
         <StagingBanner />
         {children}
+        <UmamiScript />
       </body>
     </html>
   );
