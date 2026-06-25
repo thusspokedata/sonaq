@@ -116,8 +116,8 @@ PM2 staging usa un wrapper script en el VPS que hace `set -a; source .env.stagin
 - Para fixes simples (doc-only, backlog updates): commitear directo en main está bien
 - Antes de mergear un PR, siempre revisar si CodeRabbit dejó comentarios (`gh pr view <n> --comments`)
 - CodeRabbit a veces falla con "Review failed — error occurred". Retriggear con `gh pr comment <n> --body "@coderabbitai full review"` y esperar 1-2 min.
-- Todos los commits van firmados: `git commit -S` (Bitwarden SSH agent — el usuario aprueba la firma)
-- Si Bitwarden está bloqueado, el commit/push falla con error de SSH — avisar al usuario para desbloquearlo
+- Todos los commits van firmados: `git commit -S`. La firma usa una **clave SSH en disco** (`~/.ssh/macbookpro1_ed25519`, vía `git user.signingkey` + `gpg.format=ssh`). **Bitwarden ya no interviene**: `gpg.ssh.program` apunta a un wrapper (`~/.config/git/ssh-sign-no-agent`) que corre `ssh-keygen` con `SSH_AUTH_SOCK` borrado, así el agente de Bitwarden nunca se contacta al firmar. No salta ningún prompt. (SSH al VPS/Pis también usa claves en disco vía `~/.ssh/config` con `IdentityAgent none`.)
+- La firma no requiere desbloquear nada — al ser clave en disco, `git commit -S` no falla por un agente bloqueado
 - **Sin atribución a Claude/Anthropic** en commits ni PR bodies
 - Para PRs grandes, auditoría con agentes en paralelo (`ui` + `general-purpose`); reportan a texto, **no se commitea ningún `.md` de auditoría** (la convención de `docs/prompts/audit-*.md` se descartó el 2026-05-23 — los archivos legacy ya en main se dejan, no se crean más)
 
