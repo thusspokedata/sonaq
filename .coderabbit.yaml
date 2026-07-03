@@ -1,6 +1,19 @@
+# CodeRabbit — configuración del repo. Docs: https://docs.coderabbit.ai/configuration
+# Objetivo: evitar el throttle por fair-usage (límite adaptativo por-desarrollador,
+# ventana móvil). La causa #1 de consumo silencioso son los re-reviews automáticos
+# en CADA push; en sesiones largas con muchos commits eso quema el cupo horario.
+# (Opcional: agregar language: es-AR arriba de reviews para reviews en español.)
+
 reviews:
+  # Perfil de comentarios: chill = menos ruido, solo lo relevante.
+  profile: chill
   auto_review:
     enabled: true
+    # No re-revisar en cada push: CodeRabbit revisa al ABRIR el PR y, después,
+    # solo cuando lo pidas con @coderabbitai review. Ahorra la mayor parte del cupo.
+    auto_incremental_review: false
+    # No gastar reviews en borradores ni en PRs marcados WIP.
+    drafts: false
     # No revisar PRs de bots de dependencias para evitar costos de asientos adicionales
     ignore_usernames:
       - dependabot[bot]
@@ -9,3 +22,6 @@ reviews:
       - "chore(deps)"
       - "chore(deps-dev)"
       - "bump"
+      - WIP
+      - wip
+      - draft
