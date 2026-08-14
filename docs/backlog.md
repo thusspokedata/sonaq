@@ -7,12 +7,11 @@
 **Contexto:** Los precios de los items llegan del cart en Zustand (localStorage). Un usuario puede modificarlos en DevTools y crear una orden con `price: 1`. Actualmente el riesgo es bajo porque MercadoPago no está activo, pero hay que resolverlo en el PR de integración de MP.  
 **Solución:** En `src/app/(store)/checkout/actions.ts`, re-fetch los precios reales desde Sanity usando los `productId` de los items antes de crear la orden, y comparar con los precios recibidos del cliente.
 
-### Vulnerabilidades transitivas residuales de `npm audit` (riesgo aceptado)
-**Prioridad:** Baja — sin exposición real en producción
-**Contexto:** El 2026-07-31 se resolvieron todas las CRITICAL (auth: `next-auth`/`@auth/core`/`@auth/prisma-adapter`, y `tar`) + los HIGH de runtime (`next` middleware bypass, `postcss` top-level, y `sharp` interno de next vía override `"sharp": "$sharp"`) con `npm audit fix` + un override, sin tocar floors. Quedan ~28 advisories transitivas que **no** se aplican porque el único "fix" que ofrece npm es `--force`, que quiere *downgradear* `next`→9.3.3 y `sanity`→5.14.1 (rompería todo). Clasificación del residual:
-- **Dev/build-only (no va al runtime de prod, exposición ~nula):** árbol de `eslint`/`eslint-plugin-*`, Sanity CLI (`@sanity/cli*`, `@oclif/*`, `@sanity/runtime-cli`, `@vercel/frameworks`, `jake`/`filelist`) → `adm-zip`, `js-yaml`, `ejs`, `brace-expansion`, `minimatch`. Corren en la máquina de build/studio, nunca en el server.
-- **Runtime, bajo riesgo real:** `postcss@8.4.31` interno de next (CSS de autoría propia, no input de usuario); `uuid <11.1.1` vía `mercadopago`/`typeid-js` (el fix es `mercadopago@3.x` MAJOR y la vuln necesita un `buf` controlado por atacante que no usamos).
-**Solución (cuando haya apetito):** esperar a que Dependabot/upstream (sanity, mercadopago) publiquen versiones parcheadas; evaluar `mercadopago@3.x` como major deliberado con testing del flujo de pago; NO correr `npm audit fix --force`.
+### Vulnerabilidades transitivas de `npm audit` — RESUELTO (0 advisories)
+**Estado:** ✅ Cerrado el 2026-08-14 — `npm audit` reporta **0 vulnerabilities**.
+**Cómo se llegó:** primero (2026-07-31) `npm audit fix` + override `"sharp": "$sharp"` resolvieron las 3 CRITICAL de auth (`next-auth`/`@auth/core`/`@auth/prisma-adapter`), `tar`, el bypass de middleware de `next`, `postcss` top-level y el `sharp` interno de next. Después (2026-08-14) el resto de las transitivas (nanoid, js-yaml, adm-zip, uuid) se cerraron con `overrides` por-rango en `package.json`, forzando solo las versiones parcheadas sin tocar los subárboles ya sanos (ej. `@sanity/comlink` sigue en `uuid@^13`).
+**Overrides vigentes** (`package.json` → `overrides`): `sharp:$sharp`, `adm-zip:^0.6.0`, `nanoid@^3→3.3.18`/`@^5→5.1.16`, `js-yaml@^3→3.15.1`/`@^4→4.3.1`, `uuid@^9→11.1.1`/`@^10→11.1.1`. Validado: build OK + 53 tests verdes.
+**Regla que se mantiene:** NO correr `npm audit fix --force` (quiere *downgradear* `next`→9.3.3 y `sanity`→5.14.1). Si en el futuro reaparecen advisories transitivas, evaluar el mismo patrón de override por-rango antes que un major.
 
 ---
 
