@@ -18,8 +18,8 @@
     "@auth/prisma-adapter": "^2.11.2",
     "@hookform/resolvers": "^5.9.1",
     "@portabletext/react": "^6.0.3",
-    "@prisma/adapter-pg": "^7.9.1",
-    "@prisma/client": "^7.9.1",
+    "@prisma/adapter-pg": "^7.10.0",
+    "@prisma/client": "^7.10.0",
     "@sanity/client": "^7.26.0",
     "@sanity/image-url": "^2.1.1",
     "@sanity/vision": "^5.31.2",
@@ -31,13 +31,13 @@
     "next-auth": "^5.0.0-beta.31",
     "next-sanity": "^12.4.5",
     "pg": "^8.23.0",
-    "prisma": "^7.9.1",
+    "prisma": "^7.10.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-hook-form": "^7.85.0",
-    "resend": "^6.20.0",
+    "resend": "^6.24.0",
     "sanity": "^5.31.2",
-    "sharp": "^0.35.1",
+    "sharp": "^0.35.4",
     "styled-components": "^6.5.0",
     "zod": "^4.4.3",
     "zustand": "^5.0.15"
@@ -48,7 +48,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@vitest/coverage-v8": "^4.1.10",
+    "@vitest/coverage-v8": "^4.1.11",
     "eslint": "^9",
     "eslint-config-next": "16.3.3",
     "tailwindcss": "^4",
@@ -65,6 +65,8 @@
     "js-yaml@^4.0.0": "4.3.1",
     "uuid@^9.0.0": "11.1.1",
     "uuid@^10.0.0": "11.1.1",
-    "deepmerge-ts": "^8.0.1"
+    "deepmerge-ts": "^8.0.1",
+    "browserslist": "^4.28.8",
+    "mysql2": "^3.24.3"
   }
 }
