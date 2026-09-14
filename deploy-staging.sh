@@ -3,7 +3,7 @@
 # Run: bash deploy-staging.sh
 set -e
 
-VPS="root@187.33.155.194"
+VPS="root@187.33.156.20"
 REMOTE_DIR="/var/www/sonaq-staging"
 
 echo "→ Loading .env.staging..."
