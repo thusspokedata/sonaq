@@ -35,7 +35,7 @@
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-hook-form": "^7.87.0",
-    "resend": "^6.24.0",
+    "resend": "^6.27.0",
     "sanity": "^5.31.2",
     "sharp": "^0.35.4",
     "styled-components": "^6.5.0",
