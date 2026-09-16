@@ -3,7 +3,7 @@
 # then syncs build output and node_modules to server via rsync.
 set -e
 
-VPS="root@187.33.155.194"
+VPS="root@187.33.156.20"
 REMOTE_DIR="/var/www/sonaq"
 
 echo "→ Building locally..."
