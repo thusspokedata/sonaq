@@ -98,19 +98,15 @@ NEXT_PUBLIC_BASE_URL=http://localhost:3001
 ## Deploy a producción
 
 El build se hace **localmente** (la VPS no tiene RAM suficiente) y se sube via rsync.
+`deploy.sh` hace todo el flujo (build, `git pull`, rsync de `.next` y `node_modules`,
+migraciones y generate de Prisma, restart de PM2):
 
 ```bash
-# 1. Buildear
-npm run build
-
-# 2. Subir build al VPS
-rsync -avz --progress .next/ root@187.33.155.194:/var/www/sonaq/.next/
-
-# 3. Reiniciar en el VPS
-ssh root@187.33.155.194 "cd /var/www/sonaq && pm2 restart sonaq"
+bash deploy.sh          # producción
+bash deploy-staging.sh  # staging (usa .env.staging)
 ```
 
-**VPS:** `root@187.33.155.194` → `/var/www/sonaq`  
+**VPS:** `root@187.33.156.20` (Debian 13) → `/var/www/sonaq`  
 **Puerto:** 3001  
 **Variables de entorno:** `/var/www/sonaq/.env` (no se sube al repo)
 

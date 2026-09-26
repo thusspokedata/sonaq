@@ -1,13 +1,13 @@
 # Setup de staging.sonaq.com.ar
 
 Guía paso a paso para montar el entorno de staging en el VPS.
-Ejecutar como `root` en `187.33.155.194`.
+Ejecutar como `root` en `187.33.156.20` (vps2, Debian 13; staging se migró ahí desde `187.33.155.194` en 2026-09).
 
 ---
 
 ## Pre-requisitos (hechos desde fuera del VPS)
 
-- [x] Registro DNS `A staging.sonaq.com.ar → 187.33.155.194`
+- [x] Registro DNS `A staging.sonaq.com.ar → 187.33.156.20`
 - [x] Branch `staging` creado en Neon — anotar el connection string
 - [x] Dataset `staging` creado en Sanity Studio
 - [ ] Credenciales TEST de MercadoPago (Access Token + Public Key)
