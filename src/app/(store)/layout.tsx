@@ -21,7 +21,7 @@ export default function StoreLayout({
         }}
       >
         <div className="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
-          <a href="/" className="flex items-center" aria-label="Sonaq — inicio">
+          <Link href="/" className="flex items-center" aria-label="Sonaq — inicio">
             <Image
               src="/logo-sonaq.png"
               alt="Sonaq"
@@ -30,7 +30,7 @@ export default function StoreLayout({
               priority
               style={{ width: "64px", height: "auto", mixBlendMode: "multiply" }}
             />
-          </a>
+          </Link>
 
           <nav className="hidden md:flex items-center gap-8">
             {[

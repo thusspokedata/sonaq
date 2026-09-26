@@ -1,13 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { useCartStore } from "@/lib/cart-store";
+import { useHydrated } from "@/lib/client-storage";
 
 export function CartIcon() {
   const count = useCartStore((s) => s.items.reduce((sum, i) => sum + i.quantity, 0));
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const mounted = useHydrated();
 
   return (
     <Link href="/carrito" className="relative flex items-center gap-1 group">
