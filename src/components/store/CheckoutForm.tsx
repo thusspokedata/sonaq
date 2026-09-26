@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/lib/cart-store";
+import { useHydrated, useStoredValue } from "@/lib/client-storage";
 import { createOrder, CheckoutFormState } from "@/app/(store)/checkout/actions";
 
 const PROVINCES = [
@@ -43,16 +44,14 @@ export function CheckoutForm() {
   const { items, total, clearCart } = useCartStore();
   const [state, setState] = useState<CheckoutFormState>({ status: "idle" });
   const [isPending, startTransition] = useTransition();
-  const [mounted, setMounted] = useState(false);
-  const [saved, setSaved] = useState<SavedInfo | null>(null);
-
-  useEffect(() => {
-    setMounted(true);
+  const mounted = useHydrated();
+  const rawSaved = useStoredValue(STORAGE_KEY);
+  const saved = useMemo<SavedInfo | null>(() => {
+    if (!rawSaved) return null;
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setSaved(JSON.parse(raw));
-    } catch { /* ignorar datos corruptos */ }
-  }, []);
+      return JSON.parse(rawSaved);
+    } catch { return null; /* ignorar datos corruptos */ }
+  }, [rawSaved]);
 
   const err = (field: string) =>
     state.status === "error" ? state.errors[field]?.[0] : undefined;
@@ -150,7 +149,9 @@ export function CheckoutForm() {
           </div>
           <div className="flex flex-col gap-1">
             <label htmlFor="province" style={LABEL}>Provincia *</label>
-            <select id="province" name="province" required defaultValue={saved?.province ?? ""} style={FIELD}>
+            {/* key: React no aplica un defaultValue nuevo a un <select> ya montado,
+                así que lo remontamos cuando llegan los datos guardados. */}
+            <select key={saved?.province ?? ""} id="province" name="province" required defaultValue={saved?.province ?? ""} style={FIELD}>
               <option value="" disabled>Seleccioná...</option>
               {PROVINCES.map((p) => (
                 <option key={p} value={p}>{p}</option>

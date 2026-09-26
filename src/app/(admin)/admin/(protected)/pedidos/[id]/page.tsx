@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
-import { OrderStatus } from "@prisma/client";
 import {
   STATUS_LABEL,
   STATUS_COLOR,

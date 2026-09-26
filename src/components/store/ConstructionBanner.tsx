@@ -1,19 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { setStoredValue, useStoredValue } from "@/lib/client-storage";
+
+const DISMISSED_KEY = "construction_banner_dismissed";
 
 export function ConstructionBanner() {
-  const [visible, setVisible] = useState(false);
+  // undefined (server/hidratación) → oculto, igual que antes de montar.
+  const visible = useStoredValue(DISMISSED_KEY) === null;
 
-  useEffect(() => {
-    const dismissed = localStorage.getItem("construction_banner_dismissed");
-    if (!dismissed) setVisible(true);
-  }, []);
-
-  const dismiss = () => {
-    localStorage.setItem("construction_banner_dismissed", "1");
-    setVisible(false);
-  };
+  const dismiss = () => setStoredValue(DISMISSED_KEY, "1");
 
   if (!visible) return null;
 
