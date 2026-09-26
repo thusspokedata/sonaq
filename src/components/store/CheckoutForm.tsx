@@ -52,6 +52,9 @@ export function CheckoutForm() {
       return JSON.parse(rawSaved);
     } catch { return null; /* ignorar datos corruptos */ }
   }, [rawSaved]);
+  // Lo que elige el usuario gana sobre lo guardado (que puede llegar después
+  // de hidratar o cambiar desde otra pestaña).
+  const [province, setProvince] = useState<string | null>(null);
 
   const err = (field: string) =>
     state.status === "error" ? state.errors[field]?.[0] : undefined;
@@ -149,9 +152,14 @@ export function CheckoutForm() {
           </div>
           <div className="flex flex-col gap-1">
             <label htmlFor="province" style={LABEL}>Provincia *</label>
-            {/* key: React no aplica un defaultValue nuevo a un <select> ya montado,
-                así que lo remontamos cuando llegan los datos guardados. */}
-            <select key={saved?.province ?? ""} id="province" name="province" required defaultValue={saved?.province ?? ""} style={FIELD}>
+            <select
+              id="province"
+              name="province"
+              required
+              value={province ?? saved?.province ?? ""}
+              onChange={(e) => setProvince(e.target.value)}
+              style={FIELD}
+            >
               <option value="" disabled>Seleccioná...</option>
               {PROVINCES.map((p) => (
                 <option key={p} value={p}>{p}</option>
