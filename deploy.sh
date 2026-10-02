@@ -1,6 +1,8 @@
 #!/bin/bash
 # Deploy script — builds locally (VPS cannot reliably run npm install or next build)
 # then syncs build output and node_modules to server via rsync.
+# Nunca correr npm install en la VPS: tiene 1 GB de RAM y un install la deja
+# sin memoria (tiró prod y staging el 2026-09-27).
 set -e
 
 VPS="root@187.33.156.20"
@@ -17,9 +19,6 @@ rsync -az --delete .next/ $VPS:$REMOTE_DIR/.next/
 
 echo "→ Syncing node_modules to VPS..."
 rsync -az --delete node_modules/ $VPS:$REMOTE_DIR/node_modules/
-
-echo "→ Installing Linux-specific native packages..."
-ssh $VPS "cd $REMOTE_DIR && npm install @parcel/watcher-linux-x64-glibc --no-save 2>/dev/null || true"
 
 echo "→ Running Prisma migrations on VPS..."
 ssh $VPS "cd $REMOTE_DIR && npx prisma migrate deploy"
