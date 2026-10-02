@@ -27,9 +27,6 @@ rsync -az --delete .next/ $VPS:$REMOTE_DIR/.next/
 echo "→ Syncing node_modules to VPS..."
 rsync -az --delete node_modules/ $VPS:$REMOTE_DIR/node_modules/
 
-echo "→ Installing Linux-specific native packages..."
-ssh $VPS "cd $REMOTE_DIR && npm install @parcel/watcher-linux-x64-glibc --no-save 2>/dev/null || true"
-
 echo "→ Running Prisma migrations on VPS (staging DB)..."
 ssh $VPS "cd $REMOTE_DIR && set -a && source .env.staging && set +a && npx prisma migrate deploy"
 
