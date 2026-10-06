@@ -25,7 +25,8 @@ jobs:
           # Misma major que la VPS (22.x)
           node-version: 22
           cache: npm
-      - run: npm ci
+      # El lockfile se genera con legacy-peer-deps=true; sin el flag npm ci lo ve desincronizado
+      - run: npm ci --legacy-peer-deps
       # Valores dummy de .env.example: el build necesita las variables definidas, nunca secretos reales
       - run: cp .env.example .env
       # npm ci no genera el cliente de Prisma y next build lo necesita para el type check
