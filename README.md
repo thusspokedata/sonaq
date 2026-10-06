@@ -99,7 +99,8 @@ NEXT_PUBLIC_BASE_URL=http://localhost:3001
 
 El build se hace **localmente** (la VPS no tiene RAM suficiente) y se sube via rsync.
 `deploy.sh` hace todo el flujo (build, `git pull`, rsync de `.next` y `node_modules`,
-migraciones y generate de Prisma, restart de PM2):
+migraciones y generate de Prisma solo si cambió `prisma/`, restart de PM2).
+Para forzar Prisma: `FORCE_PRISMA=1 bash deploy.sh`.
 
 ```bash
 bash deploy.sh          # producción
