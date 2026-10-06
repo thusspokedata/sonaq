@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Lint + tests + build: la misma red que se corría a mano en local
+  check:
+    name: Lint, tests y build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          # Misma major que la VPS (22.x)
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # Valores dummy de .env.example: el build necesita las variables definidas, nunca secretos reales
+      - run: cp .env.example .env
+      # npm ci no genera el cliente de Prisma y next build lo necesita para el type check
+      - run: npx prisma generate
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
