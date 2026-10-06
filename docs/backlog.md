@@ -53,7 +53,7 @@
 **Prioridad:** Alta — sin esto la VPS corre con un schema desactualizado  
 **Solución:** En la VPS, tras `git pull` y `npm run build`:
 ```bash
-source ~/.nvm/nvm.sh && nvm use 20
+source ~/.nvm/nvm.sh && nvm use 22
 npx prisma migrate deploy
 ```
 

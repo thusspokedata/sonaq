@@ -57,7 +57,7 @@ E-commerce de muebles y vitrinas para guitarras. [sonaq.com.ar](https://sonaq.co
 ## Desarrollo local
 
 ### Requisitos
-- Node.js 20+
+- Node.js 22+
 - Docker (para Postgres)
 
 ### Setup
