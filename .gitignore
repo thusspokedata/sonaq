@@ -42,3 +42,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# marker de deploy (solo existe en la VPS)
+.prisma-deployed-sha
