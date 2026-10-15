@@ -1,0 +1,60 @@
+name: Claude Code
+
+# Se dispara cuando alguien menciona @claude en un comentario/issue/review.
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+  pull_request_review:
+    types: [submitted]
+  issues:
+    types: [opened, assigned]
+
+jobs:
+  claude:
+    # Solo corre si el disparador contiene "@claude" y lo escribió alguien con acceso al repo.
+    # El repo es público: sin el filtro de author_association cualquiera podría arrancar el job
+    # (la Action igual rechaza a quien no tiene permiso de escritura; esto lo corta antes).
+    if: |
+      (
+        github.event_name == 'issue_comment' &&
+        contains(github.event.comment.body, '@claude') &&
+        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
+      ) || (
+        github.event_name == 'pull_request_review_comment' &&
+        contains(github.event.comment.body, '@claude') &&
+        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
+      ) || (
+        github.event_name == 'pull_request_review' &&
+        contains(github.event.review.body, '@claude') &&
+        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.review.author_association)
+      ) || (
+        github.event_name == 'issues' &&
+        (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')) &&
+        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.issue.author_association)
+      )
+    runs-on: ubuntu-latest
+    # Permisos mínimos: la Action hace sus escrituras (comentar/pushear) con el token
+    # del GitHub App; el GITHUB_TOKEN solo necesita lectura + OIDC.
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+      id-token: write
+      actions: read # leer resultados de CI del PR
+    steps:
+      # Actions fijadas a SHA: la de Claude recibe el OAuth token y un tag se puede mover.
+      # Dependabot (ecosistema github-actions) las sigue actualizando.
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+
+      - name: Run Claude Code
+        uses: anthropics/claude-code-action@a26b07d8c778b0c43f64618e5fd29fd0f8af72e8 # v1.0.250
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # Además del permiso del job, la Action pide esto para que Claude pueda leer runs y logs de CI
+          additional_permissions: |
+            actions: read
