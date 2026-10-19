@@ -34,7 +34,7 @@
     "prisma": "^7.10.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
-    "react-hook-form": "^7.89.0",
+    "react-hook-form": "^7.90.0",
     "resend": "^6.33.0",
     "sanity": "^5.31.2",
     "sharp": "^0.35.5",
