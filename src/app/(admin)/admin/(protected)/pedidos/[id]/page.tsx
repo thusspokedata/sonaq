@@ -121,21 +121,49 @@ export default async function PedidoDetailPage({ params }: Props) {
         <h2 className="text-xs uppercase tracking-widest font-semibold px-5 py-3 border-b" style={{ color: "#5a4535", borderColor: "#d4c4ae" }}>
           Productos
         </h2>
-        {pedido.items.map((item) => (
-          <div
-            key={item.id}
-            className="flex justify-between items-center px-5 py-3 border-b last:border-0"
-            style={{ borderColor: "#ede5d8" }}
-          >
-            <div>
-              <p className="font-medium" style={{ color: "#1a0f00" }}>{item.title}</p>
-              <p className="text-xs" style={{ color: "#5a4535" }}>Cantidad: {item.quantity}</p>
+        {pedido.items.map((item) => {
+          const addons = Array.isArray(item.addons)
+            ? item.addons.flatMap((addon) => {
+                if (
+                  typeof addon !== "object" ||
+                  addon === null ||
+                  !("title" in addon) ||
+                  typeof addon.title !== "string"
+                ) {
+                  return [];
+                }
+                return [{ title: addon.title }];
+              })
+            : [];
+
+          return (
+            <div
+              key={item.id}
+              className="flex justify-between items-center px-5 py-3 border-b last:border-0"
+              style={{ borderColor: "#ede5d8" }}
+            >
+              <div>
+                <p className="font-medium" style={{ color: "#1a0f00" }}>{item.title}</p>
+                <p className="text-xs" style={{ color: "#5a4535" }}>Cantidad: {item.quantity}</p>
+                {item.color && (
+                  <p className="text-xs" style={{ color: "#5a4535" }}>Color: {item.color}</p>
+                )}
+                {addons.length > 0 && (
+                  <ul className="mt-1">
+                    {addons.map((addon, index) => (
+                      <li key={`${addon.title}-${index}`} className="text-xs" style={{ color: "#5a4535" }}>
+                        + {addon.title}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <p className="font-semibold" style={{ color: "#1a0f00" }}>
+                {formatPrice(Number(item.price) * item.quantity)}
+              </p>
             </div>
-            <p className="font-semibold" style={{ color: "#1a0f00" }}>
-              {formatPrice(Number(item.price) * item.quantity)}
-            </p>
-          </div>
-        ))}
+          );
+        })}
       </section>
 
       {/* Notas */}
