@@ -57,7 +57,7 @@ export const useCartStore = create<CartStore>()(
     }),
     {
       name: "sonaq-cart",
-      version: 2,
+      version: 3,
       migrate: (persistedState) => {
         const state = persistedState as { items?: Partial<CartItem>[] } | undefined;
         return {

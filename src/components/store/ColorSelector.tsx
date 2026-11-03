@@ -6,20 +6,22 @@ import { ProductColor } from "@/types";
 interface ColorSelectorProps {
   colors: ProductColor[];
   selected: string | null;
-  onChange: (colorName: string) => void;
+  onChange: (colorKey: string) => void;
 }
 
 export function ColorSelector({ colors, selected, onChange }: ColorSelectorProps) {
   if (!colors || colors.length === 0) return null;
 
+  const selectedName = colors.find((color) => color._key === selected)?.name;
+
   return (
     <div className="flex flex-col gap-3">
       <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: "#5a4535" }}>
-        Color{selected ? <span className="ml-2 normal-case font-normal">— {selected}</span> : null}
+        Color{selectedName ? <span className="ml-2 normal-case font-normal">— {selectedName}</span> : null}
       </p>
       <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Seleccionar color">
         {colors.map((color) => {
-          const isSelected = selected === color.name;
+          const isSelected = selected === color._key;
           const texturaUrl = color.textura?.asset?.url ?? null;
 
           return (
@@ -29,7 +31,7 @@ export function ColorSelector({ colors, selected, onChange }: ColorSelectorProps
               role="radio"
               aria-checked={isSelected}
               aria-label={`Color: ${color.name}${isSelected ? " (seleccionado)" : ""}`}
-              onClick={() => onChange(color.name)}
+              onClick={() => onChange(color._key)}
               className="relative overflow-hidden transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b8521a]"
               style={{
                 width: 48,

@@ -36,6 +36,9 @@ export interface CartItem {
   price: number; // basePrice + suma de addons
   addons: SelectedAddon[];
   color?: string; // nombre del color elegido
+  colorKey?: string;
+  catalogKey?: string;
+  catalogCode?: string;
   quantity: number;
   image?: string;
   slug: string;
