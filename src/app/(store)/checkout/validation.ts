@@ -43,7 +43,7 @@ export interface CheckoutProduct {
   _id: string;
   title: string;
   price: number;
-  stock: number;
+  stock?: number | null;
   image: string | null;
   addons?: SelectedAddon[];
   colors?: { _key: string; name: string }[];
@@ -59,21 +59,16 @@ export function buildOrderItems(
   products: CheckoutProduct[]
 ): BuildOrderItemsResult {
   const productMap = new Map(products.map((product) => [product._id, product]));
-  const quantities = new Map<string, number>();
-  for (const item of items) {
-    quantities.set(item.productId, (quantities.get(item.productId) ?? 0) + item.quantity);
-  }
-
   const validatedItems: CartItem[] = [];
+
   for (const item of items) {
     const product = productMap.get(item.productId);
     if (!product) {
       return { success: false, error: "Uno de los productos no está disponible." };
     }
 
-    const productQuantity = quantities.get(item.productId) ?? 0;
-    if (!Number.isFinite(product.stock) || product.stock <= 0 || productQuantity > product.stock) {
-      return { success: false, error: `No hay stock suficiente de ${product.title}` };
+    if (product.stock === 0) {
+      return { success: false, error: `${product.title} no está disponible por ahora` };
     }
 
     const addons = item.addons.flatMap((addon) => {
@@ -112,7 +107,10 @@ export function buildOrderItems(
         catalogCode = item.catalogCode;
         catalogExtra = catalog.priceExtra;
       } else {
-        return { success: false, error: "Actualizá tu carrito" };
+        return {
+          success: false,
+          error: `Quitá «${product.title}» del carrito y volvé a agregarlo eligiendo el color.`,
+        };
       }
     }
 

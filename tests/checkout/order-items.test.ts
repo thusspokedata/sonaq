@@ -68,13 +68,16 @@ describe("buildOrderItems", () => {
     expectError(result, "El color seleccionado no está disponible.");
   });
 
-  it("asks for a cart refresh when a product with colors has no structured variant", () => {
+  it("asks for re-adding an item when a product with colors has no structured variant", () => {
     const result = buildOrderItems(
       [makeItem({ color: "Faplac — B2 Blanco" })],
       [makeProduct({ colors: [{ _key: "color-1", name: "Natural" }] })]
     );
 
-    expectError(result, "Actualizá tu carrito");
+    expectError(
+      result,
+      "Quitá «Server product» del carrito y volvé a agregarlo eligiendo el color."
+    );
   });
 
   it("rejects a colorKey from another product", () => {
@@ -111,19 +114,23 @@ describe("buildOrderItems", () => {
   it("rejects a product with zero stock", () => {
     const result = buildOrderItems([makeItem()], [makeProduct({ stock: 0 })]);
 
-    expectError(result, "No hay stock suficiente de Server product");
+    expectError(result, "Server product no está disponible por ahora");
   });
 
-  it("rejects repeated lines whose combined quantity exceeds stock", () => {
+  it("accepts quantity 3 when stock is 1", () => {
     const result = buildOrderItems(
-      [
-        makeItem({ cartItemId: "line-1", quantity: 3 }),
-        makeItem({ cartItemId: "line-2", quantity: 3 }),
-      ],
-      [makeProduct({ stock: 5 })]
+      [makeItem({ quantity: 3 })],
+      [makeProduct({ stock: 1 })]
     );
 
-    expectError(result, "No hay stock suficiente de Server product");
+    expect(result.success).toBe(true);
+    if (result.success) expect(result.items[0].quantity).toBe(3);
+  });
+
+  it("accepts a product with null stock", () => {
+    const result = buildOrderItems([makeItem()], [makeProduct({ stock: null })]);
+
+    expect(result.success).toBe(true);
   });
 
   it("accepts a product without colors and ignores variant fields", () => {
@@ -173,7 +180,10 @@ describe("buildOrderItems", () => {
       ]
     );
 
-    expectError(result, "Actualizá tu carrito");
+    expectError(
+      result,
+      "Quitá «Server product» del carrito y volvé a agregarlo eligiendo el color."
+    );
   });
 });
 
