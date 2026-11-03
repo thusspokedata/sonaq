@@ -18,7 +18,7 @@ export function AddToCartButton({ product, disabled }: AddToCartButtonProps) {
   const [added, setAdded] = useState(false);
   const [selectedAddons, setSelectedAddons] = useState<SelectedAddon[]>([]);
   // Swatch de textura propio
-  const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [selectedColorKey, setSelectedColorKey] = useState<string | null>(null);
   // Catálogo externo (Faplac / Egger)
   const [selectedCatalog, setSelectedCatalog] = useState<ProductColorCatalog | null>(null);
   const [catalogColorText, setCatalogColorText] = useState("");
@@ -32,11 +32,11 @@ export function AddToCartButton({ product, disabled }: AddToCartButtonProps) {
   const totalPrice = (product.price ?? 0) + addonsTotal + catalogExtra;
 
   // Toggle: click en el swatch seleccionado lo deselecciona, liberando el catálogo
-  const handleColorChange = (colorName: string) => {
-    if (selectedColor === colorName) {
-      setSelectedColor(null);
+  const handleColorChange = (colorKey: string) => {
+    if (selectedColorKey === colorKey) {
+      setSelectedColorKey(null);
     } else {
-      setSelectedColor(colorName);
+      setSelectedColorKey(colorKey);
       setSelectedCatalog(null);
       setCatalogColorText("");
     }
@@ -44,7 +44,7 @@ export function AddToCartButton({ product, disabled }: AddToCartButtonProps) {
 
   const handleCatalogSelect = (catalog: ProductColorCatalog | null) => {
     setSelectedCatalog(catalog);
-    if (catalog) setSelectedColor(null);
+    if (catalog) setSelectedColorKey(null);
   };
 
   // Puede agregar si:
@@ -53,7 +53,7 @@ export function AddToCartButton({ product, disabled }: AddToCartButtonProps) {
   // - Hay catálogos → si eligió catálogo, debe haber escrito el color
   const colorRequired = hasColors || hasCatalogs;
   const colorChosen =
-    selectedColor !== null ||
+    selectedColorKey !== null ||
     (selectedCatalog !== null && catalogColorText.trim().length > 0);
   const canAdd = !colorRequired || colorChosen;
 
@@ -66,16 +66,20 @@ export function AddToCartButton({ product, disabled }: AddToCartButtonProps) {
       ? urlFor(sanityImage).width(200).height(200).fit("crop").url()
       : (product.localImages?.[0] ?? undefined);
 
-    // Color final: swatch propio o "Marca — código del catálogo"
-    const colorValue = selectedColor
-      ? selectedColor
+    const catalogCode = selectedCatalog ? catalogColorText.trim() : undefined;
+    const colorValue = selectedColorKey
+      ? product.colors?.find((color) => color._key === selectedColorKey)?.name
       : selectedCatalog
-      ? `${selectedCatalog.brand} — ${catalogColorText.trim()}`
+      ? `${selectedCatalog.brand} — ${catalogCode}`
       : undefined;
 
     const addonKey = selectedAddons.map((a) => a._key).sort().join("|");
-    const colorKey = colorValue ?? "";
-    const cartItemId = [product._id, colorKey, addonKey].filter(Boolean).join("-");
+    const variantKey = selectedColorKey
+      ? `color-${selectedColorKey}`
+      : selectedCatalog
+      ? `catalog-${selectedCatalog._key}-${catalogCode}`
+      : "";
+    const cartItemId = [product._id, variantKey, addonKey].filter(Boolean).join("-");
 
     addItem({
       cartItemId,
@@ -85,6 +89,9 @@ export function AddToCartButton({ product, disabled }: AddToCartButtonProps) {
       price: totalPrice,
       addons: selectedAddons,
       color: colorValue,
+      colorKey: selectedColorKey ?? undefined,
+      catalogKey: selectedCatalog?._key,
+      catalogCode,
       quantity: 1,
       slug: product.slug.current,
       image: imageUrl,
@@ -122,7 +129,7 @@ export function AddToCartButton({ product, disabled }: AddToCartButtonProps) {
       {hasColors && (
         <ColorSelector
           colors={product.colors!}
-          selected={selectedColor}
+          selected={selectedColorKey}
           onChange={handleColorChange}
         />
       )}
@@ -135,7 +142,7 @@ export function AddToCartButton({ product, disabled }: AddToCartButtonProps) {
           colorText={catalogColorText}
           onSelectCatalog={handleCatalogSelect}
           onColorTextChange={setCatalogColorText}
-          disabled={selectedColor !== null}
+          disabled={selectedColorKey !== null}
         />
       )}
 

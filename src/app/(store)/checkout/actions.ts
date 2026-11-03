@@ -4,7 +4,7 @@ import { z } from "zod";
 import { randomUUID } from "node:crypto";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
-import { CartItem } from "@/types";
+import { CartItem, SanityImage } from "@/types";
 import { checkRateLimit } from "@/lib/rate-limit";
 import {
   sendOrderConfirmationToCustomer,
@@ -14,7 +14,13 @@ import { createMPPreference } from "@/lib/mercadopago";
 import { BASE_URL } from "@/lib/base-url";
 import { sanityClient } from "@/lib/sanity";
 import { PRODUCTS_PRICE_QUERY } from "@/sanity/queries";
-import { itemsArraySchema, extractClientIp } from "./validation";
+import {
+  buildOrderItems,
+  CheckoutProduct,
+  itemsArraySchema,
+  extractClientIp,
+} from "./validation";
+import { resolveProductImage } from "./product-image";
 
 const checkoutSchema = z.object({
   name: z.string().min(2).max(120),
@@ -96,43 +102,30 @@ export async function createOrder(
 
   const { name, email, phone, address, city, province, notes, paymentMethod } = parsed.data;
 
-  // Revalidar precios contra Sanity — no confiar en los valores del cliente
   const productIds = [...new Set(safeItems.map((i) => i.productId))];
-  let sanityPrices: { _id: string; price: number; addons?: { _key: string; title: string; price: number }[]; colorCatalogs?: { _key: string; brand: string; priceExtra: number }[] }[] = [];
+  let sanityProducts: (Omit<CheckoutProduct, "image"> & { images?: SanityImage[] })[] = [];
   try {
-    sanityPrices = await sanityClient.fetch(PRODUCTS_PRICE_QUERY, { ids: productIds });
+    sanityProducts = await sanityClient.fetch(PRODUCTS_PRICE_QUERY, { ids: productIds });
   } catch (err) {
     console.error("[checkout] Error fetching product prices from Sanity:", err instanceof Error ? err.message : err);
     return { status: "error", errors: { _: ["No se pudo verificar los precios. Intentá de nuevo."] } };
   }
-  const priceMap = new Map(sanityPrices.map((p) => [p._id, p]));
 
-  const validatedItems: CartItem[] = [];
-  for (const item of safeItems) {
-    const sp = priceMap.get(item.productId);
-    if (!sp) {
-      return { status: "error", errors: { _: ["Uno de los productos no está disponible."] } };
-    }
-    // Construir addons exclusivamente desde Sanity: ningún campo del cliente persiste
-    const validatedAddons = item.addons.flatMap((addon) => {
-      const sa = sp.addons?.find((a) => a._key === addon._key);
-      if (!sa) return [];
-      return [{ _key: sa._key, title: sa.title, price: sa.price }];
-    });
-    const addonTotal = validatedAddons.reduce((sum, a) => sum + a.price, 0);
-    let catalogExtra = 0;
-    if (item.color?.includes(" — ")) {
-      const brand = item.color.split(" — ")[0];
-      const scc = sp.colorCatalogs?.find((c) => c.brand === brand);
-      if (scc) catalogExtra = scc.priceExtra;
-    }
-    validatedItems.push({
-      ...item,
-      addons: validatedAddons,
-      basePrice: sp.price,
-      price: sp.price + addonTotal + catalogExtra,
-    });
+  const checkoutProducts: CheckoutProduct[] = sanityProducts.map((product) => ({
+    _id: product._id,
+    title: product.title,
+    price: product.price,
+    stock: product.stock,
+    image: resolveProductImage(product.images),
+    addons: product.addons,
+    colors: product.colors,
+    colorCatalogs: product.colorCatalogs,
+  }));
+  const result = buildOrderItems(safeItems, checkoutProducts);
+  if (!result.success) {
+    return { status: "error", errors: { _: [result.error] } };
   }
+  const validatedItems = result.items;
 
   const total = validatedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 

@@ -52,8 +52,12 @@ export const PRODUCT_BY_SLUG_QUERY = groq`
 export const PRODUCTS_PRICE_QUERY = groq`
   *[_type == "product" && _id in $ids && available == true] {
     _id,
+    title,
     price,
+    stock,
+    "images": images[] { _key, asset, alt },
     "addons": addons[] { _key, title, price },
+    "colors": colors[] { _key, name },
     "colorCatalogs": colorCatalogs[] { _key, brand, priceExtra }
   }
 `;

@@ -12,6 +12,29 @@ interface CartStore {
   count: () => number;
 }
 
+export function migrateCart(persistedState: unknown): { items: CartItem[] } {
+  const state = persistedState as { items?: Partial<CartItem>[] } | undefined;
+  return {
+    items: (state?.items ?? [])
+      .filter((item) => !item.color || item.colorKey || item.catalogKey)
+      .map((item, i) => {
+        const cartItemId =
+          item.cartItemId ||
+          item.productId ||
+          `legacy-${i}`;
+        const basePrice = Number(item.basePrice ?? item.price) || 0;
+        const price = Number(item.price) || 0;
+        return {
+          ...item,
+          cartItemId,
+          basePrice,
+          price,
+          addons: Array.isArray(item.addons) ? item.addons : [],
+        };
+      }) as CartItem[],
+  };
+}
+
 export const useCartStore = create<CartStore>()(
   persist(
     (set, get) => ({
@@ -57,27 +80,8 @@ export const useCartStore = create<CartStore>()(
     }),
     {
       name: "sonaq-cart",
-      version: 2,
-      migrate: (persistedState) => {
-        const state = persistedState as { items?: Partial<CartItem>[] } | undefined;
-        return {
-          items: (state?.items ?? []).map((item, i) => {
-            const cartItemId =
-              item.cartItemId ||
-              item.productId ||
-              `legacy-${i}`;
-            const basePrice = Number(item.basePrice ?? item.price) || 0;
-            const price = Number(item.price) || 0;
-            return {
-              ...item,
-              cartItemId,
-              basePrice,
-              price,
-              addons: Array.isArray(item.addons) ? item.addons : [],
-            };
-          }) as CartItem[],
-        };
-      },
+      version: 3,
+      migrate: migrateCart,
     }
   )
 );
