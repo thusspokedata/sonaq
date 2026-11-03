@@ -12,7 +12,7 @@ import {
 } from "@/lib/emails";
 import { createMPPreference } from "@/lib/mercadopago";
 import { BASE_URL } from "@/lib/base-url";
-import { sanityClient, urlFor } from "@/lib/sanity";
+import { sanityClient } from "@/lib/sanity";
 import { PRODUCTS_PRICE_QUERY } from "@/sanity/queries";
 import {
   buildOrderItems,
@@ -20,6 +20,7 @@ import {
   itemsArraySchema,
   extractClientIp,
 } from "./validation";
+import { resolveProductImage } from "./product-image";
 
 const checkoutSchema = z.object({
   name: z.string().min(2).max(120),
@@ -115,9 +116,7 @@ export async function createOrder(
     title: product.title,
     price: product.price,
     stock: product.stock,
-    image: product.images?.[0]
-      ? urlFor(product.images[0]).width(200).height(200).fit("crop").url()
-      : null,
+    image: resolveProductImage(product.images),
     addons: product.addons,
     colors: product.colors,
     colorCatalogs: product.colorCatalogs,
