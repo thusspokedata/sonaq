@@ -17,10 +17,19 @@ function makeStoredItem(overrides: Partial<CartItem> = {}): Partial<CartItem> {
 }
 
 describe("migrateCart", () => {
-  it("discards an item without colorKey or catalogKey", () => {
-    const result = migrateCart({ items: [makeStoredItem()] });
+  it("discards an item with color but without colorKey or catalogKey", () => {
+    const result = migrateCart({
+      items: [makeStoredItem({ color: "Natural" })],
+    });
 
     expect(result.items).toEqual([]);
+  });
+
+  it("keeps an item without color or variant keys", () => {
+    const result = migrateCart({ items: [makeStoredItem()] });
+
+    expect(result.items).toHaveLength(1);
+    expect(result.items[0].productId).toBe("product-1");
   });
 
   it("keeps an item with colorKey", () => {

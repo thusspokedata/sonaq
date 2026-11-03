@@ -16,7 +16,7 @@ export function migrateCart(persistedState: unknown): { items: CartItem[] } {
   const state = persistedState as { items?: Partial<CartItem>[] } | undefined;
   return {
     items: (state?.items ?? [])
-      .filter((item) => item.colorKey || item.catalogKey)
+      .filter((item) => !item.color || item.colorKey || item.catalogKey)
       .map((item, i) => {
         const cartItemId =
           item.cartItemId ||
