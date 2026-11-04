@@ -21,6 +21,7 @@ import {
   extractClientIp,
 } from "./validation";
 import { resolveProductImage } from "./product-image";
+import { roundToWholePesos } from "@/lib/order-utils";
 
 const checkoutSchema = z.object({
   name: z.string().min(2).max(120),
@@ -127,7 +128,9 @@ export async function createOrder(
   }
   const validatedItems = result.items;
 
-  const total = validatedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const total = roundToWholePesos(
+    validatedItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  );
 
   const order = await prisma.order.create({
     data: {
@@ -199,7 +202,7 @@ export async function createOrder(
           id: item.productId,
           title: item.title,
           quantity: item.quantity,
-          unit_price: Math.round(item.price),
+          unit_price: roundToWholePesos(item.price),
         })),
         payerEmail: email,
         siteUrl: BASE_URL,

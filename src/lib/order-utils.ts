@@ -49,3 +49,32 @@ export function formatPrice(value: number | string | { toNumber(): number }) {
     maximumFractionDigits: 0,
   }).format(Number(value));
 }
+
+export function roundToWholePesos(value: number): number {
+  return Math.round(value);
+}
+
+export function webhookTransition(
+  currentStatus: OrderStatus,
+  mpStatus: string | undefined
+): { to: OrderStatus; from: OrderStatus[] } | null {
+  if (mpStatus === "approved") {
+    return currentStatus === "PENDING" || currentStatus === "PAYMENT_PENDING"
+      ? { to: "PAID", from: ["PENDING", "PAYMENT_PENDING"] }
+      : null;
+  }
+
+  if (mpStatus === "pending" || mpStatus === "in_process") {
+    return currentStatus === "PENDING"
+      ? { to: "PAYMENT_PENDING", from: ["PENDING"] }
+      : null;
+  }
+
+  if (mpStatus === "rejected" || mpStatus === "cancelled") {
+    return currentStatus === "PENDING" || currentStatus === "PAYMENT_PENDING"
+      ? { to: "CANCELLED", from: ["PENDING", "PAYMENT_PENDING"] }
+      : null;
+  }
+
+  return null;
+}

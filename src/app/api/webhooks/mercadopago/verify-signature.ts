@@ -1,18 +1,15 @@
 /**
  * Verificación HMAC-SHA256 de webhooks de MercadoPago.
  *
- * Separada del route handler para poder testearla sin Next runtime. El
- * comportamiento es EXACTAMENTE el mismo que tenía inline en route.ts; este
- * archivo solo extrajo la función para hacerla importable.
+ * Separada del route handler para poder testearla sin Next runtime. Recibe un
+ * Headers-like object (con .get(name)) para que funcione tanto con los Headers
+ * de Next como con objetos de test. El segundo argumento es el payload parseado
+ * del body (necesitamos data.id para el manifest).
  *
- * Recibe un Headers-like object (con .get(name)) para que funcione tanto con
- * el Headers de Next como con objetos de test. El segundo argumento es el
- * payload parseado del body (necesitamos data.id para el manifest).
- *
- * NOTA: la auditoría reveló el hallazgo B1 — si v1 tiene longitud distinta
- * a la del HMAC esperado, crypto.timingSafeEqual lanza RangeError no
- * manejada. El fix de B1 va en otro branch (NO se toca acá). Los tests
- * documentan el comportamiento actual y el esperado.
+ * No se aplica una ventana de tiempo: Mercado Pago documenta reintentos de una
+ * misma notificación durante hasta 96 horas y no garantiza que cada reenvío
+ * reciba una firma nueva. Una ventana podría rechazar reintentos válidos.
+ * https://www.mercadopago.com.ar/developers/es/docs/checkout-pro-preferences/payment-notifications
  */
 import crypto from "node:crypto";
 
@@ -38,11 +35,13 @@ export function verifySignature(headers: HeadersLike, body: VerifySignatureBody)
   const parts = Object.fromEntries(xSignature.split(",").map((p) => p.split("=")));
   const ts = parts["ts"];
   const v1 = parts["v1"];
-  if (!ts || !v1) return false;
+  if (!ts || !/^\d+$/.test(ts) || !v1 || !/^[0-9a-f]{64}$/i.test(v1)) return false;
 
   const dataId = body.data?.id ?? "";
   const manifest = `id=${dataId}&request-id=${xRequestId}&ts=${ts}`;
   const expected = crypto.createHmac("sha256", secret).update(manifest).digest("hex");
+  const expectedBytes = Buffer.from(expected, "hex");
+  const receivedBytes = Buffer.from(v1, "hex");
 
-  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(v1));
+  return crypto.timingSafeEqual(expectedBytes, receivedBytes);
 }

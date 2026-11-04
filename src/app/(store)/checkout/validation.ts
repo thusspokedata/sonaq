@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { CartItem, SelectedAddon } from "@/types";
+import { roundToWholePesos } from "@/lib/order-utils";
 
 export const itemSchema = z.object({
   cartItemId: z.string().max(200).default(""),
@@ -119,7 +120,7 @@ export function buildOrderItems(
       productId: product._id,
       title: product.title,
       basePrice: product.price,
-      price: product.price + addonTotal + catalogExtra,
+      price: roundToWholePesos(product.price + addonTotal + catalogExtra),
       addons,
       color,
       colorKey,
