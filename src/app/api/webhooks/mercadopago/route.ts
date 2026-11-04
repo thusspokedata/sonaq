@@ -23,9 +23,14 @@ function getErrorStatus(error: unknown): number | undefined {
 }
 
 export async function POST(req: NextRequest) {
+  let body: { type?: string; data?: { id?: string } };
   try {
-    const body: { type?: string; data?: { id?: string } } = await req.json();
+    body = await req.json();
+  } catch {
+    return NextResponse.json(null, { status: 400 });
+  }
 
+  try {
     if (!verifySignature(req.headers, body)) {
       return NextResponse.json(null, { status: 200 });
     }
@@ -49,11 +54,7 @@ export async function POST(req: NextRequest) {
 
     const transition = webhookTransition(order.status, result.status);
     if (!transition) {
-      if (
-        (result.status === "approved" && order.status === "CANCELLED") ||
-        result.status === "refunded" ||
-        result.status === "charged_back"
-      ) {
+      if (result.status === "refunded" || result.status === "charged_back") {
         console.error("[MP webhook] ALERTA Transición de pago anómala", {
           orderId,
           paymentId,
@@ -96,6 +97,13 @@ export async function POST(req: NextRequest) {
     });
 
     if (updated.count === 1 && transition.to === "PAID") {
+      if (order.status === "CANCELLED") {
+        console.error("[MP webhook] ALERTA Pago aprobado sobre una orden cancelada", {
+          orderId,
+          paymentId,
+        });
+      }
+
       const paidOrder = await prisma.order.findUnique({
         where: { id: orderId },
         include: { items: true },

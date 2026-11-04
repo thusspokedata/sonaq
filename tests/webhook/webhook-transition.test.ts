@@ -30,18 +30,15 @@ const expectedTransitions: Record<
   Partial<Record<OrderStatus, { to: OrderStatus; from: OrderStatus[] }>>
 > = {
   approved: {
-    PENDING: { to: "PAID", from: ["PENDING", "PAYMENT_PENDING"] },
-    PAYMENT_PENDING: { to: "PAID", from: ["PENDING", "PAYMENT_PENDING"] },
+    PENDING: { to: "PAID", from: ["PENDING", "PAYMENT_PENDING", "CANCELLED"] },
+    PAYMENT_PENDING: { to: "PAID", from: ["PENDING", "PAYMENT_PENDING", "CANCELLED"] },
+    CANCELLED: { to: "PAID", from: ["PENDING", "PAYMENT_PENDING", "CANCELLED"] },
   },
   pending: {
     PENDING: { to: "PAYMENT_PENDING", from: ["PENDING"] },
   },
   in_process: {
     PENDING: { to: "PAYMENT_PENDING", from: ["PENDING"] },
-  },
-  rejected: {
-    PENDING: { to: "CANCELLED", from: ["PENDING", "PAYMENT_PENDING"] },
-    PAYMENT_PENDING: { to: "CANCELLED", from: ["PENDING", "PAYMENT_PENDING"] },
   },
   cancelled: {
     PENDING: { to: "CANCELLED", from: ["PENDING", "PAYMENT_PENDING"] },

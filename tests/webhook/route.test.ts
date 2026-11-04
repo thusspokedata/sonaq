@@ -93,7 +93,7 @@ describe("Mercado Pago webhook route", () => {
       select: { id: true, status: true, total: true, mpPaymentId: true },
     });
     expect(mocks.orderUpdateMany).toHaveBeenCalledWith({
-      where: { id: "order-1", status: { in: ["PENDING", "PAYMENT_PENDING"] } },
+      where: { id: "order-1", status: { in: ["PENDING", "PAYMENT_PENDING", "CANCELLED"] } },
       data: { status: "PAID", mpPaymentId: "123" },
     });
     expect(mocks.sendCustomerEmail).toHaveBeenCalledTimes(1);
@@ -169,7 +169,6 @@ describe("Mercado Pago webhook route", () => {
   });
 
   it.each([
-    { currentStatus: "CANCELLED", mpStatus: "approved" },
     { currentStatus: "PAID", mpStatus: "refunded" },
     { currentStatus: "PAID", mpStatus: "charged_back" },
   ])("logs an anomalous $mpStatus notification without updating", async ({ currentStatus, mpStatus }) => {
@@ -189,6 +188,109 @@ describe("Mercado Pago webhook route", () => {
       expect.stringContaining("[MP webhook] ALERTA"),
       expect.objectContaining({ orderId: "order-1", paymentId: "123" })
     );
+  });
+
+  it("processes rejected and then approved as PAID with emails", async () => {
+    mocks.paymentGet
+      .mockResolvedValueOnce({ id: 123, external_reference: "order-1", status: "rejected" })
+      .mockResolvedValueOnce({
+        id: 123,
+        external_reference: "order-1",
+        status: "approved",
+        currency_id: "ARS",
+        transaction_amount: 100,
+      });
+    mocks.orderFindUnique
+      .mockResolvedValueOnce(baseOrder)
+      .mockResolvedValueOnce(baseOrder)
+      .mockResolvedValueOnce(paidOrder);
+    mocks.orderUpdateMany.mockResolvedValue({ count: 1 });
+
+    const rejectedResponse = await POST(makeRequest());
+
+    expect(rejectedResponse.status).toBe(200);
+    expect(mocks.orderUpdateMany).not.toHaveBeenCalled();
+
+    const approvedResponse = await POST(makeRequest());
+
+    expect(approvedResponse.status).toBe(200);
+    expect(mocks.orderUpdateMany).toHaveBeenCalledWith({
+      where: { id: "order-1", status: { in: ["PENDING", "PAYMENT_PENDING", "CANCELLED"] } },
+      data: { status: "PAID", mpPaymentId: "123" },
+    });
+    expect(mocks.sendCustomerEmail).toHaveBeenCalledTimes(1);
+    expect(mocks.sendTeamEmail).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps the order PAID when rejected arrives after approved", async () => {
+    mocks.paymentGet
+      .mockResolvedValueOnce({
+        id: 123,
+        external_reference: "order-1",
+        status: "approved",
+        currency_id: "ARS",
+        transaction_amount: 100,
+      })
+      .mockResolvedValueOnce({ id: 123, external_reference: "order-1", status: "rejected" });
+    mocks.orderFindUnique
+      .mockResolvedValueOnce(baseOrder)
+      .mockResolvedValueOnce(paidOrder)
+      .mockResolvedValueOnce({ ...baseOrder, status: "PAID", mpPaymentId: "123" });
+    mocks.orderUpdateMany.mockResolvedValue({ count: 1 });
+
+    const approvedResponse = await POST(makeRequest());
+    const rejectedResponse = await POST(makeRequest());
+
+    expect(approvedResponse.status).toBe(200);
+    expect(rejectedResponse.status).toBe(200);
+    expect(mocks.orderUpdateMany).toHaveBeenCalledTimes(1);
+    expect(mocks.orderUpdateMany).toHaveBeenCalledWith({
+      where: { id: "order-1", status: { in: ["PENDING", "PAYMENT_PENDING", "CANCELLED"] } },
+      data: { status: "PAID", mpPaymentId: "123" },
+    });
+    expect(mocks.sendCustomerEmail).toHaveBeenCalledTimes(1);
+    expect(mocks.sendTeamEmail).toHaveBeenCalledTimes(1);
+  });
+
+  it("processes cancelled and then approved as PAID with an alert", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    mocks.paymentGet
+      .mockResolvedValueOnce({ id: 123, external_reference: "order-1", status: "cancelled" })
+      .mockResolvedValueOnce({
+        id: 123,
+        external_reference: "order-1",
+        status: "approved",
+        currency_id: "ARS",
+        transaction_amount: 100,
+      });
+    mocks.orderFindUnique
+      .mockResolvedValueOnce(baseOrder)
+      .mockResolvedValueOnce({ ...baseOrder, status: "CANCELLED" })
+      .mockResolvedValueOnce(paidOrder);
+    mocks.orderUpdateMany.mockResolvedValue({ count: 1 });
+
+    const cancelledResponse = await POST(makeRequest());
+
+    expect(cancelledResponse.status).toBe(200);
+    expect(mocks.orderUpdateMany).toHaveBeenLastCalledWith({
+      where: { id: "order-1", status: { in: ["PENDING", "PAYMENT_PENDING"] } },
+      data: { status: "CANCELLED" },
+    });
+    expect(mocks.sendCustomerEmail).not.toHaveBeenCalled();
+
+    const approvedResponse = await POST(makeRequest());
+
+    expect(approvedResponse.status).toBe(200);
+    expect(mocks.orderUpdateMany).toHaveBeenLastCalledWith({
+      where: { id: "order-1", status: { in: ["PENDING", "PAYMENT_PENDING", "CANCELLED"] } },
+      data: { status: "PAID", mpPaymentId: "123" },
+    });
+    expect(errorSpy).toHaveBeenCalledWith(
+      "[MP webhook] ALERTA Pago aprobado sobre una orden cancelada",
+      { orderId: "order-1", paymentId: "123" }
+    );
+    expect(mocks.sendCustomerEmail).toHaveBeenCalledTimes(1);
+    expect(mocks.sendTeamEmail).toHaveBeenCalledTimes(1);
   });
 
   it("returns 200 when Mercado Pago responds with 404", async () => {
@@ -226,8 +328,7 @@ describe("Mercado Pago webhook route", () => {
     expect(response.status).toBe(200);
   });
 
-  it("returns 500 when body parsing fails", async () => {
-    vi.spyOn(console, "error").mockImplementation(() => {});
+  it("returns 400 when body parsing fails", async () => {
     const request = new NextRequest("https://test.example/api/webhooks/mercadopago", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -236,7 +337,9 @@ describe("Mercado Pago webhook route", () => {
 
     const response = await POST(request);
 
-    expect(response.status).toBe(500);
+    expect(response.status).toBe(400);
+    expect(mocks.verifySignature).not.toHaveBeenCalled();
+    expect(mocks.paymentGet).not.toHaveBeenCalled();
   });
 
   it("returns 500 when signature verification throws", async () => {

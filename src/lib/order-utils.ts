@@ -59,8 +59,10 @@ export function webhookTransition(
   mpStatus: string | undefined
 ): { to: OrderStatus; from: OrderStatus[] } | null {
   if (mpStatus === "approved") {
-    return currentStatus === "PENDING" || currentStatus === "PAYMENT_PENDING"
-      ? { to: "PAID", from: ["PENDING", "PAYMENT_PENDING"] }
+    return currentStatus === "PENDING" ||
+      currentStatus === "PAYMENT_PENDING" ||
+      currentStatus === "CANCELLED"
+      ? { to: "PAID", from: ["PENDING", "PAYMENT_PENDING", "CANCELLED"] }
       : null;
   }
 
@@ -70,7 +72,7 @@ export function webhookTransition(
       : null;
   }
 
-  if (mpStatus === "rejected" || mpStatus === "cancelled") {
+  if (mpStatus === "cancelled") {
     return currentStatus === "PENDING" || currentStatus === "PAYMENT_PENDING"
       ? { to: "CANCELLED", from: ["PENDING", "PAYMENT_PENDING"] }
       : null;
