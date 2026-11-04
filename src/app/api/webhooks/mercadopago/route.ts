@@ -5,69 +5,112 @@ import {
   sendOrderConfirmationToCustomer,
   sendNewOrderNotificationToTeam,
 } from "@/lib/emails";
+import { webhookTransition } from "@/lib/order-utils";
 import type { CartItem } from "@/types";
 import { verifySignature } from "./verify-signature";
 
 const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN! });
+
+function hasErrorCode(error: unknown, code: string): boolean {
+  return typeof error === "object" && error !== null && "code" in error && error.code === code;
+}
+
+function getErrorStatus(error: unknown): number | undefined {
+  if (typeof error !== "object" || error === null) return undefined;
+  if ("status" in error && typeof error.status === "number") return error.status;
+  if ("statusCode" in error && typeof error.statusCode === "number") return error.statusCode;
+  return undefined;
+}
 
 export async function POST(req: NextRequest) {
   let body: { type?: string; data?: { id?: string } };
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json(null, { status: 200 });
-  }
-
-  if (!verifySignature(req.headers, body)) {
-    return NextResponse.json(null, { status: 200 });
-  }
-
-  if (body.type !== "payment" || !body.data?.id) {
-    return NextResponse.json(null, { status: 200 });
+    return NextResponse.json(null, { status: 400 });
   }
 
   try {
+    if (!verifySignature(req.headers, body)) {
+      return NextResponse.json(null, { status: 200 });
+    }
+
+    if (body.type !== "payment" || !body.data?.id) {
+      return NextResponse.json(null, { status: 200 });
+    }
+
     const payment = new Payment(client);
     const result = await payment.get({ id: body.data.id });
+    const paymentId = String(result.id);
 
     const orderId = result.external_reference;
     if (!orderId) return NextResponse.json(null, { status: 200 });
 
-    const orderExists = await prisma.order.findUnique({ where: { id: orderId }, select: { id: true } });
-    if (!orderExists) return NextResponse.json(null, { status: 200 });
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      select: { id: true, status: true, total: true, mpPaymentId: true },
+    });
+    if (!order) return NextResponse.json(null, { status: 200 });
 
-    let newStatus: "PAID" | "PAYMENT_PENDING" | "CANCELLED" | null = null;
-    if (result.status === "approved") {
-      newStatus = "PAID";
-    } else if (result.status === "pending" || result.status === "in_process") {
-      newStatus = "PAYMENT_PENDING";
-    } else if (result.status === "rejected" || result.status === "cancelled") {
-      newStatus = "CANCELLED";
+    const transition = webhookTransition(order.status, result.status);
+    if (!transition) {
+      if (result.status === "refunded" || result.status === "charged_back") {
+        console.error("[MP webhook] ALERTA Transición de pago anómala", {
+          orderId,
+          paymentId,
+          currentStatus: order.status,
+          mpStatus: result.status,
+        });
+      }
+      return NextResponse.json(null, { status: 200 });
     }
 
-    // Update atómico: solo actualiza si el status actual no es ya PAID.
-    // updateMany devuelve count=1 si efectivamente cambió, 0 si ya estaba PAID.
-    // Esto evita race conditions entre webhooks duplicados de MP.
-    let transitionedToPaid = false;
-    if (newStatus === "PAID") {
-      const updated = await prisma.order.updateMany({
-        where: { id: orderId, status: { not: "PAID" } },
-        data: { status: "PAID" },
-      });
-      transitionedToPaid = updated.count === 1;
-    } else if (newStatus) {
-      await prisma.order.update({ where: { id: orderId }, data: { status: newStatus } });
+    if (transition.to === "PAID") {
+      const paymentAmountCents = Math.round(Number(result.transaction_amount) * 100);
+      const orderTotalCents = Math.round(Number(order.total) * 100);
+      if (result.currency_id !== "ARS" || paymentAmountCents !== orderTotalCents) {
+        console.error("[MP webhook] ALERTA El pago no coincide con el total de la orden", {
+          orderId,
+          paymentId,
+          transactionAmount: result.transaction_amount,
+          currency: result.currency_id,
+        });
+        return NextResponse.json(null, { status: 200 });
+      }
+
+      if (order.mpPaymentId && order.mpPaymentId !== paymentId) {
+        console.error("[MP webhook] ALERTA La orden ya tiene otro pago asociado", {
+          orderId,
+          paymentId,
+          currentPaymentId: order.mpPaymentId,
+        });
+        return NextResponse.json(null, { status: 200 });
+      }
     }
 
-    // Mandar emails solo si fuimos nosotros quienes hicimos la transición a PAID
-    if (transitionedToPaid) {
-      const order = await prisma.order.findUnique({
+    const updated = await prisma.order.updateMany({
+      where: { id: orderId, status: { in: transition.from } },
+      data: {
+        status: transition.to,
+        ...(transition.to === "PAID" ? { mpPaymentId: paymentId } : {}),
+      },
+    });
+
+    if (updated.count === 1 && transition.to === "PAID") {
+      if (order.status === "CANCELLED") {
+        console.error("[MP webhook] ALERTA Pago aprobado sobre una orden cancelada", {
+          orderId,
+          paymentId,
+        });
+      }
+
+      const paidOrder = await prisma.order.findUnique({
         where: { id: orderId },
         include: { items: true },
       });
-      if (!order) return NextResponse.json(null, { status: 200 });
-      const shippingAddress = order.shippingAddress as { address: string; city: string; province: string } | null;
-      const cartItems: CartItem[] = order.items.map((item) => ({
+      if (!paidOrder) return NextResponse.json(null, { status: 200 });
+      const shippingAddress = paidOrder.shippingAddress as { address: string; city: string; province: string } | null;
+      const cartItems: CartItem[] = paidOrder.items.map((item) => ({
         productId: item.productId,
         title: item.title,
         basePrice: Number(item.basePrice),
@@ -82,26 +125,26 @@ export async function POST(req: NextRequest) {
 
       void Promise.allSettled([
         sendOrderConfirmationToCustomer({
-          orderId: order.id,
-          customerName: order.customerName,
-          customerEmail: order.customerEmail,
-          customerPhone: order.customerPhone ?? undefined,
+          orderId: paidOrder.id,
+          customerName: paidOrder.customerName,
+          customerEmail: paidOrder.customerEmail,
+          customerPhone: paidOrder.customerPhone ?? undefined,
           shippingAddress: shippingAddress ?? { address: "", city: "", province: "" },
-          notes: order.notes ?? undefined,
+          notes: paidOrder.notes ?? undefined,
           paymentMethod: "MERCADOPAGO",
           items: cartItems,
-          total: Number(order.total),
+          total: Number(paidOrder.total),
         }),
         sendNewOrderNotificationToTeam({
-          orderId: order.id,
-          customerName: order.customerName,
-          customerEmail: order.customerEmail,
-          customerPhone: order.customerPhone ?? undefined,
+          orderId: paidOrder.id,
+          customerName: paidOrder.customerName,
+          customerEmail: paidOrder.customerEmail,
+          customerPhone: paidOrder.customerPhone ?? undefined,
           shippingAddress: shippingAddress ?? { address: "", city: "", province: "" },
-          notes: order.notes ?? undefined,
+          notes: paidOrder.notes ?? undefined,
           paymentMethod: "MERCADOPAGO",
           items: cartItems,
-          total: Number(order.total),
+          total: Number(paidOrder.total),
         }),
       ]).then((results) => {
         results.forEach((r, i) => {
@@ -112,7 +155,16 @@ export async function POST(req: NextRequest) {
       });
     }
   } catch (err) {
+    if (hasErrorCode(err, "P2002")) {
+      console.error("[MP webhook] Pago ya asociado a una orden:", err instanceof Error ? err.message : err);
+      return NextResponse.json(null, { status: 200 });
+    }
+    if (getErrorStatus(err) === 404) {
+      console.error("[MP webhook] Pago no encontrado en Mercado Pago:", err instanceof Error ? err.message : err);
+      return NextResponse.json(null, { status: 200 });
+    }
     console.error("MP webhook error:", err instanceof Error ? err.message : err);
+    return NextResponse.json(null, { status: 500 });
   }
 
   return NextResponse.json(null, { status: 200 });
