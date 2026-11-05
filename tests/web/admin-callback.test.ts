@@ -7,6 +7,8 @@ describe("safeAdminCallback", () => {
     "//ejemplo.com",
     "/\\ejemplo.com",
     "/admin/../x",
+    "/admin/%2e%2e/checkout",
+    "/admin/..?x",
     "/admin/./pedidos",
     "/admin//pedidos",
     "/admin/pedidos\n",
@@ -17,7 +19,7 @@ describe("safeAdminCallback", () => {
     expect(safeAdminCallback(value)).toBe("/admin");
   });
 
-  it.each(["/admin", "/admin/pedidos"])("conserva la ruta válida %s", (value) => {
+  it.each(["/admin", "/admin/pedidos", "/admin/pedidos?estado=PAID"])("conserva la ruta válida %s", (value) => {
     expect(safeAdminCallback(value)).toBe(value);
   });
 });

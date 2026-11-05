@@ -73,13 +73,6 @@ npx prisma migrate deploy
 
 ---
 
-### Double-Sonaq en `<title>` de `/gracias`
-**Prioridad:** Baja (cosmético)
-**Contexto:** El root layout define `title.template = "%s | Sonaq"` para que cada página termine en " | Sonaq" automáticamente. La página `/gracias` tiene hoy `title: "Tu pedido — Sonaq"` (con Sonaq hardcodeado), así que el template produce `"Tu pedido — Sonaq | Sonaq"` — duplicación visible en la pestaña del browser y en el SERP si alguna vez se indexara (hoy es noindex).
-**Solución:** En `src/app/(store)/gracias/page.tsx`, cambiar `title: "Tu pedido — Sonaq"` por `title: "Tu pedido"` y dejar que el template del root layout agregue `" | Sonaq"`. Cambio de 1 línea.
-
----
-
 ### Refinar Product JSON-LD para rich results
 **Prioridad:** Media
 **Contexto:** El `Product` LD agregado en `src/app/(store)/productos/[slug]/page.tsx` funciona pero Google Search Console marca warnings (no errores) por campos opcionales faltantes. Además `sku: product._id` usa el `_id` interno de Sanity, que no es portable a feeds (Mercado Libre, Google Merchant).
