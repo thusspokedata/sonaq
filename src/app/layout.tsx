@@ -3,6 +3,7 @@ import { Barlow, Barlow_Condensed } from "next/font/google";
 import { BASE_URL } from "@/lib/base-url";
 import { StagingBanner } from "@/components/store/StagingBanner";
 import { UmamiScript } from "@/components/analytics/UmamiScript";
+import { serializeJsonLd } from "@/lib/json-ld";
 import "./globals.css";
 
 const barlow = Barlow({
@@ -91,11 +92,11 @@ export default function RootLayout({
         {/* Structured data — Organization + WebSite (rich results en Google) */}
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(ORGANIZATION_LD) }}
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(ORGANIZATION_LD) }}
         />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(WEBSITE_LD) }}
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(WEBSITE_LD) }}
         />
         <StagingBanner />
         {children}

@@ -8,6 +8,7 @@ import { ProductGallery } from "@/components/store/ProductGallery";
 import { AddToCartButton } from "@/components/store/AddToCartButton";
 import { PortableText } from "@portabletext/react";
 import { BASE_URL } from "@/lib/base-url";
+import { serializeJsonLd } from "@/lib/json-ld";
 
 export const revalidate = 60;
 
@@ -123,12 +124,12 @@ export default async function ProductPage({
       {/* Structured data — Product (rich results en Google) */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(productLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(productLd) }}
       />
       {/* Structured data — BreadcrumbList (ruta en SERP en vez de URL cruda) */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbLd) }}
       />
 
       {/* Breadcrumbs visibles — versión accesible de la jerarquía */}

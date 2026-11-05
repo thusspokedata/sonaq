@@ -57,7 +57,7 @@ src/
 
 tests/                # Vitest — unit/lógica pura, todo mockeado (sin red, sin DB)
   checkout/           # item-schema, extract-client-ip, honeypot
-  webhook/            # verify-signature (HMAC + ancla viva del hallazgo B1)
+  webhook/            # verify-signature, route y transiciones
 
 public/
   og-default.jpg      # Open Graph fallback 1200×630 (home + páginas sin imagen propia)
@@ -81,7 +81,7 @@ public/
 
 **Emails:** `EMAIL_DRY_RUN=true` en staging — los emails se loguean en PM2 en vez de enviarse. Se envían dos por pedido: confirmación al cliente + notificación al equipo (ventas@sonaq.com.ar).
 
-**Testing (Vitest):** `npm test` (corre una vez) / `npm run test:watch`. 53 tests + 1 todo. Todo mockeado (Sanity, Prisma, MercadoPago, Resend, `next/headers`) — sin red ni I/O real, corre offline en ~800ms. Cubre: validación Zod de items (A1/A2), extracción de IP del rate limit (E1), guard del honeypot (E2), verificación HMAC del webhook MP. **El hallazgo B1 (webhook `timingSafeEqual` tira RangeError con `v1` malformado) está "anclado vivo"** en `tests/webhook/verify-signature.test.ts`: 2 tests `CURRENT behavior` que se romperán cuando B1 se arregle + un `it.todo` con la receta — sirve de recordatorio activo, no de hueco silencioso. Sin CI todavía (corre local; CI es un branch futuro).
+**Testing (Vitest):** `npm test` (corre una vez) / `npm run test:watch`. 53 tests + 1 todo. Todo mockeado (Sanity, Prisma, MercadoPago, Resend, `next/headers`) — sin red ni I/O real, corre offline en ~800ms. Cubre: validación Zod de items (A1/A2), extracción de IP del rate limit (E1), guard del honeypot (E2), verificación HMAC del webhook MP. Sin CI todavía (corre local; CI es un branch futuro).
 
 **Analytics (Umami):** self-hosted en `umami.lahuelladelcaminante.de` (mismo VPS), cookieless, sin IPs ni perfiles. `UmamiScript.tsx` carga el tracker solo en `NODE_ENV=production` con `data-domains="sonaq.com.ar"` (filtra staging/previews). website-id `f32589aa-48ac-41b0-8c9d-1d52ae01d40d`. Overrideable por `NEXT_PUBLIC_UMAMI_{SRC,WEBSITE_ID,DOMAINS}`. Sin banner de consentimiento (cookieless). Documentado en `/privacidad` sección 8.
 
@@ -143,7 +143,7 @@ PM2 staging usa un wrapper script en el VPS que hace `set -a; source .env.stagin
 - Rate limiting en checkout (5/hora) y newsletter (3/10min) — desactivable con `RATE_LIMIT_DISABLED=true` en staging. La IP sale de `extractClientIp()`: usa `X-Real-IP` (no spoofable, Nginx prod/staging lo setea) y cae al ÚLTIMO elemento de `X-Forwarded-For` — NO el primero (que el cliente controla)
 - Checkout valida los items del carrito server-side con Zod (`validation.ts`) ANTES de tocar Sanity/DB/MP: rechaza quantity ≤0/fraccional/>50, carrito vacío/>20 items, URLs no-http(s). Los precios igual se re-fetchean de Sanity (nunca se confía en el `price` del cliente)
 - Honeypot en el checkout: campo oculto `website`; si llega lleno → fake-success con UUID, sin crear orden ni emails, log `[checkout] honeypot triggered` (sin PII)
-- **No hay CSP** en Nginx prod ni `next.config.ts` (hallazgo E6 del backlog). Si se agrega en el futuro, incluir `umami.lahuelladelcaminante.de` en `script-src`/`connect-src`
+- **CSP de producción** en `next.config.ts`: permite Umami en `script-src`/`connect-src`, imágenes de `cdn.sanity.io` y el script/iframe de `www.youtube.com`. `/studio` tiene una política separada con `frame-ancestors 'self'`.
 
 ---
 
@@ -155,8 +155,8 @@ PM2 staging usa un wrapper script en el VPS que hace `set -a; source .env.stagin
 - ✅ Datos bancarios + instrucciones en email de transferencia (PR #48); carrito se limpia al confirmar (PR #53)
 - ✅ Banner promocional, hero, video YouTube 9:16, selector de color Faplac/Egger, panel admin
 - ✅ **SEO foundation** (PRs #57/#58): metadata por página, JSON-LD Organization+WebSite+Product+BreadcrumbList, sitemap dinámico, robots, noindex en privadas
-- ✅ **Hardening de seguridad del checkout (PR #60)**: validación Zod de items server-side (rechaza quantity ≤0/fraccional/absurda, carrito vacío), rate limit con `X-Real-IP` (antes era spoofeable vía `X-Forwarded-For`), honeypot anti-bot. Nació de una auditoría de seguridad del flujo de compra (modo solo-reportar) → ver hallazgos abajo
-- ✅ **Suite de tests Vitest (PR #61)**: 53 tests que cristalizan los fixes del PR #60. Refactor minimal-invasive: `validation.ts` + `verify-signature.ts` extraídos (behavior-equivalent). B1 anclado vivo
+- ✅ **Hardening de seguridad del checkout (PR #60)**: validación Zod de items server-side (rechaza quantity ≤0/fraccional/absurda, carrito vacío), rate limit con `X-Real-IP` (antes era spoofeable vía `X-Forwarded-For`), honeypot anti-bot.
+- ✅ **Suite de tests Vitest (PR #61)**: 53 tests que cristalizan los fixes del PR #60. Refactor minimal-invasive: `validation.ts` + `verify-signature.ts` extraídos (behavior-equivalent).
 - ✅ **Umami analytics (PR #68)**: tracker self-hosted cookieless, solo en prod, doc en /privacidad §8
 - ✅ **Dependabot al día (2026-06-13)**: @types/node, zustand 5.0.14, @tailwindcss/postcss 4.3.1 (arrastra tailwindcss core), zod 4.4.3, gitleaks-action v3 (PRs #62/63/65/66/67; #64 auto-cerrado redundante)
 
@@ -164,10 +164,6 @@ PM2 staging usa un wrapper script en el VPS que hace `set -a; source .env.stagin
 
 **Validación manual de staging — gotcha de MP:** `MP_ACCESS_TOKEN` en staging es `APP_USR-` (prod), NO `TEST-`. Por eso el checkout con MP en staging genera preferencias de PRODUCCIÓN real, no sandbox. Para validar el flujo MP en staging hay que cambiar el token a uno `TEST-` primero (o validar MP solo en prod). El flujo de transferencia bancaria sí se puede validar normal en staging.
 
-**Backlog de seguridad pendiente** (de la auditoría del flujo de compra, ver `docs/backlog.md`):
-- **Branch 2 — webhook hardening + IDOR**: B1 (`crypto.timingSafeEqual` tira RangeError con `v1` de longitud distinta → 500; tests ya anclados esperando), B2 (webhook no compara monto pagado vs total de la orden), B3 (`mpPaymentId` definido en schema pero nunca se persiste), D1 (IDOR en `/gracias?orden=<cuid>` — expone nombre+email+items sin auth; cuid no es unguessable)
-- **E7** (lo flagueó CodeRabbit en PR #61): `extractClientIp` trata el literal `"unknown"` como IP válida → si un proxy manda `X-Real-IP: unknown` el rate-limit colapsa al bucket `*:unknown`. Defense in depth, bajo (Nginx nunca manda `unknown`)
-- **Polish de tests** (Info del review de PR #61): DRY de `makeHeaders` (duplicado en 2 tests), mover `extractClientIp` a `@/lib/`, edge cases de XFF/x-signature vacíos
-- **E6**: sin CSP en Nginx/next.config (si se agrega, incluir Umami)
+Los pendientes de seguridad se siguen en el tablero interno, no en el repo.
 
 **Backlog de producto** (`docs/backlog.md`): refinar Product JSON-LD (itemCondition, sku, image variants), campañas Resend a suscriptores, pulidos SEO varios, `LocalBusiness` JSON-LD.
