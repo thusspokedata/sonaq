@@ -143,7 +143,7 @@ PM2 staging usa un wrapper script en el VPS que hace `set -a; source .env.stagin
 - Rate limiting en checkout (5/hora) y newsletter (3/10min) — desactivable con `RATE_LIMIT_DISABLED=true` en staging. La IP sale de `extractClientIp()`: usa `X-Real-IP` (no spoofable, Nginx prod/staging lo setea) y cae al ÚLTIMO elemento de `X-Forwarded-For` — NO el primero (que el cliente controla)
 - Checkout valida los items del carrito server-side con Zod (`validation.ts`) ANTES de tocar Sanity/DB/MP: rechaza quantity ≤0/fraccional/>50, carrito vacío/>20 items, URLs no-http(s). Los precios igual se re-fetchean de Sanity (nunca se confía en el `price` del cliente)
 - Honeypot en el checkout: campo oculto `website`; si llega lleno → fake-success con UUID, sin crear orden ni emails, log `[checkout] honeypot triggered` (sin PII)
-- **No hay CSP** en Nginx prod ni `next.config.ts` (hallazgo E6 del backlog). Si se agrega en el futuro, incluir `umami.lahuelladelcaminante.de` en `script-src`/`connect-src`
+- **CSP de producción** en `next.config.ts`: permite Umami en `script-src`/`connect-src`, imágenes de `cdn.sanity.io` y el script/iframe de `www.youtube.com`. `/studio` tiene una política separada con `frame-ancestors 'self'`.
 
 ---
 
@@ -168,6 +168,5 @@ PM2 staging usa un wrapper script en el VPS que hace `set -a; source .env.stagin
 - **Branch 2 — webhook hardening + IDOR**: B1 (`crypto.timingSafeEqual` tira RangeError con `v1` de longitud distinta → 500; tests ya anclados esperando), B2 (webhook no compara monto pagado vs total de la orden), B3 (`mpPaymentId` definido en schema pero nunca se persiste), D1 (IDOR en `/gracias?orden=<cuid>` — expone nombre+email+items sin auth; cuid no es unguessable)
 - **E7** (lo flagueó CodeRabbit en PR #61): `extractClientIp` trata el literal `"unknown"` como IP válida → si un proxy manda `X-Real-IP: unknown` el rate-limit colapsa al bucket `*:unknown`. Defense in depth, bajo (Nginx nunca manda `unknown`)
 - **Polish de tests** (Info del review de PR #61): DRY de `makeHeaders` (duplicado en 2 tests), mover `extractClientIp` a `@/lib/`, edge cases de XFF/x-signature vacíos
-- **E6**: sin CSP en Nginx/next.config (si se agrega, incluir Umami)
 
 **Backlog de producto** (`docs/backlog.md`): refinar Product JSON-LD (itemCondition, sku, image variants), campañas Resend a suscriptores, pulidos SEO varios, `LocalBusiness` JSON-LD.

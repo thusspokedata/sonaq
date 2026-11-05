@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
+import { safeAdminCallback } from "@/lib/admin-callback";
 
 function LoginForm() {
   const router = useRouter();
@@ -33,7 +34,7 @@ function LoginForm() {
       return;
     }
 
-    router.push(callbackUrl);
+    router.push(safeAdminCallback(callbackUrl));
     router.refresh();
   };
 
